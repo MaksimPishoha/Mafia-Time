@@ -26,6 +26,8 @@ button { font: inherit; color: inherit; }
 .ava-wrap { position: relative; margin-bottom: 8px; }
 .ava { border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .ava-in { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--bg); background: var(--chip); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; }
+.ava-in { position: relative; overflow: hidden; }
+.ava-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .lvl-badge { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--ink); font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; white-space: nowrap; border: 2px solid var(--bg); }
 h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; line-height: 1.15; word-break: break-word; }
 .sub { font-size: 13px; color: var(--soft); }
@@ -158,11 +160,16 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
   function num(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
   var ICON_BACK = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
   var ICON_LOCK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+  // Аватарка з Telegram: своя з даних запуску, чужа за публічним @ніком. Немає фото: перша літера імені.
+  var tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  var PHOTO = (tgUser && tgUser.id === D.u && tgUser.photo_url) ||
+    (D.un ? "https://t.me/i/userpic/320/" + encodeURIComponent(D.un) + ".jpg" : "");
   function avatar(f, size, font) {
     var pad = Math.max(3, Math.round(size / 24));
     var outline = f.outline ? "box-shadow:0 0 0 3px " + f.outline + ";" : "";
+    var img = PHOTO ? '<img src="' + esc(PHOTO) + '" alt="" referrerpolicy="no-referrer" onerror="this.remove()">' : "";
     return '<div class="ava" style="width:' + size + 'px;height:' + size + 'px;padding:' + pad + 'px;background:' + f.color + ';' + outline + '">' +
-      '<div class="ava-in" style="font-size:' + font + 'px">' + esc((D.n || "?").trim().charAt(0).toUpperCase()) + '</div></div>';
+      '<div class="ava-in" style="font-size:' + font + 'px">' + esc((D.n || "?").trim().charAt(0).toUpperCase()) + img + '</div></div>';
   }
   function haptic() { try { tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged(); } catch (e) {} }
 
