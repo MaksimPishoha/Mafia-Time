@@ -113,8 +113,20 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
       return JSON.parse(new TextDecoder().decode(bytes));
     } catch (e) { return null; }
   }
-  var startParam = tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param;
-  var D = decode(location.hash.slice(1)) || decode(startParam);
+  // Дані можуть прийти: ?p=... (кнопка в особистих), start_param (посилання з групи),
+  // або в хеші. Telegram додає до хешу свої параметри (tgWebAppData=...), їх пропускаємо.
+  function param(str, key) {
+    var parts = (str || "").replace(/^[?#]/, "").split("&");
+    for (var i = 0; i < parts.length; i++) {
+      var kv = parts[i].split("=");
+      if (kv[0] === key) return decodeURIComponent(kv.slice(1).join("="));
+    }
+    return "";
+  }
+  var startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) ||
+    param(location.search, "tgWebAppStartParam") || param(location.hash, "tgWebAppStartParam");
+  var D = decode(param(location.search, "p")) || decode(startParam) ||
+    decode((location.hash.slice(1).split("&")[0] || "").indexOf("=") < 0 ? location.hash.slice(1).split("&")[0] : "");
   var demo = !D;
   if (demo) {
     D = { u: 1, b: "", n: "Максим", x: 9990, g: 147, w: 81, a: 2, s: 6, f: ["doctor", 31], e: 0b100100010101, r: "gold",
