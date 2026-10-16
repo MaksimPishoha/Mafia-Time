@@ -44,6 +44,9 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
 .btn:disabled { background: var(--line); color: var(--muted); border-color: var(--line); cursor: default; }
 .tabs { display: flex; gap: 4px; margin: 14px 16px 0; padding: 4px; background: var(--card); border-radius: 14px; border: 1px solid var(--line); }
 .tab { flex: 1; min-height: 40px; border: 0; border-radius: 10px; background: none; color: var(--muted); font-weight: 700; font-size: 13px; cursor: pointer; }
+.tabs.four .tab { font-size: 12px; }
+.split { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--line2); margin-top: 10px; gap: 2px; }
+.split > div { height: 100%; }
 .tab.on { background: var(--chip); color: var(--text); }
 .section { padding: 14px 16px; }
 .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin: 4px 0 8px; }
@@ -91,7 +94,7 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
 </script>
 
 <script>
-(function () {
+(async function () {
   "use strict";
   var raw = document.getElementById("rules").textContent;
   var R = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1));
@@ -105,13 +108,19 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
   });
 
   // ---------- дані профілю з посилання ----------
-  function decode(s) {
+  // Дані з посилання: base64url від JSON або від стиснутого zlib JSON (перший байт 0x78).
+  async function decode(s) {
     if (!s) return null;
     try {
       s = s.replace(/-/g, "+").replace(/_/g, "/");
       while (s.length % 4) s += "=";
       var bin = atob(s), bytes = new Uint8Array(bin.length);
       for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      if (bytes[0] === 0x78) {
+        if (!window.DecompressionStream) { window.__needUpdate = true; return null; }
+        var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));
+        return JSON.parse(await new Response(stream).text());
+      }
       return JSON.parse(new TextDecoder().decode(bytes));
     } catch (e) { return null; }
   }
@@ -127,12 +136,14 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
   }
   var startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) ||
     param(location.search, "tgWebAppStartParam") || param(location.hash, "tgWebAppStartParam");
-  var D = decode(param(location.search, "p")) || decode(startParam) ||
-    decode((location.hash.slice(1).split("&")[0] || "").indexOf("=") < 0 ? location.hash.slice(1).split("&")[0] : "");
+  var D = (await decode(param(location.search, "p"))) || (await decode(startParam)) ||
+    (await decode((location.hash.slice(1).split("&")[0] || "").indexOf("=") < 0 ? location.hash.slice(1).split("&")[0] : ""));
   var demo = !D;
   if (demo) {
     D = { u: 1, b: "", n: "Максим", x: 9990, g: 147, w: 81, a: 2, s: 6, f: ["doctor", 31], e: 0b100100010101, r: "gold",
-          p: [1, 50, 10, 81, 5, 1, 7, 50, 18, 7, 10, 2, 1, 1, 0], t: [7, 4, 0], m: 1240, i: [2, 1, 0, 3] };
+          p: [1, 50, 10, 81, 5, 1, 7, 50, 18, 7, 10, 2, 1, 1, 0], t: [7, 4, 0], m: 1240, i: [2, 1, 0, 3],
+          st: { a: [242, 94, 159, 62, 68, 19, 28, 70, [82, 39, 22, 21, 9, 26, 3, 4, 1, 11, 4, 21]],
+                c: [150, 55, 91, 40, 41, 11, 24, 45, [48, 22, 17, 15, 5, 13, 2, 4, 1, 9, 4, 7]], cn: "Mafia Time" } };
   }
   var viewerId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id;
   var own = D.m !== undefined || (viewerId && viewerId === D.u) || demo;
@@ -174,7 +185,7 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
   function haptic() { try { tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged(); } catch (e) {} }
 
   // ---------- стан ----------
-  var state = { view: "main", tab: "overview", filter: "all", pick: current.key };
+  var state = { view: "main", tab: "overview", filter: "all", pick: current.key, scope: "a" };
   function go(view) { state.view = view; haptic(); render(); window.scrollTo(0, 0); }
 
   // ---------- екрани ----------
@@ -183,7 +194,7 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
     var rate = games ? Math.round(wins / games * 100) + "%" : "—";
     var tokens = (D.t || []).map(function (i) { var a = ACH[i]; return a ? '<div class="token' + (a.rare ? " rare" : "") + '" title="' + esc(a.name) + '">' + a.emoji + '</div>' : ""; }).join("");
     var h = '<div class="top"><h2 style="padding-left:6px">' + (own ? "Мій профіль" : "Профіль гравця") + '</h2></div>';
-    if (demo) h += '<div class="demo">Демо: так виглядатиме вікно. Справжні дані прийдуть з кнопки в боті.</div>';
+    if (demo) h += '<div class="demo">' + (window.__needUpdate ? "Онови Telegram: ця версія не може відкрити дані профілю." : "Демо: так виглядатиме вікно. Справжні дані прийдуть з кнопки в боті.") + '</div>';
     h += '<div class="hero"><div class="ava-wrap">' + avatar(current, 112, 40) + '<div class="lvl-badge">Рів. ' + L.level + '</div></div>' +
       '<h1>' + esc(D.n || "Гравець") + '</h1>' +
       '<div class="sub">' + rankOf(L.level) + (current.key !== "none" ? " · рамка «" + esc(current.name) + "»" : "") + '</div>' +
@@ -193,8 +204,9 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
     h += '<div class="actions">' + (own ? '<button class="btn" data-go="frames">🖼 Рамка</button>' : "") +
       '<button class="btn" data-go="levels">⭐ Рівні</button></div>';
     var tabs = [["overview", "Огляд"], ["ach", "Досягнення"]];
+    if (D.st && D.st.a) tabs.push(["stats", "Статистика"]);
     if (D.m !== undefined) tabs.push(["inv", "Інвентар"]);
-    h += '<div class="tabs" role="tablist">' + tabs.map(function (t) {
+    h += '<div class="tabs' + (tabs.length > 3 ? " four" : "") + '" role="tablist">' + tabs.map(function (t) {
       return '<button class="tab' + (state.tab === t[0] ? " on" : "") + '" role="tab" aria-selected="' + (state.tab === t[0]) + '" data-tab="' + t[0] + '">' + t[1] + '</button>';
     }).join("") + '</div>';
 
@@ -221,6 +233,8 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
       if (!own) h += '<div class="lock-note">' + ICON_LOCK + '<div>Інвентар і баланс видно лише власнику профілю.</div></div>';
     } else if (state.tab === "ach") {
       h += achList();
+    } else if (state.tab === "stats") {
+      h += statsView();
     } else {
       h += '<div class="section"><div class="card row" style="justify-content:space-between"><span style="color:var(--soft)">Баланс</span><b style="font-size:20px">' + num(D.m) + ' 💵</b></div>' +
         '<div class="label" style="margin-top:16px">Предмети</div><div class="list">' +
@@ -235,6 +249,53 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
     if (m10 === 1 && m100 !== 11) return one;
     if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
     return many;
+  }
+
+  // ---------- статистика ----------
+  var ROLE_KEYS = Object.keys(R.roles);
+  function pct(part, total) {
+    if (!total) return "0%";
+    var v = Math.round(part / total * 1000) / 10;
+    return String(v).replace(".", ",") + "%";
+  }
+  function statsView() {
+    var scopes = [["a", "Усі чати"]];
+    if (D.st.c) scopes.push(["c", D.st.cn || "Цей чат"]);
+    if (!D.st[state.scope]) state.scope = "a";
+    var s = D.st[state.scope];
+    var n = s[0], w = s[1], town = s[2], maf = s[3], killed = s[4], first = s[5], lynched = s[6], alive = s[7], roles = s[8] || [];
+    var h = '<div class="section">';
+    if (scopes.length > 1) {
+      h += '<div class="chips" role="tablist">' + scopes.map(function (sc) {
+        return '<button class="chip' + (state.scope === sc[0] ? " on" : "") + '" data-scope="' + sc[0] + '" aria-pressed="' + (state.scope === sc[0]) + '">' + esc(sc[1]) + '</button>';
+      }).join("") + '</div>';
+    }
+    if (!n) return h + '<div class="card" style="color:var(--muted);text-align:center">Ще немає зіграних ігор.</div></div>';
+    h += '<div class="grid3">' +
+      '<div class="stat"><b>' + num(n) + '</b><span>ігор</span></div>' +
+      '<div class="stat"><b style="color:var(--green)">' + num(w) + '</b><span>перемог · ' + pct(w, n) + '</span></div>' +
+      '<div class="stat"><b style="color:var(--red)">' + num(n - w) + '</b><span>поразок · ' + pct(n - w, n) + '</span></div></div>';
+    h += '<div class="label" style="margin-top:16px">Сторони</div><div class="card">' +
+      '<div class="row" style="justify-content:space-between;font-size:14px"><span>👨🏼 За мирних <b>' + town + '</b></span><span>🤵🏻 За мафію <b>' + maf + '</b></span></div>' +
+      '<div class="split"><div style="width:' + (n ? town / n * 100 : 0) + '%;background:var(--green)"></div><div style="width:' + (n ? maf / n * 100 : 0) + '%;background:var(--red)"></div></div>' +
+      '<div class="xp-row"><span>' + pct(town, n) + '</span><span>' + (n - town - maf > 0 ? "інші " + pct(n - town - maf, n) : "") + '</span><span>' + pct(maf, n) + '</span></div></div>';
+    h += '<div class="label" style="margin-top:16px">Як закінчувались ігри</div><div class="list">' +
+      [["☠️ Убито вночі", killed], ["🌑 Першої ж ночі", first], ["⚖️ Страчено вдень", lynched], ["❤️ Дожив до кінця", alive]].map(function (r) {
+        return '<div class="li"><span>' + r[0] + '</span><span><b>' + r[1] + '</b> <span style="color:var(--muted);font-size:12px">' + pct(r[1], n) + '</span></span></div>';
+      }).join("") + '</div>';
+    var list = roles.map(function (c, i) { return [ROLE_KEYS[i], c]; }).filter(function (r) { return r[1] > 0 && R.roles[r[0]]; })
+      .sort(function (a, b) { return b[1] - a[1]; });
+    if (list.length) {
+      var top = list[0][1];
+      h += '<div class="label" style="margin-top:16px">Ролі</div><div class="list">' + list.map(function (r) {
+        var role = R.roles[r[0]];
+        return '<div class="li" style="display:block"><div class="row" style="justify-content:space-between"><span>' + role[0] + ' ' + esc(role[1]) + '</span>' +
+          '<span><b>' + r[1] + '</b> <span style="color:var(--muted);font-size:12px">' + pct(r[1], n) + '</span></span></div>' +
+          '<div class="bar" style="height:5px;margin-top:7px"><div style="width:' + (r[1] / top * 100) + '%"></div></div></div>';
+      }).join("") + '</div>';
+    }
+    h += '<div class="note">Тестові ігри з ботами не враховуються. Детальніше в чаті: /stat, /stat_all, /stat_chat.</div></div>';
+    return h;
   }
 
   function achList() {
@@ -315,6 +376,7 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
     if (!el) return;
     if (el.dataset.go) return go(el.dataset.go);
     if (el.dataset.tab) { state.tab = el.dataset.tab; haptic(); return render(); }
+    if (el.dataset.scope) { state.scope = el.dataset.scope; haptic(); return render(); }
     if (el.dataset.filter) { state.filter = el.dataset.filter; haptic(); return render(); }
     if (el.dataset.pick) { state.pick = el.dataset.pick; haptic(); return render(); }
     if (el.id === "apply") {
