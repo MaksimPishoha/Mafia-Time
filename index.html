@@ -90,7 +90,7 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
 
 <!-- Правила гри для вікна. Генеруються з mafia_time/progress.py командою: python webapp/build.py -->
 <script id="rules" type="application/json">
-/*RULES*/{"levelStep": 250, "xp": {"play": 20, "win": 30, "survive": 10, "feat": 5, "featCap": 25}, "ranks": [[1, "Новачок"], [5, "Мешканець"], [10, "Детектив"], [20, "Інспектор"], [30, "Хрещений батько"], [50, "Легенда міста"]], "levelRewards": [[5, 100], [10, 150], [15, 200], [20, 300], [30, 500], [50, 1000]], "achievements": [["first_game", "🎲", "Перша ніч", "Зіграй першу гру", 1, 50, 0, 0], ["games_50", "🗓", "Завсідник", "Зіграй 50 ігор", 50, 150, 0, 0], ["wins_10", "🏅", "Смак перемоги", "Виграй 10 ігор", 10, 100, 0, 0], ["wins_100", "🎯", "Сотня", "Виграй 100 ігор", 100, 300, 1, 0], ["streak_5", "🔥", "На хвилі", "Виграй 5 ігор поспіль", 5, 150, 0, 0], ["nights_10", "🌙", "Нічний вовк", "Доживи до 10-го дня в одній грі", 1, 100, 0, 0], ["civ_wins", "👨🏼", "Голос народу", "Виграй 10 разів Мирним жителем", 10, 100, 0, 0], ["found_50", "🕵🏼", "Гроза мафії", "Знайди 50 мафіозі перевірками", 50, 300, 1, 0], ["saved_25", "💉", "Ангел-охоронець", "Врятуй 25 гравців Лікарем", 25, 200, 0, 0], ["don_20", "🤵🏻", "Хрещений батько", "Виграй 20 разів Доном", 20, 300, 1, 0], ["charmed_10", "💃🏼", "Серцеїдка", "Відволічи 10 гравців Коханкою", 10, 100, 0, 0], ["maniac_5", "🔪", "Тінь міста", "Виграй 5 разів Маньяком", 5, 200, 0, 0], ["suicide", "🤦🏼‍♂️", "Мрія збулася", "Добийся страти Самогубцем", 1, 100, 0, 0], ["kamikaze", "💣", "Не сам", "Забери когось із собою Камікадзе", 1, 100, 0, 1], ["lucky", "🤞", "Народжений у сорочці", "Переживи замах Щасливчиком", 1, 100, 0, 1]], "frames": [["none", "Без рамки", "#2A2F3A", 0, "", ""], ["steel", "Сталь", "#9AA0AA", 5, "", ""], ["gold", "Золота зірка", "#E2BE6A", 10, "", ""], ["police", "Поліцейська", "#5B8DEF", 0, "found_50", ""], ["blood", "Кривава ніч", "#C0453A", 0, "don_20", ""], ["angel", "Ангельська", "#EDEAE0", 0, "saved_25", ""], ["double", "Подвійна", "#E2BE6A", 20, "", "#C0453A"], ["hundred", "Сотня", "#7FC9A0", 0, "wins_100", ""], ["legend", "Легенда міста", "#F3D58E", 50, "", "#E2BE6A"]], "roles": {"civilian": ["👨🏼", "Мирний житель"], "don": ["🤵🏻", "Дон"], "mafia": ["🤵🏼", "Мафія"], "commissioner": ["🕵🏼", "Комісар Каттані"], "sergeant": ["👮🏻‍♂️", "Сержант"], "doctor": ["👨🏼‍⚕️", "Лікар"], "maniac": ["🔪", "Маньяк"], "lover": ["💃🏼", "Коханка"], "lawyer": ["👨🏼‍💼", "Адвокат"], "suicide": ["🤦🏼‍♂️", "Самогубець"], "bomj": ["🧙🏼‍♂️", "Бомж"], "lucky": ["🤞", "Щасливчик"], "kamikaze": ["💣", "Камікадзе"]}, "items": [["docs", "📂", "Документи"], ["shields", "🛡", "Захист"], ["ap", "🔫", "Бронебійний патрон"], ["tap", "🎧", "Прослуховування"]]}/*END*/
+/*RULES*/{"levelStep": 250, "xp": {"play": 20, "win": 30, "survive": 10, "feat": 5, "featCap": 25}, "ranks": [[1, "Новачок"], [5, "Мешканець"], [10, "Детектив"], [20, "Інспектор"], [30, "Хрещений батько"], [50, "Легенда міста"]], "levelRewards": [[5, 100], [10, 150], [15, 200], [20, 300], [30, 500], [50, 1000]], "achievements": [["first_game", "🎲", "Перша ніч", "Зіграй першу гру", 1, 50, 0, 0], ["games_50", "🗓", "Завсідник", "Зіграй 50 ігор", 50, 150, 0, 0], ["wins_10", "🏅", "Смак перемоги", "Виграй 10 ігор", 10, 100, 0, 0], ["wins_100", "🎯", "Сотня", "Виграй 100 ігор", 100, 300, 1, 0], ["streak_5", "🔥", "На хвилі", "Виграй 5 ігор поспіль", 5, 150, 0, 0], ["nights_10", "🌙", "Нічний вовк", "Доживи до 10-го дня в одній грі", 1, 100, 0, 0], ["civ_wins", "👨🏼", "Голос народу", "Виграй 10 разів Мирним жителем", 10, 100, 0, 0], ["found_50", "🕵🏼", "Гроза мафії", "Знайди 50 мафіозі перевірками", 50, 300, 1, 0], ["saved_25", "💉", "Ангел-охоронець", "Врятуй 25 гравців Лікарем", 25, 200, 0, 0], ["don_20", "🤵🏻", "Хрещений батько", "Виграй 20 разів Доном", 20, 300, 1, 0], ["charmed_10", "💃🏼", "Серцеїдка", "Відволічи 10 гравців Коханкою", 10, 100, 0, 0], ["maniac_5", "🔪", "Тінь міста", "Виграй 5 разів Маньяком", 5, 200, 0, 0], ["suicide", "🤦🏼‍♂️", "Мрія збулася", "Добийся страти Самогубцем", 1, 100, 0, 0], ["kamikaze", "💣", "Не сам", "Забери когось із собою Камікадзе", 1, 100, 0, 1], ["lucky", "🤞", "Народжений у сорочці", "Переживи замах Щасливчиком", 1, 100, 0, 1]], "frames": [["none", "Без рамки", "#2A2F3A", 0, "", ""], ["steel", "Сталь", "#9AA0AA", 5, "", ""], ["gold", "Золота зірка", "#E2BE6A", 10, "", ""], ["police", "Поліцейська", "#5B8DEF", 0, "found_50", ""], ["blood", "Кривава ніч", "#C0453A", 0, "don_20", ""], ["angel", "Ангельська", "#EDEAE0", 0, "saved_25", ""], ["double", "Подвійна", "#E2BE6A", 20, "", "#C0453A"], ["hundred", "Сотня", "#7FC9A0", 0, "wins_100", ""], ["legend", "Легенда міста", "#F3D58E", 50, "", "#E2BE6A"]], "roles": {"civilian": ["👨🏼", "Мирний житель"], "don": ["🤵🏻", "Дон"], "mafia": ["🤵🏼", "Мафія"], "commissioner": ["🕵🏼", "Комісар Каттані"], "sergeant": ["👮🏻‍♂️", "Сержант"], "doctor": ["👨🏼‍⚕️", "Лікар"], "maniac": ["🔪", "Маньяк"], "lover": ["💃🏼", "Коханка"], "lawyer": ["👨🏼‍💼", "Адвокат"], "suicide": ["🤦🏼‍♂️", "Самогубець"], "bomj": ["🧙🏼‍♂️", "Бомж"], "lucky": ["🤞", "Щасливчик"], "kamikaze": ["💣", "Камікадзе"]}, "items": [["docs", "📂", "Документи"], ["shields", "🛡", "Захист"], ["ap", "🔫", "Бронебійний патрон"], ["tap", "🎧", "Прослуховування"]], "spy": {"xp": {"play": 20, "win": 30, "guess": 15, "hunt": 5}, "achievements": [["first", "🎲", "Перша місія", "Зіграй першу гру в Шпигуна", 1, 50, 0, "games"], ["games_50", "🗓", "Постійний агент", "Зіграй 50 ігор у Шпигуна", 50, 150, 0, "games"], ["wins_10", "🏅", "Без провалів", "Виграй 10 ігор у Шпигуна", 10, 100, 0, "wins"], ["spy_10", "🕵️", "Під прикриттям", "Зіграй 10 ігор шпигуном", 10, 100, 0, "spy_games"], ["spy_wins_10", "🕶", "Невловимий", "Виграй 10 разів шпигуном", 10, 200, 1, "spy_wins"], ["guess", "🔓", "Зламав шифр", "Вгадай слово, будучи шпигуном", 1, 100, 0, "guessed"], ["guess_10", "🧠", "Дешифрувальник", "Вгадай слово шпигуном 10 разів", 10, 300, 1, "guessed"], ["hunt", "🎯", "Мисливець", "Проголосуй проти шпигуна, коли його викрили", 1, 50, 0, "hunted"], ["hunt_25", "🦅", "Пильне око", "Вистеж шпигуна 25 разів", 25, 200, 1, "hunted"]]}}/*END*/
 </script>
 
 <script>
@@ -143,7 +143,8 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
     D = { u: 1, b: "", n: "Максим", x: 9990, g: 147, w: 81, a: 2, s: 6, f: ["doctor", 31], e: 0b100100010101, r: "gold",
           p: [1, 50, 10, 81, 5, 1, 7, 50, 18, 7, 10, 2, 1, 1, 0], t: [7, 4, 0], m: 1240, i: [2, 1, 0, 3],
           st: { a: [242, 94, 159, 62, 68, 19, 28, 70, [82, 39, 22, 21, 9, 26, 3, 4, 1, 11, 4, 21]],
-                c: [150, 55, 91, 40, 41, 11, 24, 45, [48, 22, 17, 15, 5, 13, 2, 4, 1, 9, 4, 7]], cn: "Mafia Time" } };
+                c: [150, 55, 91, 40, 41, 11, 24, 45, [48, 22, 17, 15, 5, 13, 2, 4, 1, 9, 4, 7]], cn: "Mafia Time" },
+          sp: [1460, 34, 19, 7, 4, 3, 9, 0b10101011] };
   }
   var viewerId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id;
   var own = D.m !== undefined || (viewerId && viewerId === D.u) || demo;
@@ -166,6 +167,17 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
   function frameHow(f) { return f.ach ? "Досягнення «" + (ACH_BY_KEY[f.ach] || {}).name + "»" : (f.level > 1 ? "Рівень " + f.level : "Доступна завжди"); }
   var current = FRAMES.filter(function (f) { return f.key === D.r && frameOwned(f); })[0] || FRAMES[0];
 
+  // ---------- Шпигун (Time Town: спільний баланс, свої рівні й досягнення) ----------
+  var SPY_R = R.spy || { achievements: [], xp: {} };
+  var SPY = SPY_R.achievements.map(function (a, i) {
+    return { i: i, key: a[0], emoji: a[1], name: a[2], desc: a[3], goal: a[4], xp: a[5], rare: !!a[6], metric: a[7] };
+  });
+  var fromSpy = D.go === "spy";   // вікно відкрили з бота Шпигуна
+  var SP = D.sp ? { x: D.sp[0], games: D.sp[1], wins: D.sp[2], spy_games: D.sp[3], spy_wins: D.sp[4],
+                    guessed: D.sp[5], hunted: D.sp[6], e: D.sp[7] } : null;
+  if (!SP && fromSpy) SP = { x: 0, games: 0, wins: 0, spy_games: 0, spy_wins: 0, guessed: 0, hunted: 0, e: 0 };
+  var spyEarned = function (a) { return SP && (SP.e >> a.i) & 1; };
+
   // ---------- допоміжне ----------
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function num(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
@@ -185,23 +197,32 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
   function haptic() { try { tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged(); } catch (e) {} }
 
   // ---------- стан ----------
-  var state = { view: "main", tab: "overview", filter: "all", pick: current.key, scope: "a" };
+  var state = { view: "main", tab: "overview", filter: "all", pick: current.key, scope: "a", game: fromSpy ? "spy" : "mafia" };
+  function gameSwitch() {
+    if (!SP) return "";
+    var games = [["mafia", "🎭 Мафія"], ["spy", "🕵️ Шпигун"]];
+    return '<div class="chips" role="tablist" style="padding:0 16px;margin:4px 0 0">' + games.map(function (g) {
+      return '<button class="chip' + (state.game === g[0] ? " on" : "") + '" role="tab" aria-selected="' + (state.game === g[0]) + '" data-game="' + g[0] + '">' + g[1] + '</button>';
+    }).join("") + '</div>';
+  }
   function go(view) { state.view = view; haptic(); render(); window.scrollTo(0, 0); }
 
   // ---------- екрани ----------
   function mainView() {
+    if (state.game === "spy" && SP) return spyView();
     var games = D.g || 0, wins = D.w || 0;
     var rate = games ? Math.round(wins / games * 100) + "%" : "—";
     var tokens = (D.t || []).map(function (i) { var a = ACH[i]; return a ? '<div class="token' + (a.rare ? " rare" : "") + '" title="' + esc(a.name) + '">' + a.emoji + '</div>' : ""; }).join("");
     var h = '<div class="top"><h2 style="padding-left:6px">' + (own ? "Мій профіль" : "Профіль гравця") + '</h2></div>';
     if (demo) h += '<div class="demo">' + (window.__needUpdate ? "Онови Telegram: ця версія не може відкрити дані профілю." : "Демо: так виглядатиме вікно. Справжні дані прийдуть з кнопки в боті.") + '</div>';
+    h += gameSwitch();
     h += '<div class="hero"><div class="ava-wrap">' + avatar(current, 112, 40) + '<div class="lvl-badge">Рів. ' + L.level + '</div></div>' +
       '<h1>' + esc(D.n || "Гравець") + '</h1>' +
       '<div class="sub">' + rankOf(L.level) + (current.key !== "none" ? " · рамка «" + esc(current.name) + "»" : "") + '</div>' +
       (tokens ? '<div class="tokens">' + tokens + '</div>' : "") + '</div>' +
       '<div class="xp"><div class="bar"><div style="width:' + Math.min(100, L.cur / L.need * 100) + '%"></div></div>' +
       '<div class="xp-row"><span>' + num(L.cur) + ' / ' + num(L.need) + ' XP</span><span>до рівня ' + (L.level + 1) + '</span></div></div>';
-    h += '<div class="actions">' + (own ? '<button class="btn" data-go="frames">🖼 Рамка</button>' : "") +
+    h += '<div class="actions">' + (own && !fromSpy ? '<button class="btn" data-go="frames">🖼 Рамка</button>' : "") +
       '<button class="btn" data-go="levels">⭐ Рівні</button></div>';
     var tabs = [["overview", "Огляд"], ["ach", "Досягнення"]];
     if (D.st && D.st.a) tabs.push(["stats", "Статистика"]);
@@ -239,7 +260,61 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
       h += '<div class="section"><div class="card row" style="justify-content:space-between"><span style="color:var(--soft)">Баланс</span><b style="font-size:20px">' + num(D.m) + ' 💵</b></div>' +
         '<div class="label" style="margin-top:16px">Предмети</div><div class="list">' +
         R.items.map(function (it, i) { return '<div class="li"><span>' + it[1] + ' ' + esc(it[2]) + '</span><b>×' + ((D.i || [])[i] || 0) + '</b></div>'; }).join("") +
-        '</div><div class="note">Купити або відкласти предмети: /shop і /inventory у бота. Інвентар бачиш лише ти.</div></div>';
+        '</div><div class="note">Купити або відкласти предмети: /shop і /inventory у бота Мафії. Інвентар бачиш лише ти.' +
+        (SP ? " Баланс спільний для всіх ігор Time Town." : "") + '</div></div>';
+    }
+    return h;
+  }
+
+  function spyView() {
+    var S = SP, SL = L;   // рівень спільний для всіх ігор Time Town
+    var rank = rankOf(SL.level);
+    var got = SPY.filter(spyEarned);
+    var rate = S.games ? Math.round(S.wins / S.games * 100) + "%" : "—";
+    var h = '<div class="top"><h2 style="padding-left:6px">' + (own ? "Мій профіль" : "Профіль гравця") + '</h2></div>';
+    if (demo) h += '<div class="demo">Демо: так виглядатиме вікно. Справжні дані прийдуть з кнопки в боті.</div>';
+    h += gameSwitch();
+    h += '<div class="hero"><div class="ava-wrap">' + avatar(current, 112, 40) + '<div class="lvl-badge">Рів. ' + SL.level + '</div></div>' +
+      '<h1>' + esc(D.n || "Гравець") + '</h1><div class="sub">' + esc(rank) + ' · рівень Time Town</div></div>' +
+      '<div class="xp"><div class="bar"><div style="width:' + Math.min(100, SL.cur / SL.need * 100) + '%"></div></div>' +
+      '<div class="xp-row"><span>' + num(SL.cur) + ' / ' + num(SL.need) + ' XP</span><span>до рівня ' + (SL.level + 1) + '</span></div></div>';
+    h += '<div class="actions"><button class="btn" data-go="levels">⭐ Рівні</button></div>';
+    var tabs = [["overview", "Огляд"], ["ach", "Досягнення"]];
+    if (D.m !== undefined) tabs.push(["inv", "Гаманець"]);
+    h += '<div class="tabs" role="tablist">' + tabs.map(function (t) {
+      return '<button class="tab' + (state.tab === t[0] ? " on" : "") + '" role="tab" aria-selected="' + (state.tab === t[0]) + '" data-tab="' + t[0] + '">' + t[1] + '</button>';
+    }).join("") + '</div>';
+    if (state.tab === "ach") {
+      var filters = [["all", "Усі"], ["done", "Отримані"], ["rare", "Рідкісні"]];
+      h += '<div class="section"><div class="row" style="justify-content:space-between;margin-bottom:10px"><b style="font-family:\'Playfair Display\',serif;font-size:20px">' + got.length + ' з ' + SPY.length + '</b></div>' +
+        '<div class="bar" style="margin-bottom:14px"><div style="width:' + (SPY.length ? got.length / SPY.length * 100 : 0) + '%"></div></div>' +
+        '<div class="chips">' + filters.map(function (f) { return '<button class="chip' + (state.filter === f[0] ? " on" : "") + '" data-filter="' + f[0] + '">' + f[1] + '</button>'; }).join("") + '</div>';
+      var list = SPY.filter(function (a) { return state.filter === "done" ? spyEarned(a) : state.filter === "rare" ? a.rare : true; });
+      h += '<div class="grid3">' + list.map(function (a) {
+        var ok = spyEarned(a), p = Math.min(S[a.metric] || 0, a.goal);
+        var st = ok ? (a.rare ? "Рідкісне ✓" : "✓") : (a.goal > 1 ? p + "/" + a.goal : "—");
+        return '<div class="ach' + (ok && a.rare ? " rare" : "") + '"' + (ok ? "" : ' style="opacity:.75"') + '><div class="e">' + a.emoji + '</div><div class="n">' + esc(a.name) + '</div>' +
+          '<div class="d">' + esc(a.desc) + '</div><div class="s" style="color:' + (ok ? "var(--green)" : "var(--gold)") + '">' + st + '</div></div>';
+      }).join("") + '</div>' + (list.length ? "" : '<div class="note">Тут поки порожньо.</div>') + '</div>';
+    } else if (state.tab === "inv" && D.m !== undefined) {
+      h += '<div class="section"><div class="card row" style="justify-content:space-between"><span style="color:var(--soft)">Баланс Time Town</span><b style="font-size:20px">' + num(D.m) + ' 💵</b></div>' +
+        '<div class="note">Баланс спільний для Мафії й Шпигуна: заробляєш в одній грі, витрачаєш в іншій. Предмети купуються в боті Мафії (/shop).</div></div>';
+    } else {
+      h += '<div class="section"><div class="grid3">' +
+        '<div class="stat"><b>' + num(S.games) + '</b><span>ігор</span></div>' +
+        '<div class="stat"><b>' + rate + '</b><span>перемог</span></div>' +
+        '<div class="stat"><b>' + got.length + '</b><span>досягнень</span></div></div>' +
+        '<div class="list" style="margin-top:8px">' +
+        [["🕶 Шпигуном", S.spy_games + " · перемог " + S.spy_wins], ["🔓 Вгадано слів", S.guessed],
+         ["👥 Мирним", (S.games - S.spy_games) + " · перемог " + (S.wins - S.spy_wins)], ["🎯 Вистежено шпигунів", S.hunted]]
+          .map(function (r) { return '<div class="li"><span>' + r[0] + '</span><b>' + r[1] + '</b></div>'; }).join("") + '</div>';
+      var show = got.slice().sort(function (a, b) { return b.rare - a.rare; }).slice(0, 3);
+      if (show.length) {
+        h += '<div class="label" style="margin-top:16px">Вітрина досягнень</div><div class="grid3">' +
+          show.map(function (a) { return '<div class="ach' + (a.rare ? " rare" : "") + '"><div class="e">' + a.emoji + '</div><div class="n">' + esc(a.name) + '</div></div>'; }).join("") + '</div>';
+      }
+      if (!S.games) h += '<div class="note">Ще не зіграно жодної гри в Шпигуна.</div>';
+      h += '</div>';
     }
     return h;
   }
@@ -348,9 +423,12 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
       '<div class="card"><div class="row" style="justify-content:space-between;align-items:baseline"><b style="font-family:\'Playfair Display\',serif;font-size:22px">Рівень ' + L.level + '</b><span class="sub">' + rankOf(L.level) + '</span></div>' +
       '<div class="bar" style="margin-top:12px"><div style="width:' + Math.min(100, L.cur / L.need * 100) + '%"></div></div>' +
       '<div class="xp-row"><span>' + num(L.cur) + ' / ' + num(L.need) + ' XP</span><span>ще ≈ ' + Math.max(1, Math.ceil((L.need - L.cur) / (x.play + x.win / 2 + x.survive / 2))) + ' ігор</span></div></div>' +
-      '<div class="label" style="margin-top:18px">За що дають досвід</div><div class="list">' +
+      '<div class="label" style="margin-top:18px">У Мафії</div><div class="list">' +
       src.map(function (s) { return '<div class="li"><span' + (s[1] === "0" ? ' style="color:var(--muted)"' : "") + '>' + s[0] + '</span><b style="color:' + (s[1] === "0" ? "var(--red)" : "var(--green)") + ';white-space:nowrap">' + s[1] + '</b></div>'; }).join("") +
-      '</div><div class="note">З рівня N на N+1 треба ' + R.levelStep + ' XP × N. Перші рівні йдуть швидко, далі повільніше.</div>' +
+      '</div>' + (SPY_R.xp && SPY_R.xp.play ? '<div class="label" style="margin-top:18px">У Шпигуні</div><div class="list">' +
+        [["Зіграна гра", "+" + SPY_R.xp.play + " XP"], ["Перемога", "+" + SPY_R.xp.win + " XP"], ["Вгадав слово шпигуном", "+" + SPY_R.xp.guess + " XP"], ["Вистежив шпигуна", "+" + SPY_R.xp.hunt + " XP"]]
+          .map(function (s) { return '<div class="li"><span>' + s[0] + '</span><b style="color:var(--green);white-space:nowrap">' + s[1] + '</b></div>'; }).join("") + '</div>' : "") +
+      '<div class="note">Рівень один на всі ігри Time Town: досвід з Мафії та Шпигуна складається. З рівня N на N+1 треба ' + R.levelStep + ' XP × N.</div>' +
       '<div class="label" style="margin-top:18px">Звання</div>' +
       R.ranks.map(function (r, i) {
         var next = R.ranks[i + 1], me = L.level >= r[0] && (!next || L.level < next[0]);
@@ -375,6 +453,7 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
     var el = ev.target.closest("button");
     if (!el) return;
     if (el.dataset.go) return go(el.dataset.go);
+    if (el.dataset.game) { state.game = el.dataset.game; state.tab = "overview"; state.filter = "all"; haptic(); return render(); }
     if (el.dataset.tab) { state.tab = el.dataset.tab; haptic(); return render(); }
     if (el.dataset.scope) { state.scope = el.dataset.scope; haptic(); return render(); }
     if (el.dataset.filter) { state.filter = el.dataset.filter; haptic(); return render(); }
