@@ -153,6 +153,13 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
 .log .ev { font-size: 13px; line-height: 1.35; padding: 7px 0; border-bottom: 1px solid var(--line2); color: var(--soft); }
 .log .ev.death { color: #E8A39B; }
 .log .ev.lynch { color: var(--gold2); }
+.log .ev.secret { color: #B5CBF8; }
+.log .ph.secret { color: #8FB2F5; }
+.log .dn { color: var(--muted); font-size: 11px; }
+.banner.secret { border-color: rgba(91,141,239,.6); background: #131A2B; color: #DCE6FB; display: flex; flex-direction: column; gap: 2px; }
+.banner .lock { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #8FB2F5; font-weight: 800; }
+.seat .kn { color: #8FB2F5; font-weight: 700; }
+.seat.known .face { border-color: #5B8DEF; border-style: dotted; }
 .phase-flash { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700; color: #EDE6D6; background: rgba(14,16,20,.55); animation: flash 1.8s ease forwards; z-index: 8; }
 .phase-flash.night { background: rgba(10,13,22,.75); color: #B5CBF8; }
 @keyframes flash { 0% { opacity: 0; } 20% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
@@ -310,7 +317,7 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
     var root = document.getElementById("app");
     var init = (tgw && tgw.initData) || "";
     var S = null, pick = null, mode = null, busy = false, lastFetch = 0, toastMsg = "", toastTimer = null;
-    var sig = "", peek = false, logOpen = false, lastTurn = "", lastEv = -1, lastStage = "";
+    var sig = "", peek = false, logOpen = false, lastTurn = "", lastEv = -1, lastStage = "", lastMine = -1;
     var STAGE = { night: "Ніч", discussion: "Обговорення", vote: "Голосування", confirm: "Підтвердження страти", kamikaze: "Хід Камікадзе" };
     var LOOK_SLOTS = ["hat", "outfit", "acc", "bg"];
     var MIC_ON = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7FC9A0" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg>';
@@ -355,6 +362,9 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
         buzz(fresh.some(function (e) { return e.k === "death" || e.k === "lynch"; }) ? "death" : "event");
       }
       lastEv = newest;
+      var mine = S.mine || [], mineNewest = mine.length ? mine[mine.length - 1].n : 0;
+      if (lastMine >= 0 && mineNewest > lastMine) { buzz("turn"); }
+      lastMine = mineNewest;
       if (lastStage && S.stage !== lastStage) {
         if (S.stage === "night") flash("🌙 Ніч " + S.day, true);
         else if (S.stage === "discussion") flash("☀️ День " + S.day, false);
@@ -435,6 +445,8 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
       // остання подія
       var ev = S.events || [];
       var lastNews = ev.filter(function (e) { return e.k !== "phase" && e.k !== "vote"; }).slice(-1)[0];
+      var mineAll = S.mine || [], myNews = mineAll.filter(function (e) { return e.d === S.day; }).slice(-1)[0];
+      if (myNews && !fin) h += '<div class="banner secret" role="status"><span class="lock">🔒 Тільки для тебе</span>' + escT(myNews.t) + '</div>';
       if (lastNews && !fin) h += '<div class="banner ' + lastNews.k + '" role="status">' + escT(lastNews.t) + '</div>';
       // стіл
       var W = Math.min(window.innerWidth, 480) - 24, size = W < 360 ? 52 : 60, R = W / 2 - size / 2 - 6, C = W / 2;
@@ -453,12 +465,13 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
         var can = targets.indexOf(st.id) >= 0;
         if (st.talk) talking.push(st.me ? "ти" : st.name);
         var cls = "seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (st.won ? " won" : "") +
-          (st.talk ? " talk" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "") + (st.look ? " has-look" : "");
+          (st.talk ? " talk" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "") + (st.look ? " has-look" : "") + (st.known ? " known" : "");
         var micIcon = st.mic === undefined || !st.alive ? "" : '<span class="mic">' + (st.mic ? MIC_ON : MIC_OFF) + '</span>';
         h += '<button class="' + cls + '" data-seat="' + st.id + '" style="left:' + x + 'px;top:' + y + 'px;width:' + size + 'px" aria-label="№' + st.n + ' ' + escT(st.name) + (st.alive ? "" : ", вибув") + (st.talk ? ", говорить" : "") + '"' + (can ? "" : ' tabindex="-1"') + '>' +
           '<span class="face" style="width:' + size + 'px;height:' + size + 'px;font-size:' + (size / 3.6) + 'px">' + face(st, size) + '</span>' +
           '<span class="num">' + st.n + '</span>' + micIcon + (tally[st.id] ? '<span class="votes">' + tally[st.id] + '</span>' : "") +
-          '<span class="nm">' + escT(st.me ? "Ти" : st.name) + '</span>' + ((!st.alive || fin) && st.role ? '<span class="nm rl">' + escT(st.role) + '</span>' : "") + '</button>';
+          '<span class="nm">' + escT(st.me ? "Ти" : st.name) + '</span>' + ((!st.alive || fin) && st.role ? '<span class="nm rl">' + escT(st.role) + '</span>' :
+            st.known ? '<span class="nm rl kn" title="Твоя перевірка">🔍 ' + escT(st.known) + '</span>' : "") + '</button>';
       });
       h += '</div>';
       if (!fin) h += '<div class="talking" aria-live="polite">' + (talking.length ? "🎙 Говорить: " + escT(talking.join(", ")) : S.voice ? "" : "") + '</div>';
@@ -494,14 +507,18 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
             (S.confirm ? '<div class="note" style="margin:0">👍 ' + S.confirm.yes + ' · 👎 ' + S.confirm.no + '</div>' : "") +
             '<div class="row2"><button class="btn primary" data-confirm="1">👍 Стратити</button><button class="btn" data-confirm="0">👎 Помилувати</button></div>';
         }
-        h += '<div class="note" style="margin:0;text-align:center">Кнопки в боті теж працюють. Результати перевірок приходять у бот.</div>';
+        h += '<div class="note" style="margin:0;text-align:center">Кнопки в боті теж працюють. Результати перевірок бачиш лише ти: тут і в боті.</div>';
       }
       h += '</div>';
       // журнал гри
-      if (ev.length) {
-        h += '<div class="log"><button class="btn log-h" id="logToggle" aria-expanded="' + logOpen + '">📜 Журнал гри · ' + ev.length + (logOpen ? " ▲" : " ▼") + '</button>';
+      if (ev.length || mineAll.length) {
+        h += '<div class="log"><button class="btn log-h" id="logToggle" aria-expanded="' + logOpen + '">📜 Журнал гри · ' + (ev.length + mineAll.length) + (logOpen ? " ▲" : " ▼") + '</button>';
         if (logOpen) {
           h += '<div class="log-list">';
+          if (mineAll.length) {
+            h += '<div class="ph secret">🔒 Тільки для тебе</div>';
+            mineAll.slice().reverse().forEach(function (e) { h += '<div class="ev secret">' + escT(e.t) + ' <span class="dn">· день ' + e.d + '</span></div>'; });
+          }
           ev.slice().reverse().forEach(function (e) {
             h += e.k === "phase" ? '<div class="ph">' + escT(e.t) + '</div>' : '<div class="ev ' + e.k + '">' + escT(e.t) + '</div>';
           });
