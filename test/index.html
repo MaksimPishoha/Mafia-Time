@@ -109,6 +109,8 @@ body.night { background: #0A0D16; }
 .seat.dead .nm { color: #5B616C; text-decoration: line-through; }
 .seat.me .face { border-color: #5B8DEF; }
 .seat.ally .face { border-color: var(--red); }
+.seat.won .face { border-color: var(--gold, #E2BE6A); box-shadow: 0 0 0 3px rgba(226,190,106,.25); }
+.result { font-family: "Playfair Display", serif; font-size: 20px; font-weight: 700; color: #E2BE6A; }
 .seat.pick .face { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(226,190,106,.18), 0 0 24px rgba(226,190,106,.35); }
 .seat.can .face { border-style: dashed; }
 .seat .votes { position: absolute; right: -6px; top: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--gold); color: var(--ink); font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
@@ -258,7 +260,7 @@ body.night { background: #0A0D16; }
       if (S.error401) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Відкрий стіл кнопкою «🎭 Відкрити стіл» з бота: так бот знає, що це ти.</div></div>'; return; }
       if (S.none) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Зараз ти не граєш у голосову гру. Стіл з’явиться, коли почнеться наступна.</div></div>'; return; }
       if (!S.seats) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Немає зв’язку з ботом. Пробую ще раз…</div></div>'; return; }
-      var night = S.stage === "night";
+      var night = S.stage === "night", fin = S.stage === "finished";
       document.body.classList.toggle("night", night);
       var left = Math.max(0, S.left - Math.floor((Date.now() - lastFetch) / 1000));
       var mm = Math.floor(left / 60), ss = left % 60;
@@ -274,27 +276,34 @@ body.night { background: #0A0D16; }
       }
       var tally = {};
       if (S.votes) Object.keys(S.votes).forEach(function (k) { var t = S.votes[k]; if (t) tally[t] = (tally[t] || 0) + 1; });
-      h += '<div class="tbl-top"><div><h2>' + escT(night ? "Ніч " + S.day : (STAGE[S.stage] || "Гра") + " · день " + S.day) + '</h2><div class="sub">' + escT(S.chat) + ' · живих ' + S.alive + '</div></div>' +
+      if (fin) h += '<div class="tbl-top"><div><h2>Гру завершено</h2><div class="sub">' + escT(S.chat) + ' · ' + S.day + ' дн.</div></div></div>';
+      else h += '<div class="tbl-top"><div><h2>' + escT(night ? "Ніч " + S.day : (STAGE[S.stage] || "Гра") + " · день " + S.day) + '</h2><div class="sub">' + escT(S.chat) + ' · живих ' + S.alive + '</div></div>' +
         '<div class="pill">' + mm + ":" + (ss < 10 ? "0" : "") + ss + '</div></div>';
       var W = Math.min(window.innerWidth, 480) - 24, size = W < 360 ? 48 : 56, R = W / 2 - size / 2 - 6, C = W / 2;
       var n = S.seats.length;
       h += '<div class="ring" style="width:' + W + 'px;height:' + (W + 8) + 'px">';
       var cw = Math.round(W * 0.36);
-      h += '<div class="clock" style="left:' + (C - cw / 2) + 'px;top:' + (C - cw / 2) + 'px;width:' + cw + 'px;height:' + cw + 'px"><div class="k">' + escT(night ? "ніч" : "день " + S.day) + '</div><div class="t">' + mm + ":" + (ss < 10 ? "0" : "") + ss + '</div><div class="s">' + escT(STAGE[S.stage] || "") + '</div></div>';
+      h += '<div class="clock" style="left:' + (C - cw / 2) + 'px;top:' + (C - cw / 2) + 'px;width:' + cw + 'px;height:' + cw + 'px"><div class="k">' + escT(fin ? "кінець" : night ? "ніч" : "день " + S.day) + '</div><div class="t">' + (fin ? "🏁" : mm + ":" + (ss < 10 ? "0" : "") + ss) + '</div><div class="s">' + escT(STAGE[S.stage] || "") + '</div></div>';
       S.seats.forEach(function (st, i) {
         var a = Math.PI / 2 + i * 2 * Math.PI / n;
         var x = C + R * Math.cos(a) - size / 2, y = C + R * Math.sin(a) - size / 2;
         var can = targets.indexOf(st.id) >= 0;
-        var cls = "seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "");
+        var cls = "seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (st.won ? " won" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "");
         var micIcon = st.mic === undefined || !st.alive ? "" : '<span class="mic">' + (st.mic ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7FC9A0" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8D8778" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M9 9v3a3 3 0 0 0 5 2.2"/><path d="M15 9.3V6a3 3 0 0 0-5.7-1.3"/></svg>') + '</span>';
         h += '<button class="' + cls + '" data-seat="' + st.id + '" style="left:' + x + 'px;top:' + y + 'px;width:' + size + 'px" aria-label="№' + st.n + ' ' + escT(st.name) + (st.alive ? "" : ", вибув") + '"' + (can ? "" : ' tabindex="-1"') + '>' +
           '<span class="face" style="width:' + size + 'px;height:' + size + 'px;font-size:' + (size / 3.6) + 'px">' + (st.alive ? escT(initials(st.name)) : "✕") + '</span>' +
           '<span class="num">' + st.n + '</span>' + micIcon + (tally[st.id] ? '<span class="votes">' + tally[st.id] + '</span>' : "") +
-          '<span class="nm">' + escT(st.me ? "Ти" : st.name) + '</span>' + (!st.alive && st.role ? '<span class="nm" style="font-size:10px">' + escT(st.role) + '</span>' : "") + '</button>';
+          '<span class="nm">' + escT(st.me ? "Ти" : st.name) + '</span>' + ((!st.alive || fin) && st.role ? '<span class="nm" style="font-size:10px">' + escT(st.role) + '</span>' : "") + '</button>';
       });
       h += '</div>';
       // картка гравця й дії
       h += '<div class="act">';
+      if (fin) {
+        h += '<div class="result">' + escT(S.result || "Гру завершено") + '</div>' +
+          '<div class="v">' + (S.won ? "🏆 Ти переміг" : "Цього разу без перемоги") + (S.role ? " · " + escT(S.role.title) : "") + '</div>' +
+          '<div class="note" style="margin:0">Золотом обведені переможці. Нагороди й досвід — у боті.</div></div>';
+        root.innerHTML = h; return;
+      }
       if (S.role) h += '<div><div class="k">Твоя роль</div><div class="v">' + escT(S.role.title) + (S.role.alive ? "" : " · вибув") + '</div></div>';
       if (!A) {
         h += '<div class="note" style="margin:0">' + (S.role && !S.role.alive ? "Ти вибув: стеж за грою мовчки." : night ? "Місто спить. Чекай ранку." : S.stage === "discussion" ? "Обговорення: говорять живі. Голосування скоро." : "Зараз твого ходу немає.") + '</div>';
