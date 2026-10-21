@@ -93,6 +93,34 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
 .witem .thumb svg { width: 100%; height: 100%; display: block; }
 .witem .n { font-size: 11px; font-weight: 700; line-height: 1.2; }
 .witem .t { font-size: 10px; line-height: 1.25; }
+/* ---------- живий стіл ---------- */
+body.night { background: #0A0D16; }
+.tbl-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid var(--line2); }
+.tbl-top h2 { margin: 0; font-family: 'Playfair Display', serif; font-size: 20px; }
+.tbl-top .sub { font-size: 12px; }
+.pill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ring { position: relative; margin: 14px auto 0; }
+.seat { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: 0; padding: 0; cursor: pointer; }
+.seat .face { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; background: var(--chip); border: 2px solid #3A404C; box-sizing: border-box; }
+.seat .nm { font-size: 11px; max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); }
+.seat .num { position: absolute; left: -2px; top: -2px; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); border: 1px solid #3A404C; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.seat .mic { position: absolute; right: -2px; top: 30px; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); border: 1px solid #3A404C; display: flex; align-items: center; justify-content: center; }
+.seat.dead .face { background: #15181E; color: #5B616C; border-color: #22262F; }
+.seat.dead .nm { color: #5B616C; text-decoration: line-through; }
+.seat.me .face { border-color: #5B8DEF; }
+.seat.ally .face { border-color: var(--red); }
+.seat.pick .face { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(226,190,106,.18), 0 0 24px rgba(226,190,106,.35); }
+.seat.can .face { border-style: dashed; }
+.seat .votes { position: absolute; right: -6px; top: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--gold); color: var(--ink); font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.clock { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 50%; background: #14171D; border: 1px solid var(--line); }
+.clock .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.clock .t { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; line-height: 1.1; }
+.clock .s { font-size: 11px; color: var(--muted); }
+.act { margin: 12px 16px 16px; padding: 16px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+.act .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.act .v { font-size: 16px; font-weight: 700; }
+.act .row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2A2416; border: 1px solid var(--gold); color: var(--gold2); padding: 10px 16px; border-radius: 12px; font-size: 13px; max-width: 90vw; z-index: 9; }
 </style>
 </head>
 <body>
@@ -148,6 +176,8 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
     param(location.search, "tgWebAppStartParam") || param(location.hash, "tgWebAppStartParam");
   var D = (await decode(param(location.search, "p"))) || (await decode(startParam)) ||
     (await decode((location.hash.slice(1).split("&")[0] || "").indexOf("=") < 0 ? location.hash.slice(1).split("&")[0] : ""));
+  var TABLE_API = param(location.search, "t") || (D && D.t) || "";
+  if (TABLE_API) { tableMode(TABLE_API); return; }
   var demo = !D;
   if (demo) {
     D = { u: 1, b: "", n: "Максим", x: 9990, g: 147, w: 81, a: 2, s: 6, f: ["doctor", 31], e: 0b100100010101, r: "gold",
@@ -187,6 +217,135 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
                     guessed: D.sp[5], hunted: D.sp[6], e: D.sp[7] } : null;
   if (!SP && fromSpy) SP = { x: 0, games: 0, wins: 0, spy_games: 0, spy_wins: 0, guessed: 0, hunted: 0, e: 0 };
   var spyEarned = function (a) { return SP && (SP.e >> a.i) & 1; };
+
+
+  // ---------- живий стіл голосової гри ----------
+  function tableMode(api) {
+    var tgw = window.Telegram && window.Telegram.WebApp;
+    var root = document.getElementById("app");
+    var init = (tgw && tgw.initData) || "";
+    var S = null, pick = null, mode = null, busy = false, lastFetch = 0, toastMsg = "", toastTimer = null;
+    var STAGE = { night: "Ніч", discussion: "Обговорення", vote: "Голосування", confirm: "Підтвердження страти", kamikaze: "Хід Камікадзе" };
+    function escT(x) { return String(x).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+    function initials(n) { var p = String(n).replace(/[^\p{L}\p{N} ]/gu, "").trim().split(/\s+/); return ((p[0] || "?")[0] + ((p[1] || "")[0] || (p[0] || "")[1] || "")).toUpperCase(); }
+    function toast(t) { toastMsg = t; clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastMsg = ""; draw(); }, 2600); draw(); }
+    async function call(path, extra) {
+      var body = Object.assign({ init: init }, extra || {});
+      var r = await fetch(api.replace(/\/$/, "") + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      var j = await r.json().catch(function () { return { error: "Немає зв'язку з ботом" }; });
+      if (r.status === 401) j.error401 = true;
+      return j;
+    }
+    async function refresh() {
+      if (busy) return;
+      try { var j = await call("/api/state"); S = j; lastFetch = Date.now(); }
+      catch (e) { S = S || { offline: true }; if (S) S.offline = true; }
+      draw();
+    }
+    async function act(extra) {
+      busy = true;
+      try {
+        var j = await call("/api/act", extra);
+        if (j.error) toast(j.error); else { toast("✓ Готово"); pick = null; }
+        S = j; lastFetch = Date.now();
+      } catch (e) { toast("Немає зв'язку з ботом"); }
+      busy = false; draw();
+    }
+    function seatById(id) { return (S.seats || []).filter(function (x) { return x.id === id; })[0]; }
+    function draw() {
+      var h = "";
+      if (!S) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section note">Підключаюся до бота…</div>'; return; }
+      if (S.error401) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Відкрий стіл кнопкою «🎭 Відкрити стіл» з бота: так бот знає, що це ти.</div></div>'; return; }
+      if (S.none) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Зараз ти не граєш у голосову гру. Стіл з’явиться, коли почнеться наступна.</div></div>'; return; }
+      if (!S.seats) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Немає зв’язку з ботом. Пробую ще раз…</div></div>'; return; }
+      var night = S.stage === "night";
+      document.body.classList.toggle("night", night);
+      var left = Math.max(0, S.left - Math.floor((Date.now() - lastFetch) / 1000));
+      var mm = Math.floor(left / 60), ss = left % 60;
+      var A = S.act;
+      // хто кого може обрати зараз
+      var targets = [];
+      if (A && !A.done) {
+        if (A.kind === "vote") targets = A.targets;
+        if (A.kind === "night") {
+          var spec = A.actions.filter(function (a) { return a.key === mode; })[0] || A.actions[0];
+          mode = spec.key; targets = spec.targets;
+        }
+      }
+      var tally = {};
+      if (S.votes) Object.keys(S.votes).forEach(function (k) { var t = S.votes[k]; if (t) tally[t] = (tally[t] || 0) + 1; });
+      h += '<div class="tbl-top"><div><h2>' + escT(night ? "Ніч " + S.day : (STAGE[S.stage] || "Гра") + " · день " + S.day) + '</h2><div class="sub">' + escT(S.chat) + ' · живих ' + S.alive + '</div></div>' +
+        '<div class="pill">' + mm + ":" + (ss < 10 ? "0" : "") + ss + '</div></div>';
+      var W = Math.min(window.innerWidth, 480) - 24, size = W < 360 ? 48 : 56, R = W / 2 - size / 2 - 6, C = W / 2;
+      var n = S.seats.length;
+      h += '<div class="ring" style="width:' + W + 'px;height:' + (W + 8) + 'px">';
+      var cw = Math.round(W * 0.36);
+      h += '<div class="clock" style="left:' + (C - cw / 2) + 'px;top:' + (C - cw / 2) + 'px;width:' + cw + 'px;height:' + cw + 'px"><div class="k">' + escT(night ? "ніч" : "день " + S.day) + '</div><div class="t">' + mm + ":" + (ss < 10 ? "0" : "") + ss + '</div><div class="s">' + escT(STAGE[S.stage] || "") + '</div></div>';
+      S.seats.forEach(function (st, i) {
+        var a = Math.PI / 2 + i * 2 * Math.PI / n;
+        var x = C + R * Math.cos(a) - size / 2, y = C + R * Math.sin(a) - size / 2;
+        var can = targets.indexOf(st.id) >= 0;
+        var cls = "seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "");
+        var micIcon = st.mic === undefined || !st.alive ? "" : '<span class="mic">' + (st.mic ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7FC9A0" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8D8778" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M9 9v3a3 3 0 0 0 5 2.2"/><path d="M15 9.3V6a3 3 0 0 0-5.7-1.3"/></svg>') + '</span>';
+        h += '<button class="' + cls + '" data-seat="' + st.id + '" style="left:' + x + 'px;top:' + y + 'px;width:' + size + 'px" aria-label="№' + st.n + ' ' + escT(st.name) + (st.alive ? "" : ", вибув") + '"' + (can ? "" : ' tabindex="-1"') + '>' +
+          '<span class="face" style="width:' + size + 'px;height:' + size + 'px;font-size:' + (size / 3.6) + 'px">' + (st.alive ? escT(initials(st.name)) : "✕") + '</span>' +
+          '<span class="num">' + st.n + '</span>' + micIcon + (tally[st.id] ? '<span class="votes">' + tally[st.id] + '</span>' : "") +
+          '<span class="nm">' + escT(st.me ? "Ти" : st.name) + '</span>' + (!st.alive && st.role ? '<span class="nm" style="font-size:10px">' + escT(st.role) + '</span>' : "") + '</button>';
+      });
+      h += '</div>';
+      // картка гравця й дії
+      h += '<div class="act">';
+      if (S.role) h += '<div><div class="k">Твоя роль</div><div class="v">' + escT(S.role.title) + (S.role.alive ? "" : " · вибув") + '</div></div>';
+      if (!A) {
+        h += '<div class="note" style="margin:0">' + (S.role && !S.role.alive ? "Ти вибув: стеж за грою мовчки." : night ? "Місто спить. Чекай ранку." : S.stage === "discussion" ? "Обговорення: говорять живі. Голосування скоро." : "Зараз твого ходу немає.") + '</div>';
+      } else if (A.done) {
+        var dt = A.kind === "confirm" ? (S.confirm && S.confirm.mine ? "Твій голос: 👍 стратити" : "Твій голос: 👎 помилувати") : A.target ? "Ціль: №" + (seatById(A.target) || {}).n + " " + (seatById(A.target) || {}).name : "Ти пропускаєш / утримуєшся";
+        h += '<div class="v">✓ ' + escT(dt) + '</div>';
+        if (A.kind === "confirm") h += '<div class="row2"><button class="btn" data-confirm="1">👍 Стратити</button><button class="btn" data-confirm="0">👎 Помилувати</button></div>';
+      } else if (A.kind === "night") {
+        if (A.actions.length > 1) h += '<div class="row2">' + A.actions.map(function (a) { return '<button class="btn' + (a.key === mode ? " primary" : "") + '" data-mode="' + a.key + '">' + escT(a.title) + '</button>'; }).join("") + '</div>';
+        var pt = pick && seatById(pick);
+        h += '<div class="v">' + (pt ? escT((A.actions.filter(function (a) { return a.key === mode; })[0] || {}).title + ": №" + pt.n + " " + pt.name) : "Торкнися гравця за столом") + '</div>';
+        h += '<button class="btn primary" id="doAct"' + (pt ? "" : " disabled") + ' style="min-height:50px">Підтвердити хід</button>';
+        if (A.skip) h += '<button class="btn" id="doSkip">⏭ Пропустити хід</button>';
+      } else if (A.kind === "vote") {
+        var pv = pick && seatById(pick);
+        h += '<div class="v">' + (pv ? "Стратити №" + pv.n + " " + escT(pv.name) + "?" : "Кого стратимо? Торкнися гравця") + '</div>' +
+          (S.voters ? '<div class="note" style="margin:0">Проголосували ' + S.voted + ' з ' + S.voters + '</div>' : "") +
+          '<div class="row2"><button class="btn" id="doAbstain">🙅 Утриматися</button><button class="btn primary" id="doVote"' + (pv ? "" : " disabled") + '>Голосувати</button></div>';
+      } else if (A.kind === "confirm") {
+        var c = seatById(A.candidate) || {};
+        h += '<div class="v">Стратити №' + c.n + ' ' + escT(c.name || "") + '?</div>' +
+          (S.confirm ? '<div class="note" style="margin:0">👍 ' + S.confirm.yes + ' · 👎 ' + S.confirm.no + '</div>' : "") +
+          '<div class="row2"><button class="btn primary" data-confirm="1">👍 Стратити</button><button class="btn" data-confirm="0">👎 Помилувати</button></div>';
+      }
+      h += '<div class="note" style="margin:0;text-align:center">Кнопки в боті теж працюють. Результати перевірок приходять у бот.</div></div>';
+      if (toastMsg) h += '<div class="toast" role="status">' + escT(toastMsg) + '</div>';
+      root.innerHTML = h;
+    }
+    root.addEventListener("click", function (ev) {
+      var el = ev.target.closest("button"); if (!el || !S || !S.act) return;
+      var A = S.act;
+      if (el.dataset.seat) {
+        var id = +el.dataset.seat, ok = false;
+        if (!A.done && A.kind === "vote") ok = A.targets.indexOf(id) >= 0;
+        if (!A.done && A.kind === "night") { var sp = A.actions.filter(function (a) { return a.key === mode; })[0] || A.actions[0]; ok = sp.targets.indexOf(id) >= 0; }
+        if (ok) { pick = id; try { tgw && tgw.HapticFeedback && tgw.HapticFeedback.selectionChanged(); } catch (e) {} draw(); }
+        return;
+      }
+      if (el.dataset.mode) { mode = el.dataset.mode; pick = null; return draw(); }
+      if (el.id === "doAct" && pick) return act({ kind: "night", action: mode, target: pick });
+      if (el.id === "doSkip") return act({ kind: "night", action: "skip", target: 0 });
+      if (el.id === "doVote" && pick) return act({ kind: "vote", target: pick });
+      if (el.id === "doAbstain") return act({ kind: "vote", target: 0 });
+      if (el.dataset.confirm) return act({ kind: "confirm", yes: el.dataset.confirm === "1" });
+    });
+    if (tgw) { try { tgw.ready(); tgw.expand(); tgw.setHeaderColor && tgw.setHeaderColor("#0E1014"); } catch (e) {} }
+    refresh();
+    setInterval(refresh, 1500);
+    setInterval(function () { if (S && S.seats) draw(); }, 1000);
+    window.addEventListener("resize", draw);
+  }
 
   // ---------- персонаж і гардероб (Time Town) ----------
   var WR = R.wardrobe || { slots: [], items: [], "default": [] };
