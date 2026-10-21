@@ -366,7 +366,7 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
     }
     async function call(path, extra) {
       var body = Object.assign({ init: init }, extra || {});
-      var r = await fetch(api.replace(/\/$/, "") + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      var r = await fetch(api.replace(/\/$/, "") + path, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(body) });
       var j = await r.json().catch(function () { return { error: "Немає зв'язку з ботом" }; });
       if (r.status === 401) j.error401 = true;
       return j;
