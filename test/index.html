@@ -122,6 +122,41 @@ body.night { background: #0A0D16; }
 .act .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .act .v { font-size: 16px; font-weight: 700; }
 .act .row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+body { transition: background-color 1.2s ease; }
+.seat .face { overflow: hidden; position: relative; }
+.seat .face svg { width: 100%; height: 100%; display: block; }
+.seat.dead .face svg { filter: grayscale(1) brightness(.45); }
+.seat .x { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--red); font-size: 22px; font-weight: 800; }
+.seat .rl { font-size: 10px; }
+.seat.talk .face { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(226,190,106,.22), 0 0 22px rgba(226,190,106,.45); animation: talk 1.1s ease-in-out infinite; }
+@keyframes talk { 50% { box-shadow: 0 0 0 7px rgba(226,190,106,.10), 0 0 30px rgba(226,190,106,.6); } }
+.clock .prog { position: absolute; left: 0; top: 0; transform: rotate(-90deg); }
+.clock .prog circle { fill: none; stroke-width: 3; }
+.clock .prog .track { stroke: #22262F; }
+.clock .prog .arc { stroke: var(--gold); stroke-linecap: round; transition: stroke-dasharray .9s linear, stroke .3s; }
+.clock .prog .arc.low { stroke: var(--red); }
+body.night .clock { background: #0F1422; border-color: #1E2638; }
+body.night .clock .prog .arc { stroke: #8FB2F5; }
+body.night .clock .prog .arc.low { stroke: var(--red); }
+body.night .clock .k { color: #8FB2F5; }
+body.night .act, body.night .banner, body.night .log-h { background: #121829; border-color: #253048; }
+.banner { margin: 12px 16px 0; padding: 10px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); font-size: 13px; line-height: 1.35; }
+.banner.death { border-color: rgba(192,69,58,.55); }
+.banner.lynch { border-color: rgba(226,190,106,.55); }
+.talking { text-align: center; font-size: 13px; font-weight: 700; color: var(--gold); min-height: 18px; margin: 2px 16px 0; }
+.role-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.peek { flex: none; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: #1E222B; color: var(--text); font-weight: 700; font-size: 13px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+.log { margin: 0 16px 24px; }
+.log-h { width: 100%; justify-content: flex-start; padding: 0 14px; }
+.log-list { padding: 4px 4px 0; }
+.log .ph { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin: 14px 0 4px; }
+.log .ev { font-size: 13px; line-height: 1.35; padding: 7px 0; border-bottom: 1px solid var(--line2); color: var(--soft); }
+.log .ev.death { color: #E8A39B; }
+.log .ev.lynch { color: var(--gold2); }
+.phase-flash { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700; color: #EDE6D6; background: rgba(14,16,20,.55); animation: flash 1.8s ease forwards; z-index: 8; }
+.phase-flash.night { background: rgba(10,13,22,.75); color: #B5CBF8; }
+@keyframes flash { 0% { opacity: 0; } 20% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { body { transition: none; } .seat.talk .face { animation: none; } .clock .prog .arc { transition: none; } }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2A2416; border: 1px solid var(--gold); color: var(--gold2); padding: 10px 16px; border-radius: 12px; font-size: 13px; max-width: 90vw; z-index: 9; }
 </style>
 </head>
@@ -178,6 +213,52 @@ body.night { background: #0A0D16; }
     param(location.search, "tgWebAppStartParam") || param(location.hash, "tgWebAppStartParam");
   var D = (await decode(param(location.search, "p"))) || (await decode(startParam)) ||
     (await decode((location.hash.slice(1).split("&")[0] || "").indexOf("=") < 0 ? location.hash.slice(1).split("&")[0] : ""));
+  // ---------- малюнок персонажа (потрібен і столу, і гардеробу) ----------
+  var BG = {
+    bg_night: '<defs><radialGradient id="gN" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#2A303C"/><stop offset="1" stop-color="#12151B"/></radialGradient></defs><rect width="200" height="240" fill="url(#gN)"/>',
+    bg_city: '<rect width="200" height="240" fill="#121A2B"/><circle cx="160" cy="44" r="16" fill="#E9E1C8" opacity=".85"/><path d="M0 150h22v-40h18v24h16v-52h22v38h14v-22h20v44h16v-30h20v18h18v-10h34V240H0z" fill="#0B101C"/><g fill="#E2BE6A" opacity=".7"><rect x="64" y="96" width="4" height="5"/><rect x="72" y="108" width="4" height="5"/><rect x="112" y="128" width="4" height="5"/><rect x="146" y="132" width="4" height="5"/><rect x="28" y="122" width="4" height="5"/></g>',
+    bg_rain: '<rect width="200" height="240" fill="#151A22"/><g stroke="#5E6B82" stroke-width="1.4" opacity=".55"><path d="M20 0l-14 40M60 10l-14 40M100 0l-14 40M140 14l-14 40M180 0l-14 40M40 60l-14 40M80 70l-14 40M120 60l-14 40M160 74l-14 40M196 60l-14 40M24 120l-14 40M64 130l-14 40M104 120l-14 40M144 134l-14 40M184 120l-14 40"/></g>',
+    bg_curtain: '<rect width="200" height="240" fill="#4A1018"/><g fill="#6E1A24"><path d="M0 0h18c-6 80 6 160 0 240H0z"/><path d="M38 0h20c-8 80 8 160 0 240H38z"/><path d="M80 0h20c-8 80 8 160 0 240H80z"/><path d="M122 0h20c-8 80 8 160 0 240h-20z"/><path d="M164 0h20c-8 80 8 160 0 240h-20z"/></g><rect width="200" height="16" fill="#C9A24E"/>',
+    bg_gold: '<defs><radialGradient id="gG" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#F3D58E"/><stop offset=".55" stop-color="#B8923F"/><stop offset="1" stop-color="#5E4718"/></radialGradient></defs><rect width="200" height="240" fill="url(#gG)"/>'
+  };
+  var OUTFIT = {
+    trench: { coat: "#9C8158", lapel: "#7E6744", shirt: "#E8E2D4", tie: "#2A2F3A", extra: '<path d="M44 222h112" stroke="#6B5838" stroke-width="7"/><circle cx="100" cy="222" r="5" fill="#C9A24E"/>' },
+    suit: { coat: "#22262E", lapel: "#14171C", shirt: "#E8E2D4", tie: "#14171C", extra: "" },
+    burgundy: { coat: "#6E1F2A", lapel: "#4E141D", shirt: "#E8E2D4", tie: "#14171C", extra: "" },
+    white: { coat: "#E6E0D2", lapel: "#C9C2B2", shirt: "#2A2F3A", tie: "#E6E0D2", extra: "" },
+    police: { coat: "#1F3554", lapel: "#152640", shirt: "#C9D3E3", tie: "#14171C", extra: '<path d="M62 200l4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1z" fill="#E2BE6A"/>' },
+    medic: { coat: "#ECEAE4", lapel: "#D3D0C8", shirt: "#8FB2F5", tie: "#5B8DEF", extra: '<path d="M70 186c-14 22 0 40 14 32" fill="none" stroke="#3A404C" stroke-width="3"/><circle cx="84" cy="218" r="4" fill="#3A404C"/><path d="M128 206h12M134 200v12" stroke="#C0453A" stroke-width="4"/>' }
+  };
+  var HAT = {
+    hat_none: '<path d="M70 92c2-18 14-28 30-28s28 10 30 28c-8-8-18-12-30-12s-22 4-30 12z" fill="#1B1E25"/>',
+    fedora: '<ellipse cx="100" cy="86" rx="52" ry="9" fill="#14171C"/><path d="M68 84c2-22 12-36 32-36s30 14 32 36z" fill="#1E222A"/><path d="M68 78h64v7H68z" fill="#E2BE6A"/>',
+    cap: '<path d="M66 86c0-20 14-32 34-32s34 10 36 26l14 6c-24 6-60 6-84 0z" fill="#4A4136"/><path d="M66 86c26 4 58 4 84 0" stroke="#2E2820" stroke-width="3" fill="none"/>',
+    beret: '<ellipse cx="96" cy="70" rx="40" ry="14" transform="rotate(-10 96 70)" fill="#7A1F2B"/><path d="M68 84c10-6 30-8 48-4" stroke="#4E141D" stroke-width="4" fill="none"/><circle cx="104" cy="56" r="3" fill="#4E141D"/>',
+    tophat: '<ellipse cx="100" cy="86" rx="44" ry="8" fill="#0E1014"/><rect x="74" y="28" width="52" height="58" rx="4" fill="#16191F"/><rect x="74" y="72" width="52" height="8" fill="#6E1F2A"/>',
+    crown: '<path d="M70 86l-4-34 18 16 16-26 16 26 18-16-4 34z" fill="#E2BE6A" stroke="#B8923F" stroke-width="2"/><circle cx="100" cy="66" r="4" fill="#C0453A"/><circle cx="80" cy="74" r="3" fill="#5B8DEF"/><circle cx="120" cy="74" r="3" fill="#7FC9A0"/>'
+  };
+  var ACC = {
+    acc_none: "",
+    shades: '<rect x="74" y="98" width="22" height="12" rx="4" fill="#0B0D11"/><rect x="104" y="98" width="22" height="12" rx="4" fill="#0B0D11"/><path d="M96 103h8" stroke="#0B0D11" stroke-width="3"/>',
+    monocle: '<circle cx="114" cy="104" r="9" fill="none" stroke="#E2BE6A" stroke-width="2.5"/><path d="M122 110c6 14 4 30-4 44" fill="none" stroke="#E2BE6A" stroke-width="1.5"/>',
+    bowtie: '<path d="M86 166l14 7-14 7zM114 166l-14 7 14 7z" fill="#C0453A"/><circle cx="100" cy="173" r="3.5" fill="#8E2A22"/>',
+    rose: '<circle cx="72" cy="196" r="7" fill="#C0453A"/><circle cx="72" cy="196" r="3.5" fill="#8E2A22"/><path d="M76 202l8 8" stroke="#3E7A55" stroke-width="3"/>',
+    mask: '<path d="M68 96c10-6 54-6 64 0l-2 14c-8 4-22 4-30-2-8 6-22 6-30 2z" fill="#0B0D11"/><ellipse cx="86" cy="103" rx="6" ry="4" fill="#3A404C"/><ellipse cx="114" cy="103" rx="6" ry="4" fill="#3A404C"/>'
+  };
+  function charSVG(look, vb) {
+    var o = OUTFIT[look.outfit] || OUTFIT.trench;
+    return '<svg viewBox="' + (vb || "0 0 200 240") + '" aria-hidden="true">' + (BG[look.bg] || BG.bg_night) +
+      '<path d="M18 240c4-46 36-74 82-74s78 28 82 74z" fill="' + o.coat + '"/>' +
+      '<path d="M78 168l22 52 22-52c-6-2-14-3-22-3s-16 1-22 3z" fill="' + o.shirt + '"/>' +
+      '<path d="M96 170h8l4 10-8 44-8-44z" fill="' + o.tie + '"/>' +
+      '<path d="M78 168l22 52-30-20-6-24z" fill="' + o.lapel + '"/><path d="M122 168l-22 52 30-20 6-24z" fill="' + o.lapel + '"/>' +
+      o.extra +
+      '<rect x="88" y="138" width="24" height="30" rx="8" fill="#3E434E"/>' +
+      '<ellipse cx="100" cy="106" rx="30" ry="36" fill="#4A505C"/>' +
+      '<path d="M70 106c2 20 14 36 30 36s28-16 30-36c-6 10-16 16-30 16s-24-6-30-16z" fill="#3E434E"/>' +
+      '<path d="M84 126c10 5 22 5 32 0" stroke="#2A2E36" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+      (ACC[look.acc] || "") + (HAT[look.hat] || "") + '</svg>';
+  }
   var TABLE_API = param(location.search, "t") || (D && D.t) || "";
   if (TABLE_API) { tableMode(TABLE_API); return; }
   var demo = !D;
@@ -227,10 +308,31 @@ body.night { background: #0A0D16; }
     var root = document.getElementById("app");
     var init = (tgw && tgw.initData) || "";
     var S = null, pick = null, mode = null, busy = false, lastFetch = 0, toastMsg = "", toastTimer = null;
+    var sig = "", peek = false, logOpen = false, lastTurn = "", lastEv = -1, lastStage = "";
     var STAGE = { night: "Ніч", discussion: "Обговорення", vote: "Голосування", confirm: "Підтвердження страти", kamikaze: "Хід Камікадзе" };
+    var LOOK_SLOTS = ["hat", "outfit", "acc", "bg"];
+    var MIC_ON = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7FC9A0" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg>';
+    var MIC_OFF = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8D8778" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M9 9v3a3 3 0 0 0 5 2.2"/><path d="M15 9.3V6a3 3 0 0 0-5.7-1.3"/></svg>';
+    var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     function escT(x) { return String(x).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
     function initials(n) { var p = String(n).replace(/[^\p{L}\p{N} ]/gu, "").trim().split(/\s+/); return ((p[0] || "?")[0] + ((p[1] || "")[0] || (p[0] || "")[1] || "")).toUpperCase(); }
+    function buzz(kind) {
+      try {
+        var hf = tgw && tgw.HapticFeedback; if (!hf) return;
+        if (kind === "turn") hf.notificationOccurred("warning");
+        else if (kind === "death") hf.impactOccurred("heavy");
+        else hf.impactOccurred("light");
+      } catch (e) {}
+    }
     function toast(t) { toastMsg = t; clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastMsg = ""; draw(); }, 2600); draw(); }
+    function flash(text, isNight) {
+      if (reduced) return;
+      var el = document.createElement("div");
+      el.className = "phase-flash" + (isNight ? " night" : "");
+      el.textContent = text;
+      document.body.appendChild(el);
+      setTimeout(function () { el.remove(); }, 1900);
+    }
     async function call(path, extra) {
       var body = Object.assign({ init: init }, extra || {});
       var r = await fetch(api.replace(/\/$/, "") + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -238,32 +340,80 @@ body.night { background: #0A0D16; }
       if (r.status === 401) j.error401 = true;
       return j;
     }
+    // Нове стан від бота: вібрація на свій хід і на події, заставка при зміні фази.
+    function take(j) {
+      S = j; lastFetch = Date.now();
+      if (!S || !S.seats) return;
+      var A = S.act, turn = A && !A.done ? A.kind + "|" + S.stage + "|" + S.day : "";
+      if (turn && turn !== lastTurn) { buzz("turn"); toastMsg = "🔔 Твій хід"; clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastMsg = ""; draw(); }, 2600); }
+      lastTurn = turn;
+      var ev = S.events || [], newest = ev.length ? ev[ev.length - 1].n : 0;
+      if (lastEv >= 0 && newest > lastEv) {
+        var fresh = ev.filter(function (e) { return e.n > lastEv; });
+        buzz(fresh.some(function (e) { return e.k === "death" || e.k === "lynch"; }) ? "death" : "event");
+      }
+      lastEv = newest;
+      if (lastStage && S.stage !== lastStage) {
+        if (S.stage === "night") flash("🌙 Ніч " + S.day, true);
+        else if (S.stage === "discussion") flash("☀️ День " + S.day, false);
+        else if (S.stage === "vote") flash("🗳 Голосування", false);
+        else if (S.stage === "finished") flash("🏁 Кінець гри", false);
+      }
+      if (S.stage !== lastStage) {
+        try { var c = S.stage === "night" ? "#0A0D16" : "#0E1014"; tgw && tgw.setHeaderColor && tgw.setHeaderColor(c); tgw && tgw.setBackgroundColor && tgw.setBackgroundColor(c); } catch (e) {}
+      }
+      lastStage = S.stage;
+    }
     async function refresh() {
       if (busy) return;
-      try { var j = await call("/api/state"); S = j; lastFetch = Date.now(); }
+      try { take(await call("/api/state")); }
       catch (e) { S = S || { offline: true }; if (S) S.offline = true; }
-      draw();
+      // Перемальовуємо, лише коли щось змінилося (таймер оновлює tick), щоб не смикались анімації.
+      var now = JSON.stringify(Object.assign({}, S, { left: 0 }));
+      if (now !== sig) { sig = now; draw(); } else tick();
     }
     async function act(extra) {
       busy = true;
       try {
         var j = await call("/api/act", extra);
-        if (j.error) toast(j.error); else { toast("✓ Готово"); pick = null; }
-        S = j; lastFetch = Date.now();
+        var err = j.error;
+        take(j);
+        if (err) toast(err); else { toast("✓ Готово"); pick = null; }
       } catch (e) { toast("Немає зв'язку з ботом"); }
-      busy = false; draw();
+      busy = false; sig = ""; draw();
     }
     function seatById(id) { return (S.seats || []).filter(function (x) { return x.id === id; })[0]; }
+    function leftNow() { return S && S.left ? Math.max(0, S.left - Math.floor((Date.now() - lastFetch) / 1000)) : 0; }
+    function clockText(left) { var mm = Math.floor(left / 60), ss = left % 60; return mm + ":" + (ss < 10 ? "0" : "") + ss; }
+    // Таймер і кільце оновлюємо без перемальовування всього столу.
+    function tick() {
+      if (!S || !S.seats || S.stage === "finished") return;
+      var left = leftNow();
+      root.querySelectorAll(".js-time").forEach(function (el) { el.textContent = clockText(left); });
+      var arc = root.querySelector(".js-arc");
+      if (arc) {
+        var len = +arc.dataset.len, frac = S.total ? Math.max(0, Math.min(1, left / S.total)) : 0;
+        arc.setAttribute("stroke-dasharray", (len * frac).toFixed(1) + " " + len.toFixed(1));
+        arc.classList.toggle("low", left <= 10);
+      }
+    }
+    function face(st, size) {
+      if (st.look && typeof charSVG === "function") {
+        var look = {}; LOOK_SLOTS.forEach(function (k, i) { look[k] = st.look[i]; });
+        return charSVG(look, "44 40 112 112") + (st.alive ? "" : '<span class="x">✕</span>');
+      }
+      return st.alive ? escT(initials(st.name)) : "✕";
+    }
+    function card(text) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">' + text + '</div></div>'; }
     function draw() {
       var h = "";
       if (!S) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section note">Підключаюся до бота…</div>'; return; }
-      if (S.error401) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Відкрий стіл кнопкою «🎭 Відкрити стіл» з бота: так бот знає, що це ти.</div></div>'; return; }
-      if (S.none) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Зараз ти не граєш у голосову гру. Стіл з’явиться, коли почнеться наступна.</div></div>'; return; }
-      if (!S.seats) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Немає зв’язку з ботом. Пробую ще раз…</div></div>'; return; }
+      if (S.error401) return card("Відкрий стіл кнопкою «🎭 Відкрити стіл» з бота: так бот знає, що це ти.");
+      if (S.none) return card("Зараз ти не граєш у голосову гру. Стіл з’явиться, коли почнеться наступна.");
+      if (!S.seats) return card("Немає зв’язку з ботом. Пробую ще раз…");
       var night = S.stage === "night", fin = S.stage === "finished";
       document.body.classList.toggle("night", night);
-      var left = Math.max(0, S.left - Math.floor((Date.now() - lastFetch) / 1000));
-      var mm = Math.floor(left / 60), ss = left % 60;
+      var left = leftNow();
       var A = S.act;
       // хто кого може обрати зараз
       var targets = [];
@@ -276,64 +426,102 @@ body.night { background: #0A0D16; }
       }
       var tally = {};
       if (S.votes) Object.keys(S.votes).forEach(function (k) { var t = S.votes[k]; if (t) tally[t] = (tally[t] || 0) + 1; });
+      // шапка
       if (fin) h += '<div class="tbl-top"><div><h2>Гру завершено</h2><div class="sub">' + escT(S.chat) + ' · ' + S.day + ' дн.</div></div></div>';
       else h += '<div class="tbl-top"><div><h2>' + escT(night ? "Ніч " + S.day : (STAGE[S.stage] || "Гра") + " · день " + S.day) + '</h2><div class="sub">' + escT(S.chat) + ' · живих ' + S.alive + '</div></div>' +
-        '<div class="pill">' + mm + ":" + (ss < 10 ? "0" : "") + ss + '</div></div>';
-      var W = Math.min(window.innerWidth, 480) - 24, size = W < 360 ? 48 : 56, R = W / 2 - size / 2 - 6, C = W / 2;
+        '<div class="pill js-time">' + clockText(left) + '</div></div>';
+      // остання подія
+      var ev = S.events || [];
+      var lastNews = ev.filter(function (e) { return e.k !== "phase" && e.k !== "vote"; }).slice(-1)[0];
+      if (lastNews && !fin) h += '<div class="banner ' + lastNews.k + '" role="status">' + escT(lastNews.t) + '</div>';
+      // стіл
+      var W = Math.min(window.innerWidth, 480) - 24, size = W < 360 ? 52 : 60, R = W / 2 - size / 2 - 6, C = W / 2;
       var n = S.seats.length;
       h += '<div class="ring" style="width:' + W + 'px;height:' + (W + 8) + 'px">';
-      var cw = Math.round(W * 0.36);
-      h += '<div class="clock" style="left:' + (C - cw / 2) + 'px;top:' + (C - cw / 2) + 'px;width:' + cw + 'px;height:' + cw + 'px"><div class="k">' + escT(fin ? "кінець" : night ? "ніч" : "день " + S.day) + '</div><div class="t">' + (fin ? "🏁" : mm + ":" + (ss < 10 ? "0" : "") + ss) + '</div><div class="s">' + escT(STAGE[S.stage] || "") + '</div></div>';
+      var cw = Math.round(W * 0.36), rr = cw / 2 - 3, len = 2 * Math.PI * rr;
+      var frac = !fin && S.total ? Math.max(0, Math.min(1, left / S.total)) : 0;
+      h += '<div class="clock" style="left:' + (C - cw / 2) + 'px;top:' + (C - cw / 2) + 'px;width:' + cw + 'px;height:' + cw + 'px">' +
+        (fin ? "" : '<svg class="prog" width="' + cw + '" height="' + cw + '" aria-hidden="true"><circle cx="' + cw / 2 + '" cy="' + cw / 2 + '" r="' + rr + '" class="track"/>' +
+          '<circle cx="' + cw / 2 + '" cy="' + cw / 2 + '" r="' + rr + '" class="arc js-arc' + (left <= 10 ? " low" : "") + '" data-len="' + len.toFixed(1) + '" stroke-dasharray="' + (len * frac).toFixed(1) + " " + len.toFixed(1) + '"/></svg>') +
+        '<div class="k">' + escT(fin ? "кінець" : night ? "ніч" : "день " + S.day) + '</div><div class="t' + (fin ? "" : " js-time") + '">' + (fin ? "🏁" : clockText(left)) + '</div><div class="s">' + escT(STAGE[S.stage] || "") + '</div></div>';
+      var talking = [];
       S.seats.forEach(function (st, i) {
         var a = Math.PI / 2 + i * 2 * Math.PI / n;
         var x = C + R * Math.cos(a) - size / 2, y = C + R * Math.sin(a) - size / 2;
         var can = targets.indexOf(st.id) >= 0;
-        var cls = "seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (st.won ? " won" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "");
-        var micIcon = st.mic === undefined || !st.alive ? "" : '<span class="mic">' + (st.mic ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7FC9A0" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8D8778" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M9 9v3a3 3 0 0 0 5 2.2"/><path d="M15 9.3V6a3 3 0 0 0-5.7-1.3"/></svg>') + '</span>';
-        h += '<button class="' + cls + '" data-seat="' + st.id + '" style="left:' + x + 'px;top:' + y + 'px;width:' + size + 'px" aria-label="№' + st.n + ' ' + escT(st.name) + (st.alive ? "" : ", вибув") + '"' + (can ? "" : ' tabindex="-1"') + '>' +
-          '<span class="face" style="width:' + size + 'px;height:' + size + 'px;font-size:' + (size / 3.6) + 'px">' + (st.alive ? escT(initials(st.name)) : "✕") + '</span>' +
+        if (st.talk) talking.push(st.me ? "ти" : st.name);
+        var cls = "seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (st.won ? " won" : "") +
+          (st.talk ? " talk" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "") + (st.look ? " has-look" : "");
+        var micIcon = st.mic === undefined || !st.alive ? "" : '<span class="mic">' + (st.mic ? MIC_ON : MIC_OFF) + '</span>';
+        h += '<button class="' + cls + '" data-seat="' + st.id + '" style="left:' + x + 'px;top:' + y + 'px;width:' + size + 'px" aria-label="№' + st.n + ' ' + escT(st.name) + (st.alive ? "" : ", вибув") + (st.talk ? ", говорить" : "") + '"' + (can ? "" : ' tabindex="-1"') + '>' +
+          '<span class="face" style="width:' + size + 'px;height:' + size + 'px;font-size:' + (size / 3.6) + 'px">' + face(st, size) + '</span>' +
           '<span class="num">' + st.n + '</span>' + micIcon + (tally[st.id] ? '<span class="votes">' + tally[st.id] + '</span>' : "") +
-          '<span class="nm">' + escT(st.me ? "Ти" : st.name) + '</span>' + ((!st.alive || fin) && st.role ? '<span class="nm" style="font-size:10px">' + escT(st.role) + '</span>' : "") + '</button>';
+          '<span class="nm">' + escT(st.me ? "Ти" : st.name) + '</span>' + ((!st.alive || fin) && st.role ? '<span class="nm rl">' + escT(st.role) + '</span>' : "") + '</button>';
       });
       h += '</div>';
+      if (!fin) h += '<div class="talking" aria-live="polite">' + (talking.length ? "🎙 Говорить: " + escT(talking.join(", ")) : S.voice ? "" : "") + '</div>';
       // картка гравця й дії
       h += '<div class="act">';
       if (fin) {
         h += '<div class="result">' + escT(S.result || "Гру завершено") + '</div>' +
           '<div class="v">' + (S.won ? "🏆 Ти переміг" : "Цього разу без перемоги") + (S.role ? " · " + escT(S.role.title) : "") + '</div>' +
-          '<div class="note" style="margin:0">Золотом обведені переможці. Нагороди й досвід — у боті.</div></div>';
-        root.innerHTML = h; return;
+          '<div class="note" style="margin:0">Золотом обведені переможці. Нагороди й досвід — у боті.</div>';
+      } else {
+        if (S.role) h += '<div class="role-row"><div><div class="k">Твоя роль</div><div class="v">' + (peek ? escT(S.role.title) : "• • • • • •") + (S.role.alive ? "" : " · вибув") + '</div></div>' +
+          '<button class="peek" id="peek" aria-label="Утримуй, щоб побачити свою роль">' + (peek ? "👁 Видно" : "Утримуй, щоб глянути") + '</button></div>';
+        if (!A) {
+          h += '<div class="note" style="margin:0">' + (S.role && !S.role.alive ? "Ти вибув: стеж за грою мовчки." : night ? "Місто спить. Чекай ранку." : S.stage === "discussion" ? "Обговорення: говорять живі. Голосування скоро." : "Зараз твого ходу немає.") + '</div>';
+        } else if (A.done) {
+          var dt = A.kind === "confirm" ? (S.confirm && S.confirm.mine ? "Твій голос: 👍 стратити" : "Твій голос: 👎 помилувати") : A.target ? "Ціль: №" + (seatById(A.target) || {}).n + " " + (seatById(A.target) || {}).name : "Ти пропускаєш / утримуєшся";
+          h += '<div class="v">✓ ' + escT(dt) + '</div>';
+          if (A.kind === "confirm") h += '<div class="row2"><button class="btn" data-confirm="1">👍 Стратити</button><button class="btn" data-confirm="0">👎 Помилувати</button></div>';
+        } else if (A.kind === "night") {
+          if (A.actions.length > 1) h += '<div class="row2">' + A.actions.map(function (a) { return '<button class="btn' + (a.key === mode ? " primary" : "") + '" data-mode="' + a.key + '">' + escT(a.title) + '</button>'; }).join("") + '</div>';
+          var pt = pick && seatById(pick);
+          h += '<div class="v">' + (pt ? escT((A.actions.filter(function (a) { return a.key === mode; })[0] || {}).title + ": №" + pt.n + " " + pt.name) : "Торкнися гравця за столом") + '</div>';
+          h += '<button class="btn primary" id="doAct"' + (pt ? "" : " disabled") + ' style="min-height:50px">Підтвердити хід</button>';
+          if (A.skip) h += '<button class="btn" id="doSkip">⏭ Пропустити хід</button>';
+        } else if (A.kind === "vote") {
+          var pv = pick && seatById(pick);
+          h += '<div class="v">' + (pv ? "Стратити №" + pv.n + " " + escT(pv.name) + "?" : "Кого стратимо? Торкнися гравця") + '</div>' +
+            (S.voters ? '<div class="note" style="margin:0">Проголосували ' + S.voted + ' з ' + S.voters + '</div>' : "") +
+            '<div class="row2"><button class="btn" id="doAbstain">🙅 Утриматися</button><button class="btn primary" id="doVote"' + (pv ? "" : " disabled") + '>Голосувати</button></div>';
+        } else if (A.kind === "confirm") {
+          var c = seatById(A.candidate) || {};
+          h += '<div class="v">Стратити №' + c.n + ' ' + escT(c.name || "") + '?</div>' +
+            (S.confirm ? '<div class="note" style="margin:0">👍 ' + S.confirm.yes + ' · 👎 ' + S.confirm.no + '</div>' : "") +
+            '<div class="row2"><button class="btn primary" data-confirm="1">👍 Стратити</button><button class="btn" data-confirm="0">👎 Помилувати</button></div>';
+        }
+        h += '<div class="note" style="margin:0;text-align:center">Кнопки в боті теж працюють. Результати перевірок приходять у бот.</div>';
       }
-      if (S.role) h += '<div><div class="k">Твоя роль</div><div class="v">' + escT(S.role.title) + (S.role.alive ? "" : " · вибув") + '</div></div>';
-      if (!A) {
-        h += '<div class="note" style="margin:0">' + (S.role && !S.role.alive ? "Ти вибув: стеж за грою мовчки." : night ? "Місто спить. Чекай ранку." : S.stage === "discussion" ? "Обговорення: говорять живі. Голосування скоро." : "Зараз твого ходу немає.") + '</div>';
-      } else if (A.done) {
-        var dt = A.kind === "confirm" ? (S.confirm && S.confirm.mine ? "Твій голос: 👍 стратити" : "Твій голос: 👎 помилувати") : A.target ? "Ціль: №" + (seatById(A.target) || {}).n + " " + (seatById(A.target) || {}).name : "Ти пропускаєш / утримуєшся";
-        h += '<div class="v">✓ ' + escT(dt) + '</div>';
-        if (A.kind === "confirm") h += '<div class="row2"><button class="btn" data-confirm="1">👍 Стратити</button><button class="btn" data-confirm="0">👎 Помилувати</button></div>';
-      } else if (A.kind === "night") {
-        if (A.actions.length > 1) h += '<div class="row2">' + A.actions.map(function (a) { return '<button class="btn' + (a.key === mode ? " primary" : "") + '" data-mode="' + a.key + '">' + escT(a.title) + '</button>'; }).join("") + '</div>';
-        var pt = pick && seatById(pick);
-        h += '<div class="v">' + (pt ? escT((A.actions.filter(function (a) { return a.key === mode; })[0] || {}).title + ": №" + pt.n + " " + pt.name) : "Торкнися гравця за столом") + '</div>';
-        h += '<button class="btn primary" id="doAct"' + (pt ? "" : " disabled") + ' style="min-height:50px">Підтвердити хід</button>';
-        if (A.skip) h += '<button class="btn" id="doSkip">⏭ Пропустити хід</button>';
-      } else if (A.kind === "vote") {
-        var pv = pick && seatById(pick);
-        h += '<div class="v">' + (pv ? "Стратити №" + pv.n + " " + escT(pv.name) + "?" : "Кого стратимо? Торкнися гравця") + '</div>' +
-          (S.voters ? '<div class="note" style="margin:0">Проголосували ' + S.voted + ' з ' + S.voters + '</div>' : "") +
-          '<div class="row2"><button class="btn" id="doAbstain">🙅 Утриматися</button><button class="btn primary" id="doVote"' + (pv ? "" : " disabled") + '>Голосувати</button></div>';
-      } else if (A.kind === "confirm") {
-        var c = seatById(A.candidate) || {};
-        h += '<div class="v">Стратити №' + c.n + ' ' + escT(c.name || "") + '?</div>' +
-          (S.confirm ? '<div class="note" style="margin:0">👍 ' + S.confirm.yes + ' · 👎 ' + S.confirm.no + '</div>' : "") +
-          '<div class="row2"><button class="btn primary" data-confirm="1">👍 Стратити</button><button class="btn" data-confirm="0">👎 Помилувати</button></div>';
+      h += '</div>';
+      // журнал гри
+      if (ev.length) {
+        h += '<div class="log"><button class="btn log-h" id="logToggle" aria-expanded="' + logOpen + '">📜 Журнал гри · ' + ev.length + (logOpen ? " ▲" : " ▼") + '</button>';
+        if (logOpen) {
+          h += '<div class="log-list">';
+          ev.slice().reverse().forEach(function (e) {
+            h += e.k === "phase" ? '<div class="ph">' + escT(e.t) + '</div>' : '<div class="ev ' + e.k + '">' + escT(e.t) + '</div>';
+          });
+          h += '</div>';
+        }
+        h += '</div>';
       }
-      h += '<div class="note" style="margin:0;text-align:center">Кнопки в боті теж працюють. Результати перевірок приходять у бот.</div></div>';
       if (toastMsg) h += '<div class="toast" role="status">' + escT(toastMsg) + '</div>';
       root.innerHTML = h;
     }
+    // Роль видно, лише поки тримаєш кнопку (щоб сусід не підгледів).
+    function setPeek(v) { if (peek === v) return; peek = v; if (v) buzz("event"); draw(); }
+    root.addEventListener("pointerdown", function (ev) { if (ev.target.closest("#peek")) { ev.preventDefault(); setPeek(true); } });
+    window.addEventListener("pointerup", function () { setPeek(false); });
+    window.addEventListener("pointercancel", function () { setPeek(false); });
+    root.addEventListener("contextmenu", function (ev) { if (ev.target.closest("#peek")) ev.preventDefault(); });
+    root.addEventListener("keydown", function (ev) { if (ev.target.id === "peek" && (ev.key === " " || ev.key === "Enter")) { ev.preventDefault(); setPeek(true); } });
+    root.addEventListener("keyup", function (ev) { if (ev.target.id === "peek") setPeek(false); });
     root.addEventListener("click", function (ev) {
-      var el = ev.target.closest("button"); if (!el || !S || !S.act) return;
+      var el = ev.target.closest("button"); if (!el || !S) return;
+      if (el.id === "logToggle") { logOpen = !logOpen; return draw(); }
+      if (!S.act) return;
       var A = S.act;
       if (el.dataset.seat) {
         var id = +el.dataset.seat, ok = false;
@@ -352,8 +540,8 @@ body.night { background: #0A0D16; }
     if (tgw) { try { tgw.ready(); tgw.expand(); tgw.setHeaderColor && tgw.setHeaderColor("#0E1014"); } catch (e) {} }
     refresh();
     setInterval(refresh, 1500);
-    setInterval(function () { if (S && S.seats) draw(); }, 1000);
-    window.addEventListener("resize", draw);
+    setInterval(tick, 1000);
+    window.addEventListener("resize", function () { sig = ""; draw(); });
   }
 
   // ---------- персонаж і гардероб (Time Town) ----------
@@ -374,51 +562,6 @@ body.night { background: #0A0D16; }
     if (w.how === "price") return !!((D.wb || 0) & (1 << w.i)) || (demo && w.key === "cap");
     if (w.game === "mafia") return !!(ACH_BY_KEY[w.ach] && earned(ACH_BY_KEY[w.ach]));
     return SPY.some(function (x) { return x.key === w.ach && spyEarned(x); });
-  }
-  var BG = {
-    bg_night: '<defs><radialGradient id="gN" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#2A303C"/><stop offset="1" stop-color="#12151B"/></radialGradient></defs><rect width="200" height="240" fill="url(#gN)"/>',
-    bg_city: '<rect width="200" height="240" fill="#121A2B"/><circle cx="160" cy="44" r="16" fill="#E9E1C8" opacity=".85"/><path d="M0 150h22v-40h18v24h16v-52h22v38h14v-22h20v44h16v-30h20v18h18v-10h34V240H0z" fill="#0B101C"/><g fill="#E2BE6A" opacity=".7"><rect x="64" y="96" width="4" height="5"/><rect x="72" y="108" width="4" height="5"/><rect x="112" y="128" width="4" height="5"/><rect x="146" y="132" width="4" height="5"/><rect x="28" y="122" width="4" height="5"/></g>',
-    bg_rain: '<rect width="200" height="240" fill="#151A22"/><g stroke="#5E6B82" stroke-width="1.4" opacity=".55"><path d="M20 0l-14 40M60 10l-14 40M100 0l-14 40M140 14l-14 40M180 0l-14 40M40 60l-14 40M80 70l-14 40M120 60l-14 40M160 74l-14 40M196 60l-14 40M24 120l-14 40M64 130l-14 40M104 120l-14 40M144 134l-14 40M184 120l-14 40"/></g>',
-    bg_curtain: '<rect width="200" height="240" fill="#4A1018"/><g fill="#6E1A24"><path d="M0 0h18c-6 80 6 160 0 240H0z"/><path d="M38 0h20c-8 80 8 160 0 240H38z"/><path d="M80 0h20c-8 80 8 160 0 240H80z"/><path d="M122 0h20c-8 80 8 160 0 240h-20z"/><path d="M164 0h20c-8 80 8 160 0 240h-20z"/></g><rect width="200" height="16" fill="#C9A24E"/>',
-    bg_gold: '<defs><radialGradient id="gG" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#F3D58E"/><stop offset=".55" stop-color="#B8923F"/><stop offset="1" stop-color="#5E4718"/></radialGradient></defs><rect width="200" height="240" fill="url(#gG)"/>'
-  };
-  var OUTFIT = {
-    trench: { coat: "#9C8158", lapel: "#7E6744", shirt: "#E8E2D4", tie: "#2A2F3A", extra: '<path d="M44 222h112" stroke="#6B5838" stroke-width="7"/><circle cx="100" cy="222" r="5" fill="#C9A24E"/>' },
-    suit: { coat: "#22262E", lapel: "#14171C", shirt: "#E8E2D4", tie: "#14171C", extra: "" },
-    burgundy: { coat: "#6E1F2A", lapel: "#4E141D", shirt: "#E8E2D4", tie: "#14171C", extra: "" },
-    white: { coat: "#E6E0D2", lapel: "#C9C2B2", shirt: "#2A2F3A", tie: "#E6E0D2", extra: "" },
-    police: { coat: "#1F3554", lapel: "#152640", shirt: "#C9D3E3", tie: "#14171C", extra: '<path d="M62 200l4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1z" fill="#E2BE6A"/>' },
-    medic: { coat: "#ECEAE4", lapel: "#D3D0C8", shirt: "#8FB2F5", tie: "#5B8DEF", extra: '<path d="M70 186c-14 22 0 40 14 32" fill="none" stroke="#3A404C" stroke-width="3"/><circle cx="84" cy="218" r="4" fill="#3A404C"/><path d="M128 206h12M134 200v12" stroke="#C0453A" stroke-width="4"/>' }
-  };
-  var HAT = {
-    hat_none: '<path d="M70 92c2-18 14-28 30-28s28 10 30 28c-8-8-18-12-30-12s-22 4-30 12z" fill="#1B1E25"/>',
-    fedora: '<ellipse cx="100" cy="86" rx="52" ry="9" fill="#14171C"/><path d="M68 84c2-22 12-36 32-36s30 14 32 36z" fill="#1E222A"/><path d="M68 78h64v7H68z" fill="#E2BE6A"/>',
-    cap: '<path d="M66 86c0-20 14-32 34-32s34 10 36 26l14 6c-24 6-60 6-84 0z" fill="#4A4136"/><path d="M66 86c26 4 58 4 84 0" stroke="#2E2820" stroke-width="3" fill="none"/>',
-    beret: '<ellipse cx="96" cy="70" rx="40" ry="14" transform="rotate(-10 96 70)" fill="#7A1F2B"/><path d="M68 84c10-6 30-8 48-4" stroke="#4E141D" stroke-width="4" fill="none"/><circle cx="104" cy="56" r="3" fill="#4E141D"/>',
-    tophat: '<ellipse cx="100" cy="86" rx="44" ry="8" fill="#0E1014"/><rect x="74" y="28" width="52" height="58" rx="4" fill="#16191F"/><rect x="74" y="72" width="52" height="8" fill="#6E1F2A"/>',
-    crown: '<path d="M70 86l-4-34 18 16 16-26 16 26 18-16-4 34z" fill="#E2BE6A" stroke="#B8923F" stroke-width="2"/><circle cx="100" cy="66" r="4" fill="#C0453A"/><circle cx="80" cy="74" r="3" fill="#5B8DEF"/><circle cx="120" cy="74" r="3" fill="#7FC9A0"/>'
-  };
-  var ACC = {
-    acc_none: "",
-    shades: '<rect x="74" y="98" width="22" height="12" rx="4" fill="#0B0D11"/><rect x="104" y="98" width="22" height="12" rx="4" fill="#0B0D11"/><path d="M96 103h8" stroke="#0B0D11" stroke-width="3"/>',
-    monocle: '<circle cx="114" cy="104" r="9" fill="none" stroke="#E2BE6A" stroke-width="2.5"/><path d="M122 110c6 14 4 30-4 44" fill="none" stroke="#E2BE6A" stroke-width="1.5"/>',
-    bowtie: '<path d="M86 166l14 7-14 7zM114 166l-14 7 14 7z" fill="#C0453A"/><circle cx="100" cy="173" r="3.5" fill="#8E2A22"/>',
-    rose: '<circle cx="72" cy="196" r="7" fill="#C0453A"/><circle cx="72" cy="196" r="3.5" fill="#8E2A22"/><path d="M76 202l8 8" stroke="#3E7A55" stroke-width="3"/>',
-    mask: '<path d="M68 96c10-6 54-6 64 0l-2 14c-8 4-22 4-30-2-8 6-22 6-30 2z" fill="#0B0D11"/><ellipse cx="86" cy="103" rx="6" ry="4" fill="#3A404C"/><ellipse cx="114" cy="103" rx="6" ry="4" fill="#3A404C"/>'
-  };
-  function charSVG(look) {
-    var o = OUTFIT[look.outfit] || OUTFIT.trench;
-    return '<svg viewBox="0 0 200 240" aria-hidden="true">' + (BG[look.bg] || BG.bg_night) +
-      '<path d="M18 240c4-46 36-74 82-74s78 28 82 74z" fill="' + o.coat + '"/>' +
-      '<path d="M78 168l22 52 22-52c-6-2-14-3-22-3s-16 1-22 3z" fill="' + o.shirt + '"/>' +
-      '<path d="M96 170h8l4 10-8 44-8-44z" fill="' + o.tie + '"/>' +
-      '<path d="M78 168l22 52-30-20-6-24z" fill="' + o.lapel + '"/><path d="M122 168l-22 52 30-20 6-24z" fill="' + o.lapel + '"/>' +
-      o.extra +
-      '<rect x="88" y="138" width="24" height="30" rx="8" fill="#3E434E"/>' +
-      '<ellipse cx="100" cy="106" rx="30" ry="36" fill="#4A505C"/>' +
-      '<path d="M70 106c2 20 14 36 30 36s28-16 30-36c-6 10-16 16-30 16s-24-6-30-16z" fill="#3E434E"/>' +
-      '<path d="M84 126c10 5 22 5 32 0" stroke="#2A2E36" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-      (ACC[look.acc] || "") + (HAT[look.hat] || "") + '</svg>';
   }
   function charCard(look, w, frame) {
     var f = frame || current;
