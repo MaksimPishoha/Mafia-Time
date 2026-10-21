@@ -289,9 +289,11 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
     return svg + '</svg>';
   }
   // Стіл: адреса бота https://… (у профілі поле "t" — це інше: масив найкращих ролей)
-  var TABLE_API = param(location.search, "t") || (D && typeof D.t === "string" ? D.t : "");
-  if (!/^https?:\/\//.test(TABLE_API)) TABLE_API = "";
-  if (TABLE_API) { tableMode(TABLE_API); return; }
+  // Друга адреса t2 — запасний тунель (якщо провайдер блокує основний)
+  var TABLE_APIS = [param(location.search, "t") || (D && typeof D.t === "string" ? D.t : ""),
+                    param(location.search, "t2") || (D && typeof D.t2 === "string" ? D.t2 : "")]
+    .filter(function (u) { return /^https?:\/\//.test(u); });
+  if (TABLE_APIS.length) { tableMode(TABLE_APIS); return; }
   var demo = !D;
   if (demo) {
     D = { u: 1, b: "", n: "Максим", x: 9990, g: 147, w: 81, a: 2, s: 6, f: ["doctor", 31], e: 0b100100010101, r: "gold",
@@ -334,7 +336,8 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
 
 
   // ---------- живий стіл голосової гри ----------
-  function tableMode(api) {
+  function tableMode(apis) {
+    var apiIx = 0, api = apis[0];
     var tgw = window.Telegram && window.Telegram.WebApp;
     var root = document.getElementById("app");
     var init = (tgw && tgw.initData) || "";
@@ -366,7 +369,19 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
     }
     async function call(path, extra) {
       var body = Object.assign({ init: init }, extra || {});
-      var r = await fetch(api.replace(/\/$/, "") + path, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(body) });
+      // Пробуємо адресу, що працювала востаннє; не відповідає — наступну (запасну).
+      var r = null, lastErr = null;
+      for (var k = 0; k < apis.length && !r; k++) {
+        var ix = (apiIx + k) % apis.length;
+        try {
+          var ctl = window.AbortController ? new AbortController() : null;
+          var timer = ctl && setTimeout(function () { ctl.abort(); }, 7000);
+          r = await fetch(apis[ix].replace(/\/$/, "") + path, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined });
+          clearTimeout(timer);
+          apiIx = ix; api = apis[ix];
+        } catch (e) { lastErr = e; }
+      }
+      if (!r) throw lastErr || new Error("мережа");
       var j = await r.json().catch(function () { return { error: "Немає зв'язку з ботом" }; });
       if (r.status === 401) j.error401 = true;
       return j;
@@ -445,7 +460,7 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
       if (S.error401) return card("Відкрий стіл кнопкою «🎭 Відкрити стіл» з бота: так бот знає, що це ти.");
       if (S.none) return card("Зараз ти не граєш у голосову гру. Стіл з’явиться, коли почнеться наступна.");
       if (!S.seats) {
-        var host = api.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+        var host = apis.map(function (a) { return a.replace(/^https?:\/\//, "").replace(/\/.*$/, ""); }).join(", ");
         root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Немає зв’язку з ботом. Пробую ще раз…' +
           '<div class="note" style="margin:8px 0 0">' + escT(S.error ? "Відповідь бота: " + S.error : "Помилка: " + (netError || "невідома")) + '<br>Сервер: ' + escT(host) + '</div>' +
           '<div class="note" style="margin:8px 0 0">Якщо бота перезапускали, відкрий стіл свіжою кнопкою: /table в особистих з ботом. ' +
