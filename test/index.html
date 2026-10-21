@@ -152,6 +152,11 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
 .banner { margin: 12px 16px 0; padding: 10px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); font-size: 13px; line-height: 1.35; }
 .banner.death { border-color: rgba(192,69,58,.55); }
 .banner.lynch { border-color: rgba(226,190,106,.55); }
+.vc-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 16px 0; padding: 8px 8px 8px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.vc-state { font-size: 13px; font-weight: 700; color: var(--muted); }
+.vc-state.on { color: var(--green); }
+.vc-go { flex: none; min-height: 44px; padding: 0 14px; font-size: 13px; }
+body.night .vc-row { background: #121829; border-color: #253048; }
 .talking { text-align: center; font-size: 13px; font-weight: 700; color: var(--gold); min-height: 18px; margin: 2px 16px 0; }
 .role-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .peek { flex: none; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: #1E222B; color: var(--text); font-weight: 700; font-size: 13px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
@@ -553,6 +558,13 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
             st.known ? '<span class="nm rl kn" title="Твоя перевірка">🔍 ' + escT(st.known) + '</span>' : "") + '</button>';
       });
       h += '</div>';
+      // Мікрофон вмикається лише в самому Telegram: кнопка веде до голосового чату одним дотиком
+      if (!fin && S.voice && meSeat) {
+        var canTalk = meSeat.alive && meSeat.mic;
+        h += '<div class="vc-row"><span class="vc-state' + (canTalk ? " on" : "") + '">' +
+          (!meSeat.alive ? (fem ? "💀 Ти вибула: слухай мовчки" : "💀 Ти вибув: слухай мовчки") : canTalk ? "🎙 Тобі можна говорити" : "🔇 Зараз говорити не можна") + '</span>' +
+          '<button class="btn vc-go' + (canTalk ? " primary" : "") + '" id="vcGo">🎙 До голосового чату</button></div>';
+      }
       if (!fin) h += '<div class="talking" aria-live="polite">' + (talking.length ? "🎙 Говорить: " + escT(talking.join(", ")) : S.voice ? "" : "") + '</div>';
       // картка гравця й дії
       h += '<div class="act">';
@@ -619,6 +631,17 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
     root.addEventListener("click", function (ev) {
       var el = ev.target.closest("button"); if (!el || !S) return;
       if (el.id === "logToggle") { logOpen = !logOpen; return draw(); }
+      if (el.id === "vcGo") {
+        var chatType = tgw && tgw.initDataUnsafe && tgw.initDataUnsafe.chat_type;
+        var fromGroup = chatType === "group" || chatType === "supergroup";
+        try {
+          if (S.vcDirect && S.vc) tgw.openTelegramLink(S.vc);          // одразу в голосовий чат
+          else if (fromGroup) tgw.close();                               // назад у групу, там смужка голосового
+          else if (S.vc) tgw.openTelegramLink(S.vc);                     // відкрити групу
+          else toast("Відкрий групу й торкнись смужки голосового чату вгорі");
+        } catch (e) { toast("Відкрий групу й торкнись смужки голосового чату вгорі"); }
+        return;
+      }
       if (el.id === "netCheck") { var u = api.replace(/\/$/, "") + "/health"; try { tgw && tgw.openLink ? tgw.openLink(u) : window.open(u, "_blank"); } catch (e) { window.open(u, "_blank"); } return; }
       if (!S.act) return;
       var A = S.act;
