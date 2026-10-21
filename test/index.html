@@ -630,10 +630,9 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
   var SLOT_KEYS = WR.slots.map(function (s) { return s[0]; });
   var hasLook = !!(D.lk && D.lk.length) || demo;
   var LOOK = {};
-  SLOT_KEYS.forEach(function (slot, n) {
-    var it = D.lk && WITEMS[D.lk[n]];
-    LOOK[slot] = it && it.slot === slot ? it.key : WR["default"][n];
-  });
+  // Річ сама знає свій слот, тож порядок у посиланні не важливий (старі й нові версії бота сумісні)
+  SLOT_KEYS.forEach(function (slot, n) { LOOK[slot] = WR["default"][n]; });
+  (D.lk || []).forEach(function (code) { var it = WITEMS[code]; if (it && LOOK.hasOwnProperty(it.slot)) LOOK[it.slot] = it.key; });
   if (demo) LOOK = { hat: "fedora", outfit: "burgundy", acc: "rose", bg: "bg_city" };
   function wOpen(w) {
     if (w.how === "free") return true;
