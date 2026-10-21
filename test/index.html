@@ -339,7 +339,7 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
     var root = document.getElementById("app");
     var init = (tgw && tgw.initData) || "";
     var S = null, pick = null, mode = null, busy = false, lastFetch = 0, toastMsg = "", toastTimer = null;
-    var sig = "", peek = false, logOpen = false, lastTurn = "", lastEv = -1, lastStage = "", lastMine = -1;
+    var netError = "", sig = "", peek = false, logOpen = false, lastTurn = "", lastEv = -1, lastStage = "", lastMine = -1;
     var STAGE = { night: "Ніч", discussion: "Обговорення", vote: "Голосування", confirm: "Підтвердження страти", kamikaze: "Хід Камікадзе" };
     var LOOK_SLOTS = ["hat", "outfit", "acc", "bg", "body"];
     var MIC_ON = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7FC9A0" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 11a7 7 0 0 1-14 0"/></svg>';
@@ -401,7 +401,7 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
     async function refresh() {
       if (busy) return;
       try { take(await call("/api/state")); }
-      catch (e) { S = S || { offline: true }; if (S) S.offline = true; }
+      catch (e) { netError = (e && e.message) || "мережа"; S = S || { offline: true }; if (S) S.offline = true; }
       // Перемальовуємо, лише коли щось змінилося (таймер оновлює tick), щоб не смикались анімації.
       var now = JSON.stringify(Object.assign({}, S, { left: 0 }));
       if (now !== sig) { sig = now; draw(); } else tick();
@@ -444,7 +444,15 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
       if (!S) { root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section note">Підключаюся до бота…</div>'; return; }
       if (S.error401) return card("Відкрий стіл кнопкою «🎭 Відкрити стіл» з бота: так бот знає, що це ти.");
       if (S.none) return card("Зараз ти не граєш у голосову гру. Стіл з’явиться, коли почнеться наступна.");
-      if (!S.seats) return card("Немає зв’язку з ботом. Пробую ще раз…");
+      if (!S.seats) {
+        var host = api.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+        root.innerHTML = '<div class="tbl-top"><h2>Стіл</h2></div><div class="section"><div class="card">Немає зв’язку з ботом. Пробую ще раз…' +
+          '<div class="note" style="margin:8px 0 0">' + escT(S.error ? "Відповідь бота: " + S.error : "Помилка: " + (netError || "невідома")) + '<br>Сервер: ' + escT(host) + '</div>' +
+          '<div class="note" style="margin:8px 0 0">Якщо бота перезапускали, відкрий стіл свіжою кнопкою: /table в особистих з ботом. ' +
+          'Якщо не допомагає — перевір, чи відкривається адреса в браузері:</div>' +
+          '<button class="btn" id="netCheck" style="margin-top:10px;width:100%">🌐 Перевірити зв’язок у браузері</button></div></div>';
+        return;
+      }
       var night = S.stage === "night", fin = S.stage === "finished";
       document.body.classList.toggle("night", night);
       var left = leftNow();
@@ -564,6 +572,7 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
     root.addEventListener("click", function (ev) {
       var el = ev.target.closest("button"); if (!el || !S) return;
       if (el.id === "logToggle") { logOpen = !logOpen; return draw(); }
+      if (el.id === "netCheck") { var u = api.replace(/\/$/, "") + "/health"; try { tgw && tgw.openLink ? tgw.openLink(u) : window.open(u, "_blank"); } catch (e) { window.open(u, "_blank"); } return; }
       if (!S.act) return;
       var A = S.act;
       if (el.dataset.seat) {
