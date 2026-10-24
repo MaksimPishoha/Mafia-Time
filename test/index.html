@@ -232,6 +232,10 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     }
     return "";
   }
+  // Discord Activity: сторінку віддає сам Discord-бот і перед нею вставляє вхід через Discord
+  // (window.MT_ACTIVITY_READY — обіцянка, що дасть {dk: ключ гравця}). Поза Activity її немає.
+  var ACT = {};
+  if (window.MT_ACTIVITY_READY) { try { ACT = (await window.MT_ACTIVITY_READY) || {}; } catch (e) { ACT = {}; } }
   var startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) ||
     param(location.search, "tgWebAppStartParam") || param(location.hash, "tgWebAppStartParam");
   var D = (await decode(param(location.search, "p"))) || (await decode(startParam)) ||
@@ -337,6 +341,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
   var TABLE_APIS = [param(location.search, "t") || (D && typeof D.t === "string" ? D.t : ""),
                     param(location.search, "t2") || (D && typeof D.t2 === "string" ? D.t2 : "")]
     .filter(botApi);
+  if (ACT.dk) { tableMode([location.origin]); return; }   // Discord Activity: сервер стола — та сама адреса
   if (TABLE_APIS.length) { tableMode(TABLE_APIS); return; }
   var demo = !D;
   if (demo) {
@@ -385,6 +390,8 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     var tgw = window.Telegram && window.Telegram.WebApp;
     var root = document.getElementById("app");
     var init = (tgw && tgw.initData) || "";
+    // Discord: підписаний ключ гравця приходить у частині адреси після «#» (на сервер GitHub вона не потрапляє)
+    var dk = ACT.dk || param(location.hash, "dk");
     var S = null, pick = null, mode = null, busy = false, lastFetch = 0, toastMsg = "", toastTimer = null;
     var netError = "", sig = "", peek = false, logOpen = false, lastTurn = "", lastEv = -1, lastStage = "", lastMine = -1;
     var STAGE = { night: "Ніч", discussion: "Обговорення", vote: "Голосування", confirm: "Підтвердження страти", kamikaze: "Хід Камікадзе" };
@@ -412,7 +419,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       setTimeout(function () { el.remove(); }, 1900);
     }
     async function call(path, extra) {
-      var body = Object.assign({ init: init }, extra || {});
+      var body = Object.assign(dk ? { dk: dk } : { init: init }, extra || {});
       // Пробуємо адресу, що працювала востаннє; не відповідає — наступну (запасну).
       var r = null, lastErr = null;
       for (var k = 0; k < apis.length && !r; k++) {
@@ -723,7 +730,9 @@ body.night .vc-row { background: #121829; border-color: #253048; }
   // Аватарка з Telegram: своя з даних запуску, чужа за публічним @ніком. Немає фото: перша літера імені.
   var tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
   var PHOTO = (tgUser && tgUser.id === D.u && tgUser.photo_url) ||
-    (D.un ? "https://t.me/i/userpic/320/" + encodeURIComponent(D.un) + ".jpg" : "");
+    (D.un ? "https://t.me/i/userpic/320/" + encodeURIComponent(D.un) + ".jpg" : "") ||
+    // Discord-профіль: аватарка лише з CDN Discord
+    (typeof D.av === "string" && /^https:\/\/cdn\.discordapp\.com\/[\w\/.-]+(\?size=\d+)?$/.test(D.av) ? D.av : "");
   function avatar(f, size, font) {
     var pad = Math.max(3, Math.round(size / 24));
     var outline = f.outline ? "box-shadow:0 0 0 3px " + f.outline + ";" : "";
