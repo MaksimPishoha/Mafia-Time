@@ -109,6 +109,22 @@ body.night { background: #0A0D16; }
 .tbl-top .sub { font-size: 12px; }
 .pill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; }
 .ring { position: relative; margin: 14px auto 0; }
+/* Амфітеатр: ряди гравців перед табло з фазою й таймером */
+.amph { position: relative; margin: 10px auto 0; }
+.amph .tiers { position: absolute; left: 0; right: 0; border-radius: 22px; background: repeating-linear-gradient(0deg, rgba(160,132,79,.16) 0, rgba(160,132,79,.16) 2px, transparent 3px, transparent var(--row, 110px)); }
+body.night .amph .tiers { background: repeating-linear-gradient(0deg, rgba(112,142,213,.2) 0, rgba(112,142,213,.2) 2px, transparent 3px, transparent var(--row, 110px)); }
+.amph .board { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: min(260px, 82%); height: 62px; border-radius: 14px; border: 1px solid #625132; background: linear-gradient(120deg, #2A241C, #181B20); box-shadow: 0 12px 30px rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; gap: 14px; overflow: hidden; }
+body.night .amph .board { border-color: #465D90; background: linear-gradient(120deg, #25304B, #151C2B); }
+.amph .board .k { font-size: 11px; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; color: var(--gold); }
+body.night .amph .board .k { color: #91AFFF; }
+.amph .board .t { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.amph .board .s { font-size: 12px; color: var(--soft); max-width: 78px; line-height: 1.25; }
+.amph .board .bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--gold); transition: width 1s linear; }
+.amph .board .bar.low { background: var(--red); }
+body.night .amph .board .bar { background: #91AFFF; }
+.amph .seat .face { border-radius: 18px 18px 10px 10px; box-shadow: 0 6px 0 #2F2A25, 0 8px 0 rgba(162,133,77,.2); }
+.amph .seat .face svg { border-radius: inherit; }
+.amph .seat .num { left: -6px; top: -5px; }
 .seat { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: 0; padding: 0; cursor: pointer; }
 .seat .face { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; background: var(--chip); border: 3px solid var(--fr, #3A404C); box-sizing: border-box; transition: box-shadow .25s; }
 .seat .nm { font-size: 11px; max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); }
@@ -493,6 +509,8 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       if (!S || !S.seats || S.stage === "finished") return;
       var left = leftNow();
       root.querySelectorAll(".js-time").forEach(function (el) { el.textContent = clockText(left); });
+      var bar = root.querySelector(".js-bar");
+      if (bar) { bar.style.width = (S.total ? Math.max(0, Math.min(1, left / S.total)) * 100 : 0).toFixed(1) + "%"; bar.classList.toggle("low", left <= 10); }
       var arc = root.querySelector(".js-arc");
       if (arc) {
         var len = +arc.dataset.len, frac = S.total ? Math.max(0, Math.min(1, left / S.total)) : 0;
@@ -503,7 +521,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     function face(st, size) {
       if (st.look && typeof charSVG === "function") {
         var look = {}; LOOK_SLOTS.forEach(function (k, i) { look[k] = st.look[i]; });
-        return charSVG(look, "44 40 112 112") + (st.alive ? "" : '<span class="x">✕</span>');
+        return charSVG(look, "42 30 116 132") + (st.alive ? "" : '<span class="x">✕</span>');
       }
       return st.alive ? escT(initials(st.name)) : "✕";
     }
@@ -539,8 +557,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       if (S.votes) Object.keys(S.votes).forEach(function (k) { var t = S.votes[k]; if (t) tally[t] = (tally[t] || 0) + 1; });
       // шапка
       if (fin) h += '<div class="tbl-top"><div><h2>Гру завершено</h2><div class="sub">' + escT(S.chat) + ' · ' + S.day + ' дн.</div></div></div>';
-      else h += '<div class="tbl-top"><div><h2>' + escT(night ? "Ніч " + S.day : (STAGE[S.stage] || "Гра") + " · день " + S.day) + '</h2><div class="sub">' + escT(S.chat) + ' · живих ' + S.alive + '</div></div>' +
-        '<div class="pill js-time">' + clockText(left) + '</div></div>';
+      else h += '<div class="tbl-top"><div><h2>' + escT(night ? "Ніч " + S.day : (STAGE[S.stage] || "Гра") + " · день " + S.day) + '</h2><div class="sub">' + escT(S.chat) + ' · живих ' + S.alive + '</div></div></div>';   // таймер — на табло амфітеатру
       // остання подія
       var ev = S.events || [];
       var lastNews = ev.filter(function (e) { return e.k !== "phase" && e.k !== "vote"; }).slice(-1)[0];
@@ -548,28 +565,37 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       if (myNews && !fin) h += '<div class="banner secret" role="status"><span class="lock">🔒 Тільки для тебе</span>' + escT(myNews.t) + '</div>';
       if (lastNews && !fin) h += '<div class="banner ' + lastNews.k + '" role="status">' + escT(lastNews.t) + '</div>';
       // стіл
-      var W = Math.min(window.innerWidth, 480) - 24, size = W < 360 ? 52 : 60, R = W / 2 - size / 2 - 6, C = W / 2;
+      // Амфітеатр: табло з фазою й таймером угорі, гравці рядами (по 3–4) перед ним
+      var W = Math.min(window.innerWidth, 480) - 16;
       var n = S.seats.length;
-      h += '<div class="ring" style="width:' + W + 'px;height:' + (W + 8) + 'px">';
-      var cw = Math.round(W * 0.36), rr = cw / 2 - 3, len = 2 * Math.PI * rr;
+      var ROWS = { 1: [1], 2: [2], 3: [3], 4: [4], 5: [2, 3], 6: [3, 3], 7: [3, 4], 8: [4, 4], 9: [3, 3, 3], 10: [3, 4, 3] };
+      var rows = ROWS[n] || (function () { var r = []; for (var k = n; k > 0; k -= 4) r.push(Math.min(4, k)); return r; })();
+      var slot = W / Math.max.apply(null, rows), cardW = Math.max(46, Math.min(66, Math.floor(slot - 22))), cardH = Math.round(cardW * 1.14);
+      var size = cardW, boardH = 62, rowH = cardH + 44, top0 = boardH + 22;
       var frac = !fin && S.total ? Math.max(0, Math.min(1, left / S.total)) : 0;
-      h += '<div class="clock" style="left:' + (C - cw / 2) + 'px;top:' + (C - cw / 2) + 'px;width:' + cw + 'px;height:' + cw + 'px">' +
-        (fin ? "" : '<svg class="prog" width="' + cw + '" height="' + cw + '" aria-hidden="true"><circle cx="' + cw / 2 + '" cy="' + cw / 2 + '" r="' + rr + '" class="track"/>' +
-          '<circle cx="' + cw / 2 + '" cy="' + cw / 2 + '" r="' + rr + '" class="arc js-arc' + (left <= 10 ? " low" : "") + '" data-len="' + len.toFixed(1) + '" stroke-dasharray="' + (len * frac).toFixed(1) + " " + len.toFixed(1) + '"/></svg>') +
-        '<div class="k">' + escT(fin ? "кінець" : night ? "ніч" : "день " + S.day) + '</div><div class="t' + (fin ? "" : " js-time") + '">' + (fin ? "🏁" : clockText(left)) + '</div><div class="s">' + escT(STAGE[S.stage] || "") + '</div></div>';
+      h += '<div class="amph" style="width:' + W + 'px;height:' + (top0 + rows.length * rowH) + 'px">';
+      h += '<div class="tiers" style="top:' + (top0 - 8) + 'px;bottom:0;--row:' + rowH + 'px"></div>';
+      h += '<div class="board" role="timer"><span class="k">' + escT(fin ? "кінець" : night ? "ніч " + S.day : "день " + S.day) + '</span>' +
+        '<span class="t' + (fin ? "" : " js-time") + '">' + (fin ? "🏁" : clockText(left)) + '</span><span class="s">' + escT(fin ? "Гру завершено" : STAGE[S.stage] || "") + '</span>' +
+        (fin ? "" : '<span class="bar js-bar' + (left <= 10 ? " low" : "") + '" style="width:' + (frac * 100).toFixed(1) + '%"></span>') + '</div>';
+      var seatPos = [], ri = 0, inRow = 0;
+      for (var si = 0; si < n; si++) {
+        var k = rows[ri];
+        seatPos.push({ x: W * (inRow + 0.5) / k - cardW / 2, y: top0 + ri * rowH + 8 });
+        if (++inRow >= k) { inRow = 0; ri++; }
+      }
       var meSeat = S.seats.filter(function (x) { return x.me; })[0];
       var fem = !!(meSeat && meSeat.look && meSeat.look[4] === "body_f");
       var talking = [];
       S.seats.forEach(function (st, i) {
-        var a = Math.PI / 2 + i * 2 * Math.PI / n;
-        var x = C + R * Math.cos(a) - size / 2, y = C + R * Math.sin(a) - size / 2;
+        var x = seatPos[i].x, y = seatPos[i].y;
         var can = targets.indexOf(st.id) >= 0;
         if (st.talk) talking.push(st.me ? "ти" : st.name);
         var cls = "seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (st.won ? " won" : "") +
           (st.talk ? " talk" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "") + (st.look ? " has-look" : "") + (st.known ? " known" : "");
         var micIcon = st.mic === undefined || !st.alive ? "" : '<span class="mic">' + (st.mic ? MIC_ON : MIC_OFF) + '</span>';
-        h += '<button class="' + cls + '" data-seat="' + st.id + '" style="left:' + x + 'px;top:' + y + 'px;width:' + size + 'px;--sz:' + size + 'px' + (st.frame ? ";--fr:" + st.frame : "") + '" aria-label="№' + st.n + ' ' + escT(st.name) + (st.alive ? "" : ", вибув") + (st.talk ? ", говорить" : "") + '"' + (can ? "" : ' tabindex="-1"') + '>' +
-          '<span class="face" style="width:' + size + 'px;height:' + size + 'px;font-size:' + (size / 3.6) + 'px">' + face(st, size) + '</span>' +
+        h += '<button class="' + cls + '" data-seat="' + st.id + '" style="left:' + x + 'px;top:' + y + 'px;width:' + size + 'px;--sz:' + cardH + 'px' + (st.frame ? ";--fr:" + st.frame : "") + '" aria-label="№' + st.n + ' ' + escT(st.name) + (st.alive ? "" : ", вибув") + (st.talk ? ", говорить" : "") + '"' + (can ? "" : ' tabindex="-1"') + '>' +
+          '<span class="face" style="width:' + size + 'px;height:' + cardH + 'px;font-size:' + (size / 3.6) + 'px">' + face(st, size) + '</span>' +
           '<span class="num">' + st.n + '</span>' + micIcon + (tally[st.id] ? '<span class="votes">' + tally[st.id] + '</span>' : "") +
           '<span class="nm">' + escT(st.me ? "Ти" : st.name) + '</span>' + ((!st.alive || fin) && st.role ? '<span class="nm rl">' + escT(st.role) + '</span>' :
             st.known ? '<span class="nm rl kn" title="Твоя перевірка">🔍 ' + escT(st.known) + '</span>' : "") + '</button>';
