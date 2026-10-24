@@ -218,7 +218,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
         var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));
         return JSON.parse(await new Response(stream).text());
       }
-      return JSON.parse(new TextDecoder().decode(bytes));
+      return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));  // суворо, як бот
     } catch (e) { return null; }
   }
   // Дані можуть прийти: ?p=... (кнопка в особистих), start_param (посилання з групи),
@@ -325,11 +325,14 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     }
     return svg + '</svg>';
   }
+  // Адреса бота — лише тунель Cloudflare або localhost.run. Інші не беремо: посилання може підробити будь-хто,
+  // і вікно віддало б чужому серверу підпис гравця. (Бот додатково перевіряє, що адреса саме його.)
+  function botApi(u) { return typeof u === "string" && /^https:\/\/[a-z0-9-]+\.(trycloudflare\.com|lhr\.life)\/?$/i.test(u); }
   // Стіл: адреса бота https://… (у профілі поле "t" — це інше: масив найкращих ролей)
   // Друга адреса t2 — запасний тунель (якщо провайдер блокує основний)
   var TABLE_APIS = [param(location.search, "t") || (D && typeof D.t === "string" ? D.t : ""),
                     param(location.search, "t2") || (D && typeof D.t2 === "string" ? D.t2 : "")]
-    .filter(function (u) { return /^https?:\/\//.test(u); });
+    .filter(botApi);
   if (TABLE_APIS.length) { tableMode(TABLE_APIS); return; }
   var demo = !D;
   if (demo) {
@@ -450,10 +453,13 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       }
       lastStage = S.stage;
     }
+    var inFlight = false, pollTimer = null, pollGen = 0;
     async function refresh() {
-      if (busy) return;
+      if (busy || inFlight) return;   // повільний тунель: не накладаємо запити один на одного
+      inFlight = true;
       try { take(await call("/api/state")); }
       catch (e) { netError = (e && e.message) || "мережа"; S = S || { offline: true }; if (S) S.offline = true; }
+      finally { inFlight = false; }
       // Перемальовуємо, лише коли щось змінилося (таймер оновлює tick), щоб не смикались анімації.
       var now = JSON.stringify(Object.assign({}, S, { left: 0 }));
       if (now !== sig) { sig = now; draw(); } else tick();
@@ -659,9 +665,25 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       if (el.id === "doAbstain") return act({ kind: "vote", target: 0 });
       if (el.dataset.confirm) return act({ kind: "confirm", yes: el.dataset.confirm === "1" });
     });
-    if (tgw) { try { tgw.ready(); tgw.expand(); tgw.setHeaderColor && tgw.setHeaderColor("#0E1014"); } catch (e) {} }
-    refresh();
-    setInterval(refresh, 1500);
+    if (tgw) { try { tgw.ready(); tgw.expand(); tgw.setHeaderColor && tgw.setHeaderColor("#0E1014"); tgw.disableVerticalSwipes && tgw.disableVerticalSwipes(); } catch (e) {} }
+    // Як часто питати бота: у грі — щосекунди-півтори; гри немає чи скінчилась — рідко;
+    // бот не відповідає — не смикаємо його; вікно згорнуте — не питаємо зовсім.
+    function pollDelay() {
+      if (S && (S.none || S.stage === "finished")) return 10000;
+      if (S && S.offline) return 5000;
+      return 1500;
+    }
+    function startPoll() {
+      var my = ++pollGen;
+      clearTimeout(pollTimer);
+      (async function loop() {
+        if (my !== pollGen) return;
+        if (!document.hidden) await refresh();
+        if (my === pollGen) pollTimer = setTimeout(loop, pollDelay());
+      })();
+    }
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) startPoll(); });
+    startPoll();
     setInterval(tick, 1000);
     window.addEventListener("resize", function () { sig = ""; draw(); });
   }
@@ -1006,7 +1028,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
   // ---------- малювання й події ----------
   var app = document.getElementById("app");
   // ---------- зміни прямо у вікні (через адресу бота, якщо вона є) ----------
-  var WAPI = (Array.isArray(D.api) ? D.api : []).filter(function (u) { return /^https?:\/\//.test(u); });
+  var WAPI = (Array.isArray(D.api) ? D.api : []).filter(botApi);
   var wBusy = false, wToast = "", wToastTimer = null;
   function showToast(text) {
     wToast = text; clearTimeout(wToastTimer);
