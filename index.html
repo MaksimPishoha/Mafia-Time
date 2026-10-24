@@ -235,6 +235,33 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     param(location.search, "tgWebAppStartParam") || param(location.hash, "tgWebAppStartParam");
   var D = (await decode(param(location.search, "p"))) || (await decode(startParam)) ||
     (await decode((location.hash.slice(1).split("&")[0] || "").indexOf("=") < 0 ? location.hash.slice(1).split("&")[0] : ""));
+  // Дані з посилання (?p= / startapp) може підробити будь-хто: приводимо їх до очікуваних типів,
+  // щоб у HTML ніколи не потрапив чужий текст замість числа (захист від вставки скрипта).
+  D = cleanData(D);
+  function cleanData(d) {
+    if (!d || typeof d !== "object" || Array.isArray(d)) return null;
+    function N(v) { v = Number(v); return isFinite(v) ? v : 0; }
+    function deep(v) { return Array.isArray(v) ? v.map(deep) : N(v); }
+    function S(v, max) { return typeof v === "string" ? v.slice(0, max) : ""; }
+    var o = {};
+    ["u", "x", "g", "w", "a", "s", "e", "m", "wb", "dn"].forEach(function (k) { if (d[k] !== undefined) o[k] = N(d[k]); });
+    ["p", "i", "lk", "sp"].forEach(function (k) { if (Array.isArray(d[k])) o[k] = d[k].map(N); });
+    if (Array.isArray(d.t)) o.t = d.t.map(N); else if (typeof d.t === "string") o.t = d.t;   // профіль: жетони; стіл: адреса
+    if (typeof d.t2 === "string") o.t2 = d.t2;
+    if (Array.isArray(d.f) && d.f.length === 2) o.f = [S(d.f[0], 30), N(d.f[1])]; else o.f = 0;
+    if (d.st && typeof d.st === "object") {
+      o.st = {};
+      ["a", "c"].forEach(function (k) { if (Array.isArray(d.st[k])) o.st[k] = deep(d.st[k]); });
+      if (d.st.cn !== undefined) o.st.cn = S(d.st.cn, 40);
+    }
+    o.n = S(d.n, 40);
+    var b = S(d.b, 40); if (/^[A-Za-z0-9_]+$/.test(b)) o.b = b; else o.b = "";
+    var un = S(d.un, 40); if (/^[A-Za-z0-9_]+$/.test(un)) o.un = un;
+    ["r", "v", "go"].forEach(function (k) { if (d[k] !== undefined) o[k] = S(d[k], 30); });
+    if (typeof d.av === "string") o.av = d.av;          // перевіряється нижче (лише cdn.discordapp.com)
+    if (Array.isArray(d.api)) o.api = d.api;            // перевіряється botApi()
+    return o;
+  }
   // ---------- малюнок персонажа (потрібен і столу, і гардеробу) ----------
   var BG = {
     bg_night: '<defs><radialGradient id="gN" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#2A303C"/><stop offset="1" stop-color="#12151B"/></radialGradient></defs><rect width="200" height="240" fill="url(#gN)"/>',
@@ -713,7 +740,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
 
   // ---------- допоміжне ----------
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  function num(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  function num(n) { return String(Number(n) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
   var ICON_BACK = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
   var ICON_LOCK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
   // Аватарка з Telegram: своя з даних запуску, чужа за публічним @ніком. Немає фото: перша літера імені.
