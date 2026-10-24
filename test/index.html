@@ -39,6 +39,7 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
 .bar > div { height: 100%; background: var(--gold); border-radius: 999px; }
 .xp-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 8px; }
 .actions { display: flex; gap: 8px; padding: 14px 16px 4px; }
+.patron { display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; color: var(--gold); border: 1px solid var(--gold); background: rgba(212, 175, 55, .08); }
 .btn { flex: 1; min-height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .btn.primary { background: var(--gold); color: var(--ink); border-color: var(--gold); }
 .btn:disabled { background: var(--line); color: var(--muted); border-color: var(--line); cursor: default; }
@@ -759,12 +760,14 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       (hasLook ? '<div class="flip-hint">' + (state.showChar ? "Торкнись, щоб побачити аватарку" : "Торкнись, щоб побачити персонажа") + '</div>' : "") +
       '<h1>' + esc(D.n || "Гравець") + '</h1>' +
       '<div class="sub">' + rankOf(L.level) + (current.key !== "none" ? " · рамка «" + esc(current.name) + "»" : "") + '</div>' +
+      (D.dn ? '<div class="patron">💎 Меценат Time Town</div>' : "") +
       (tokens ? '<div class="tokens">' + tokens + '</div>' : "") + '</div>' +
       '<div class="xp"><div class="bar"><div style="width:' + Math.min(100, L.cur / L.need * 100) + '%"></div></div>' +
       '<div class="xp-row"><span>' + num(L.cur) + ' / ' + num(L.need) + ' XP</span><span>до рівня ' + (L.level + 1) + '</span></div></div>';
     h += '<div class="actions">' + (hasLook ? '<button class="btn" data-go="wardrobe">👔 Гардероб</button>' : "") +
       (own && !fromSpy ? '<button class="btn" data-go="frames">🖼 Рамка</button>' : "") +
       '<button class="btn" data-go="levels">⭐ Рівні</button></div>';
+    if (own && !fromSpy && D.b) h += '<div class="actions"><button class="btn" data-donate="1" style="flex:1">💎 Підтримати Time Town</button></div>';
     var tabs = [["overview", "Огляд"], ["ach", "Досягнення"]];
     if (D.st && D.st.a) tabs.push(["stats", "Статистика"]);
     if (D.m !== undefined) tabs.push(["inv", "Інвентар"]);
@@ -1061,6 +1064,11 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     var el = ev.target.closest("button");
     if (!el) return;
     if (el.dataset.go) return go(el.dataset.go);
+    if (el.dataset.donate) {   // оплата зірками — у чаті з ботом
+      var dl = "https://t.me/" + D.b + "?start=donate";
+      if (tg && tg.openTelegramLink) { tg.openTelegramLink(dl); tg.close(); } else { location.href = dl; }
+      return;
+    }
     if (el.id === "flip") {
       state.showChar = !state.showChar; haptic();
       el.classList.toggle("flipped", state.showChar);
