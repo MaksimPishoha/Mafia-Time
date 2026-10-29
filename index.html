@@ -39,6 +39,7 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
 .bar > div { height: 100%; background: var(--gold); border-radius: 999px; }
 .xp-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 8px; }
 .actions { display: flex; gap: 8px; padding: 14px 16px 4px; }
+.patron { display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; color: var(--gold); border: 1px solid var(--gold); background: rgba(212, 175, 55, .08); }
 .btn { flex: 1; min-height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .btn.primary { background: var(--gold); color: var(--ink); border-color: var(--gold); }
 .btn:disabled { background: var(--line); color: var(--muted); border-color: var(--line); cursor: default; }
@@ -108,6 +109,37 @@ body.night { background: #0A0D16; }
 .tbl-top .sub { font-size: 12px; }
 .pill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; }
 .ring { position: relative; margin: 14px auto 0; }
+/* Амфітеатр: ряди гравців перед табло з фазою й таймером */
+.amph { position: relative; margin: 10px auto 0; }
+/* Широкий екран (Discord Activity, браузер): три колонки — фаза й дії | зал | журнал */
+.wrap.wide { max-width: none; }
+.dc-grid { display: grid; grid-template-columns: 320px minmax(0, 1fr) 340px; height: 100vh; }
+.dc-left, .dc-right { overflow-y: auto; background: #12151B; }
+body.night .dc-left, body.night .dc-right { background: #0F1526; }
+.dc-left { border-right: 1px solid var(--line2); padding-bottom: 16px; }
+.dc-right { border-left: 1px solid var(--line2); padding: 8px 0 16px; }
+.dc-main { display: flex; flex-direction: column; justify-content: center; min-width: 0; overflow: hidden; }
+.dc-main .talking { font-size: 15px; margin-top: 10px; }
+.dc-right .log { margin-top: 8px; }
+.wide .amph .board { width: min(460px, 70%); height: 84px; }
+.wide .amph .board .t { font-size: 42px; }
+.wide .amph .board .k, .wide .amph .board .s { font-size: 13px; }
+.wide .seat .nm { font-size: 13px; max-width: 120px; }
+.wide .seat .num { width: 26px; height: 26px; font-size: 12px; }
+.amph .tiers { position: absolute; left: 0; right: 0; border-radius: 22px; background: repeating-linear-gradient(0deg, rgba(160,132,79,.16) 0, rgba(160,132,79,.16) 2px, transparent 3px, transparent var(--row, 110px)); }
+body.night .amph .tiers { background: repeating-linear-gradient(0deg, rgba(112,142,213,.2) 0, rgba(112,142,213,.2) 2px, transparent 3px, transparent var(--row, 110px)); }
+.amph .board { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: min(260px, 82%); height: 62px; border-radius: 14px; border: 1px solid #625132; background: linear-gradient(120deg, #2A241C, #181B20); box-shadow: 0 12px 30px rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; gap: 14px; overflow: hidden; }
+body.night .amph .board { border-color: #465D90; background: linear-gradient(120deg, #25304B, #151C2B); }
+.amph .board .k { font-size: 11px; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; color: var(--gold); }
+body.night .amph .board .k { color: #91AFFF; }
+.amph .board .t { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.amph .board .s { font-size: 12px; color: var(--soft); max-width: 78px; line-height: 1.25; }
+.amph .board .bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--gold); transition: width 1s linear; }
+.amph .board .bar.low { background: var(--red); }
+body.night .amph .board .bar { background: #91AFFF; }
+.amph .seat .face { border-radius: 18px 18px 10px 10px; box-shadow: 0 6px 0 #2F2A25, 0 8px 0 rgba(162,133,77,.2); }
+.amph .seat .face svg { border-radius: inherit; }
+.amph .seat .num { left: -6px; top: -5px; }
 .seat { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 3px; background: none; border: 0; padding: 0; cursor: pointer; }
 .seat .face { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; background: var(--chip); border: 3px solid var(--fr, #3A404C); box-sizing: border-box; transition: box-shadow .25s; }
 .seat .nm { font-size: 11px; max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--soft); }
@@ -231,6 +263,10 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     }
     return "";
   }
+  // Discord Activity: сторінку віддає сам Discord-бот і перед нею вставляє вхід через Discord
+  // (window.MT_ACTIVITY_READY — обіцянка, що дасть {dk: ключ гравця}). Поза Activity її немає.
+  var ACT = {};
+  if (window.MT_ACTIVITY_READY) { try { ACT = (await window.MT_ACTIVITY_READY) || {}; } catch (e) { ACT = {}; } }
   var startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) ||
     param(location.search, "tgWebAppStartParam") || param(location.hash, "tgWebAppStartParam");
   var D = (await decode(param(location.search, "p"))) || (await decode(startParam)) ||
@@ -354,12 +390,16 @@ body.night .vc-row { background: #121829; border-color: #253048; }
   }
   // Адреса бота — лише тунель Cloudflare або localhost.run. Інші не беремо: посилання може підробити будь-хто,
   // і вікно віддало б чужому серверу підпис гравця. (Бот додатково перевіряє, що адреса саме його.)
-  function botApi(u) { return typeof u === "string" && /^https:\/\/[a-z0-9-]+\.(trycloudflare\.com|lhr\.life)\/?$/i.test(u); }
+  function botApi(u) {   // адреси стола бота: тимчасовий Cloudflare, localhost.run або постійна Tailscale (ts.net)
+    return typeof u === "string" && (/^https:\/\/[a-z0-9-]+\.(trycloudflare\.com|lhr\.life)\/?$/i.test(u) ||
+      /^https:\/\/[a-z0-9-]+\.[a-z0-9-]+\.ts\.net(:\d{2,5})?\/?$/i.test(u));
+  }
   // Стіл: адреса бота https://… (у профілі поле "t" — це інше: масив найкращих ролей)
   // Друга адреса t2 — запасний тунель (якщо провайдер блокує основний)
   var TABLE_APIS = [param(location.search, "t") || (D && typeof D.t === "string" ? D.t : ""),
                     param(location.search, "t2") || (D && typeof D.t2 === "string" ? D.t2 : "")]
     .filter(botApi);
+  if (ACT.dk) { tableMode([location.origin]); return; }   // Discord Activity: сервер стола — та сама адреса
   if (TABLE_APIS.length) { tableMode(TABLE_APIS); return; }
   var demo = !D;
   if (demo) {
@@ -408,6 +448,8 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     var tgw = window.Telegram && window.Telegram.WebApp;
     var root = document.getElementById("app");
     var init = (tgw && tgw.initData) || "";
+    // Discord: підписаний ключ гравця приходить у частині адреси після «#» (на сервер GitHub вона не потрапляє)
+    var dk = ACT.dk || param(location.hash, "dk");
     var S = null, pick = null, mode = null, busy = false, lastFetch = 0, toastMsg = "", toastTimer = null;
     var netError = "", sig = "", peek = false, logOpen = false, lastTurn = "", lastEv = -1, lastStage = "", lastMine = -1;
     var STAGE = { night: "Ніч", discussion: "Обговорення", vote: "Голосування", confirm: "Підтвердження страти", kamikaze: "Хід Камікадзе" };
@@ -435,7 +477,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       setTimeout(function () { el.remove(); }, 1900);
     }
     async function call(path, extra) {
-      var body = Object.assign({ init: init }, extra || {});
+      var body = Object.assign(dk ? { dk: dk } : { init: init }, extra || {});
       // Пробуємо адресу, що працювала востаннє; не відповідає — наступну (запасну).
       var r = null, lastErr = null;
       for (var k = 0; k < apis.length && !r; k++) {
@@ -509,6 +551,8 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       if (!S || !S.seats || S.stage === "finished") return;
       var left = leftNow();
       root.querySelectorAll(".js-time").forEach(function (el) { el.textContent = clockText(left); });
+      var bar = root.querySelector(".js-bar");
+      if (bar) { bar.style.width = (S.total ? Math.max(0, Math.min(1, left / S.total)) * 100 : 0).toFixed(1) + "%"; bar.classList.toggle("low", left <= 10); }
       var arc = root.querySelector(".js-arc");
       if (arc) {
         var len = +arc.dataset.len, frac = S.total ? Math.max(0, Math.min(1, left / S.total)) : 0;
@@ -519,7 +563,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     function face(st, size) {
       if (st.look && typeof charSVG === "function") {
         var look = {}; LOOK_SLOTS.forEach(function (k, i) { look[k] = st.look[i]; });
-        return charSVG(look, "44 40 112 112") + (st.alive ? "" : '<span class="x">✕</span>');
+        return charSVG(look, "42 30 116 132") + (st.alive ? "" : '<span class="x">✕</span>');
       }
       return st.alive ? escT(initials(st.name)) : "✕";
     }
@@ -555,8 +599,11 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       if (S.votes) Object.keys(S.votes).forEach(function (k) { var t = S.votes[k]; if (t) tally[t] = (tally[t] || 0) + 1; });
       // шапка
       if (fin) h += '<div class="tbl-top"><div><h2>Гру завершено</h2><div class="sub">' + escT(S.chat) + ' · ' + S.day + ' дн.</div></div></div>';
-      else h += '<div class="tbl-top"><div><h2>' + escT(night ? "Ніч " + S.day : (STAGE[S.stage] || "Гра") + " · день " + S.day) + '</h2><div class="sub">' + escT(S.chat) + ' · живих ' + S.alive + '</div></div>' +
-        '<div class="pill js-time">' + clockText(left) + '</div></div>';
+      else h += '<div class="tbl-top"><div><h2>' + escT(night ? "Ніч " + S.day : (STAGE[S.stage] || "Гра") + " · день " + S.day) + '</h2><div class="sub">' + escT(S.chat) + ' · живих ' + S.alive + '</div></div></div>';   // таймер — на табло амфітеатру
+      var wide = window.innerWidth >= 900;   // Discord Activity / браузер: три колонки
+      root.classList.toggle("wide", wide);
+      if (wide) logOpen = true;
+      var P = { top: h }; h = "";
       // остання подія
       var ev = S.events || [];
       var lastNews = ev.filter(function (e) { return e.k !== "phase" && e.k !== "vote"; }).slice(-1)[0];
@@ -564,41 +611,53 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       if (myNews && !fin) h += '<div class="banner secret" role="status"><span class="lock">🔒 Тільки для тебе</span>' + escT(myNews.t) + '</div>';
       if (lastNews && !fin) h += '<div class="banner ' + lastNews.k + '" role="status">' + escT(lastNews.t) + '</div>';
       // стіл
-      var W = Math.min(window.innerWidth, 480) - 24, size = W < 360 ? 52 : 60, R = W / 2 - size / 2 - 6, C = W / 2;
+      P.ban = h; h = "";
+      // Амфітеатр: табло з фазою й таймером угорі, гравці рядами (по 3–4) перед ним
+      var W = wide ? Math.max(420, window.innerWidth - 320 - 340 - 48) : Math.min(window.innerWidth, 480) - 16;
       var n = S.seats.length;
-      h += '<div class="ring" style="width:' + W + 'px;height:' + (W + 8) + 'px">';
-      var cw = Math.round(W * 0.36), rr = cw / 2 - 3, len = 2 * Math.PI * rr;
+      var ROWS = { 1: [1], 2: [2], 3: [3], 4: [4], 5: [2, 3], 6: [3, 3], 7: [3, 4], 8: [4, 4], 9: [3, 3, 3], 10: [3, 4, 3] };
+      var rows = ROWS[n] || (function () { var r = []; for (var k = n; k > 0; k -= 4) r.push(Math.min(4, k)); return r; })();
+      var slot = W / Math.max.apply(null, rows), cardW = Math.max(46, Math.min(wide ? Math.min(110, Math.floor((window.innerHeight - 220) / rows.length / 1.14 - 50)) : 66, Math.floor(slot - 22))), cardH = Math.round(cardW * 1.14);
+      var size = cardW, boardH = 62, rowH = cardH + 44, top0 = boardH + 22;
       var frac = !fin && S.total ? Math.max(0, Math.min(1, left / S.total)) : 0;
-      h += '<div class="clock" style="left:' + (C - cw / 2) + 'px;top:' + (C - cw / 2) + 'px;width:' + cw + 'px;height:' + cw + 'px">' +
-        (fin ? "" : '<svg class="prog" width="' + cw + '" height="' + cw + '" aria-hidden="true"><circle cx="' + cw / 2 + '" cy="' + cw / 2 + '" r="' + rr + '" class="track"/>' +
-          '<circle cx="' + cw / 2 + '" cy="' + cw / 2 + '" r="' + rr + '" class="arc js-arc' + (left <= 10 ? " low" : "") + '" data-len="' + len.toFixed(1) + '" stroke-dasharray="' + (len * frac).toFixed(1) + " " + len.toFixed(1) + '"/></svg>') +
-        '<div class="k">' + escT(fin ? "кінець" : night ? "ніч" : "день " + S.day) + '</div><div class="t' + (fin ? "" : " js-time") + '">' + (fin ? "🏁" : clockText(left)) + '</div><div class="s">' + escT(STAGE[S.stage] || "") + '</div></div>';
+      h += '<div class="amph" style="width:' + W + 'px;height:' + (top0 + rows.length * rowH) + 'px">';
+      h += '<div class="tiers" style="top:' + (top0 - 8) + 'px;bottom:0;--row:' + rowH + 'px"></div>';
+      h += '<div class="board" role="timer"><span class="k">' + escT(fin ? "кінець" : night ? "ніч " + S.day : "день " + S.day) + '</span>' +
+        '<span class="t' + (fin ? "" : " js-time") + '">' + (fin ? "🏁" : clockText(left)) + '</span><span class="s">' + escT(fin ? "Гру завершено" : STAGE[S.stage] || "") + '</span>' +
+        (fin ? "" : '<span class="bar js-bar' + (left <= 10 ? " low" : "") + '" style="width:' + (frac * 100).toFixed(1) + '%"></span>') + '</div>';
+      var seatPos = [], ri = 0, inRow = 0;
+      for (var si = 0; si < n; si++) {
+        var k = rows[ri];
+        seatPos.push({ x: W * (inRow + 0.5) / k - cardW / 2, y: top0 + ri * rowH + 8 });
+        if (++inRow >= k) { inRow = 0; ri++; }
+      }
       var meSeat = S.seats.filter(function (x) { return x.me; })[0];
       var fem = !!(meSeat && meSeat.look && meSeat.look[4] === "body_f");
       var talking = [];
       S.seats.forEach(function (st, i) {
-        var a = Math.PI / 2 + i * 2 * Math.PI / n;
-        var x = C + R * Math.cos(a) - size / 2, y = C + R * Math.sin(a) - size / 2;
+        var x = seatPos[i].x, y = seatPos[i].y;
         var can = targets.indexOf(st.id) >= 0;
         if (st.talk) talking.push(st.me ? "ти" : st.name);
         var cls = "seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (st.won ? " won" : "") +
           (st.talk ? " talk" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "") + (st.look ? " has-look" : "") + (st.known ? " known" : "");
         var micIcon = st.mic === undefined || !st.alive ? "" : '<span class="mic">' + (st.mic ? MIC_ON : MIC_OFF) + '</span>';
-        h += '<button class="' + cls + '" data-seat="' + st.id + '" style="left:' + x + 'px;top:' + y + 'px;width:' + size + 'px;--sz:' + size + 'px' + (st.frame ? ";--fr:" + st.frame : "") + '" aria-label="№' + st.n + ' ' + escT(st.name) + (st.alive ? "" : ", вибув") + (st.talk ? ", говорить" : "") + '"' + (can ? "" : ' tabindex="-1"') + '>' +
-          '<span class="face" style="width:' + size + 'px;height:' + size + 'px;font-size:' + (size / 3.6) + 'px">' + face(st, size) + '</span>' +
+        h += '<button class="' + cls + '" data-seat="' + st.id + '" style="left:' + x + 'px;top:' + y + 'px;width:' + size + 'px;--sz:' + cardH + 'px' + (st.frame ? ";--fr:" + st.frame : "") + '" aria-label="№' + st.n + ' ' + escT(st.name) + (st.alive ? "" : ", вибув") + (st.talk ? ", говорить" : "") + '"' + (can ? "" : ' tabindex="-1"') + '>' +
+          '<span class="face" style="width:' + size + 'px;height:' + cardH + 'px;font-size:' + (size / 3.6) + 'px">' + face(st, size) + '</span>' +
           '<span class="num">' + st.n + '</span>' + micIcon + (tally[st.id] ? '<span class="votes">' + tally[st.id] + '</span>' : "") +
           '<span class="nm">' + escT(st.me ? "Ти" : st.name) + '</span>' + ((!st.alive || fin) && st.role ? '<span class="nm rl">' + escT(st.role) + '</span>' :
             st.known ? '<span class="nm rl kn" title="Твоя перевірка">🔍 ' + escT(st.known) + '</span>' : "") + '</button>';
       });
       h += '</div>';
+      P.amph = h; h = "";
       // Мікрофон вмикається лише в самому Telegram: кнопка веде до голосового чату одним дотиком
       if (!fin && S.voice && meSeat) {
         var canTalk = meSeat.alive && meSeat.mic;
         h += '<div class="vc-row"><span class="vc-state' + (canTalk ? " on" : "") + '">' +
           (!meSeat.alive ? (fem ? "💀 Ти вибула: слухай мовчки" : "💀 Ти вибув: слухай мовчки") : canTalk ? "🎙 Тобі можна говорити" : "🔇 Зараз говорити не можна") + '</span>' +
-          '<button class="btn vc-go' + (canTalk ? " primary" : "") + '" id="vcGo">🎙 До голосового чату</button></div>';
+          (ACT.dk ? "" : '<button class="btn vc-go' + (canTalk ? " primary" : "") + '" id="vcGo">🎙 До голосового чату</button>') + '</div>';   // у Discord ти вже в голосовому каналі
       }
-      if (!fin) h += '<div class="talking" aria-live="polite">' + (talking.length ? "🎙 Говорить: " + escT(talking.join(", ")) : S.voice ? "" : "") + '</div>';
+      if (!fin) P.talk = '<div class="talking" aria-live="polite">' + (talking.length ? "🎙 Говорить: " + escT(talking.join(", ")) : S.voice ? "" : "") + '</div>';
+      P.vc = h; h = "";
       // картка гравця й дії
       h += '<div class="act">';
       if (fin) {
@@ -634,6 +693,7 @@ body.night .vc-row { background: #121829; border-color: #253048; }
         h += '<div class="note" style="margin:0;text-align:center">Кнопки в боті теж працюють. Результати перевірок бачиш лише ти: тут і в боті.</div>';
       }
       h += '</div>';
+      P.act = h; h = "";
       // журнал гри
       if (ev.length || mineAll.length) {
         h += '<div class="log"><button class="btn log-h" id="logToggle" aria-expanded="' + logOpen + '">📜 Журнал гри · ' + (ev.length + mineAll.length) + (logOpen ? " ▲" : " ▼") + '</button>';
@@ -650,8 +710,11 @@ body.night .vc-row { background: #121829; border-color: #253048; }
         }
         h += '</div>';
       }
+      P.log = h; h = "";
       if (toastMsg) h += '<div class="toast" role="status">' + escT(toastMsg) + '</div>';
-      root.innerHTML = h;
+      if (wide) root.innerHTML = '<div class="dc-grid"><aside class="dc-left" aria-label="Фаза і твої дії">' + P.top + P.ban + P.vc + P.act + '</aside>' +
+        '<main class="dc-main" aria-label="Зал">' + P.amph + (P.talk || "") + '</main><aside class="dc-right" aria-label="Журнал гри">' + P.log + '</aside></div>' + h;
+      else root.innerHTML = P.top + P.ban + P.amph + P.vc + (P.talk || "") + P.act + P.log + h;
     }
     // Роль видно, лише поки тримаєш кнопку (щоб сусід не підгледів).
     function setPeek(v) { if (peek === v) return; peek = v; if (v) buzz("event"); draw(); }
@@ -746,7 +809,9 @@ body.night .vc-row { background: #121829; border-color: #253048; }
   // Аватарка з Telegram: своя з даних запуску, чужа за публічним @ніком. Немає фото: перша літера імені.
   var tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
   var PHOTO = (tgUser && tgUser.id === D.u && tgUser.photo_url) ||
-    (D.un ? "https://t.me/i/userpic/320/" + encodeURIComponent(D.un) + ".jpg" : "");
+    (D.un ? "https://t.me/i/userpic/320/" + encodeURIComponent(D.un) + ".jpg" : "") ||
+    // Discord-профіль: аватарка лише з CDN Discord
+    (typeof D.av === "string" && /^https:\/\/cdn\.discordapp\.com\/[\w\/.-]+(\?size=\d+)?$/.test(D.av) ? D.av : "");
   function avatar(f, size, font) {
     var pad = Math.max(3, Math.round(size / 24));
     var outline = f.outline ? "box-shadow:0 0 0 3px " + f.outline + ";" : "";
@@ -786,12 +851,14 @@ body.night .vc-row { background: #121829; border-color: #253048; }
       (hasLook ? '<div class="flip-hint">' + (state.showChar ? "Торкнись, щоб побачити аватарку" : "Торкнись, щоб побачити персонажа") + '</div>' : "") +
       '<h1>' + esc(D.n || "Гравець") + '</h1>' +
       '<div class="sub">' + rankOf(L.level) + (current.key !== "none" ? " · рамка «" + esc(current.name) + "»" : "") + '</div>' +
+      (D.dn ? '<div class="patron">💎 Меценат Time Town</div>' : "") +
       (tokens ? '<div class="tokens">' + tokens + '</div>' : "") + '</div>' +
       '<div class="xp"><div class="bar"><div style="width:' + Math.min(100, L.cur / L.need * 100) + '%"></div></div>' +
       '<div class="xp-row"><span>' + num(L.cur) + ' / ' + num(L.need) + ' XP</span><span>до рівня ' + (L.level + 1) + '</span></div></div>';
     h += '<div class="actions">' + (hasLook ? '<button class="btn" data-go="wardrobe">👔 Гардероб</button>' : "") +
       (own && !fromSpy ? '<button class="btn" data-go="frames">🖼 Рамка</button>' : "") +
       '<button class="btn" data-go="levels">⭐ Рівні</button></div>';
+    if (own && !fromSpy && D.b) h += '<div class="actions"><button class="btn" data-donate="1" style="flex:1">💎 Підтримати Time Town</button></div>';
     var tabs = [["overview", "Огляд"], ["ach", "Досягнення"]];
     if (D.st && D.st.a) tabs.push(["stats", "Статистика"]);
     if (D.m !== undefined) tabs.push(["inv", "Інвентар"]);
@@ -1088,6 +1155,11 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     var el = ev.target.closest("button");
     if (!el) return;
     if (el.dataset.go) return go(el.dataset.go);
+    if (el.dataset.donate) {   // оплата зірками — у чаті з ботом
+      var dl = "https://t.me/" + D.b + "?start=donate";
+      if (tg && tg.openTelegramLink) { tg.openTelegramLink(dl); tg.close(); } else { location.href = dl; }
+      return;
+    }
     if (el.id === "flip") {
       state.showChar = !state.showChar; haptic();
       el.classList.toggle("flipped", state.showChar);
