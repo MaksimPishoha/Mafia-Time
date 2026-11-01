@@ -299,6 +299,15 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     return o;
   }
   // ---------- малюнок персонажа (потрібен і столу, і гардеробу) ----------
+  // Плаский вектор з м'якими тінями: тон шкіри, вуха, ніс, вилиці, об'ємний костюм, арка-рамка.
+  // Капелюхи й аксесуари стоять на тих самих місцях, що й раніше (голова в тій самій точці).
+  var _cid = 0;
+  function shade(hex, k) {   // k < 0 — темніше, k > 0 — світліше
+    var n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+    function f(c) { return Math.max(0, Math.min(255, Math.round(k < 0 ? c * (1 + k) : c + (255 - c) * k))); }
+    return "#" + ((1 << 24) + (f(r) << 16) + (f(g) << 8) + f(b)).toString(16).slice(1);
+  }
+  var SKIN = { light: "#F0D2B4", warm: "#D9A47A", tan: "#B57F55", deep: "#7C5136" };
   var BG = {
     bg_night: '<defs><radialGradient id="gN" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#2A303C"/><stop offset="1" stop-color="#12151B"/></radialGradient></defs><rect width="200" height="240" fill="url(#gN)"/>',
     bg_city: '<rect width="200" height="240" fill="#121A2B"/><circle cx="160" cy="44" r="16" fill="#E9E1C8" opacity=".85"/><path d="M0 150h22v-40h18v24h16v-52h22v38h14v-22h20v44h16v-30h20v18h18v-10h34V240H0z" fill="#0B101C"/><g fill="#E2BE6A" opacity=".7"><rect x="64" y="96" width="4" height="5"/><rect x="72" y="108" width="4" height="5"/><rect x="112" y="128" width="4" height="5"/><rect x="146" y="132" width="4" height="5"/><rect x="28" y="122" width="4" height="5"/></g>',
@@ -306,85 +315,195 @@ body.night .vc-row { background: #121829; border-color: #253048; }
     bg_curtain: '<rect width="200" height="240" fill="#4A1018"/><g fill="#6E1A24"><path d="M0 0h18c-6 80 6 160 0 240H0z"/><path d="M38 0h20c-8 80 8 160 0 240H38z"/><path d="M80 0h20c-8 80 8 160 0 240H80z"/><path d="M122 0h20c-8 80 8 160 0 240h-20z"/><path d="M164 0h20c-8 80 8 160 0 240h-20z"/></g><rect width="200" height="16" fill="#C9A24E"/>',
     bg_gold: '<defs><radialGradient id="gG" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#F3D58E"/><stop offset=".55" stop-color="#B8923F"/><stop offset="1" stop-color="#5E4718"/></radialGradient></defs><rect width="200" height="240" fill="url(#gG)"/>'
   };
+  // Одяг у стилі 1930-х: широкі гострі лацкани, двобортні піджаки, смужка, хусточка в кишені.
+  // lap: peak — гострі лацкани, shawl — шаль (смокінг), notch — звичайні, stand — стійка (форма)
   var OUTFIT = {
-    trench: { coat: "#9C8158", lapel: "#7E6744", shirt: "#E8E2D4", tie: "#2A2F3A", extra: '<path d="M44 222h112" stroke="#6B5838" stroke-width="7"/><circle cx="100" cy="222" r="5" fill="#C9A24E"/>' },
-    suit: { coat: "#22262E", lapel: "#14171C", shirt: "#E8E2D4", tie: "#14171C", extra: "" },
-    burgundy: { coat: "#6E1F2A", lapel: "#4E141D", shirt: "#E8E2D4", tie: "#14171C", extra: "" },
-    white: { coat: "#E6E0D2", lapel: "#C9C2B2", shirt: "#2A2F3A", tie: "#E6E0D2", extra: "" },
-    police: { coat: "#1F3554", lapel: "#152640", shirt: "#C9D3E3", tie: "#14171C", extra: '<path d="M62 200l4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1z" fill="#E2BE6A"/>' },
-    medic: { coat: "#ECEAE4", lapel: "#D3D0C8", shirt: "#8FB2F5", tie: "#5B8DEF", extra: '<path d="M70 186c-14 22 0 40 14 32" fill="none" stroke="#3A404C" stroke-width="3"/><circle cx="84" cy="218" r="4" fill="#3A404C"/><path d="M128 206h12M134 200v12" stroke="#C0453A" stroke-width="4"/>' }
+    trench: { coat: "#A58A5E", lapel: "#B79C6E", shirt: "#E8E2D4", tie: "#2A2F3A", lap: "peak", btn: "#5A4630", dbl: 1, belt: "#7B6440", epaulet: 1 },
+    suit: { coat: "#23262E", lapel: "#1A1D23", shirt: "#ECE6D8", tie: "#7A1F2B", lap: "peak", btn: "#0F1115", dbl: 1, stripe: "#59606E", square: "#ECE6D8" },
+    burgundy: { coat: "#5E1A24", lapel: "#15171C", shirt: "#ECE6D8", bow: "#15171C", lap: "shawl", btn: "#15171C", satin: 1, square: "#E2BE6A" },
+    white: { coat: "#E9E3D3", lapel: "#DCD4C1", shirt: "#1B1E25", tie: "#ECE6D8", lap: "peak", btn: "#B7AE98", dbl: 1, square: "#C0453A" },
+    police: { coat: "#1D3150", lapel: "#162740", shirt: "#1D3150", lap: "stand", btn: "#E2BE6A", badge: 1, strap: "#6B4A2E", epaulet: 1 },
+    medic: { coat: "#EEECE6", lapel: "#DDDAD2", shirt: "#9DB8EA", tie: "#4C78C8", lap: "notch", btn: "#C9C5BA", steth: 1, pen: 1 }
   };
+
+  function garment(o, f, id) {
+    var T = f ? 172 : 168, n = f ? 14 : 20, V = f ? 40 : 50, cx = 100;
+    var body = f ? "M34 246c2-40 26-74 66-74s64 34 66 74z" : "M18 246c4-46 36-78 82-78s78 32 82 78z";
+    var dark = shade(o.coat, -.35), x;
+    var s = '<defs><linearGradient id="co' + id + '" x1="0" x2="1"><stop offset="0" stop-color="' + shade(o.coat, .12) + '"/>' +
+      '<stop offset=".5" stop-color="' + o.coat + '"/><stop offset="1" stop-color="' + shade(o.coat, -.3) + '"/></linearGradient>' +
+      (o.stripe ? '<pattern id="ps' + id + '" width="7" height="10" patternUnits="userSpaceOnUse"><path d="M3.5 0v10" stroke="' + o.stripe + '" stroke-width=".7"/></pattern>' : '') +
+      '</defs><path d="' + body + '" fill="url(#co' + id + ')"/>' +
+      (o.stripe ? '<path d="' + body + '" fill="url(#ps' + id + ')" opacity=".55"/>' : '') +
+      (o.satin ? '' : '') +
+      // шви рукавів і тінь під пахвами
+      '<path d="M' + (f ? 58 : 46) + ' 204c5 14 7 28 7 42M' + (f ? 142 : 154) + ' 204c-5 14-7 28-7 42" stroke="' + dark + '" stroke-width="1.6" fill="none" opacity=".6"/>';
+    // сорочка у вирізі
+    s += '<path d="M' + (cx - n) + ' ' + T + 'L' + cx + ' ' + (T + V) + 'L' + (cx + n) + ' ' + T + 'Q' + cx + ' ' + (T - 5) + ' ' + (cx - n) + ' ' + T + 'z" fill="' + o.shirt + '"/>';
+    if (o.lap !== "stand")   // комірець сорочки
+      s += '<path d="M' + (cx - n + 4) + ' ' + (T - 2) + 'l' + (n - 4) + ' 9 -6 6zM' + (cx + n - 4) + ' ' + (T - 2) + 'l-' + (n - 4) + ' 9 6 6z" fill="' + shade(o.shirt, -.08) + '"/>';
+    // краватка або метелик
+    if (o.tie && !f) s += '<path d="M96 ' + (T + 4) + 'h8l2 7-6 ' + (V - 6) + '-6-' + (V - 6) + 'z" fill="' + o.tie + '"/><path d="M96 ' + (T + 4) + 'h8l1 5h-10z" fill="' + shade(o.tie, -.35) + '"/>' +
+      '<path d="M100 ' + (T + 14) + 'l-3 10" stroke="' + shade(o.tie, .25) + '" stroke-width="1" opacity=".6"/>';
+    if (o.tie && f) s += '<path d="M97 ' + (T + 4) + 'h6l1 5-4 ' + (V - 12) + '-4-' + (V - 12) + 'z" fill="' + o.tie + '"/>';
+    if (o.bow) s += '<path d="M' + (cx - 11) + ' ' + (T + 2) + 'q5 5 11 5-6 0-11 6zM' + (cx + 11) + ' ' + (T + 2) + 'q-5 5-11 5 6 0 11 6z" fill="' + o.bow + '"/><rect x="97" y="' + (T + 4.5) + '" width="6" height="5" rx="1.5" fill="' + shade(o.bow, .2) + '"/>';
+    // лацкани
+    function mirror(d) { return d.replace(/X(-?[\d.]+)/g, function (_, v) { return String(200 - parseFloat(v)); }); }
+    var L = "";
+    if (o.lap === "peak") {
+      // широкий гострий лацкан 30-х: від коміра до ґудзика, з «піком», що дивиться вгору
+      L = 'M X' + (cx - n) + ' ' + T + ' L X' + cx + ' ' + (T + V) + ' L X' + (cx - n - 12) + ' ' + (T + V - 12) + ' L X' + (cx - n - 26) + ' ' + (T + V - 40) +
+        ' L X' + (cx - n - 14) + ' ' + (T + V - 34) + ' L X' + (cx - n - 9) + ' ' + (T + 8) + ' Z';
+    } else if (o.lap === "notch") {
+      L = 'M X' + (cx - n) + ' ' + T + ' L X' + cx + ' ' + (T + V) + ' L X' + (cx - n - 10) + ' ' + (T + V - 14) + ' L X' + (cx - n - 18) + ' ' + (T + V - 34) +
+        ' L X' + (cx - n - 10) + ' ' + (T + V - 36) + ' L X' + (cx - n - 8) + ' ' + (T + 8) + ' Z';
+    } else if (o.lap === "shawl") {
+      L = 'M X' + (cx - n) + ' ' + T + ' L X' + cx + ' ' + (T + V) + ' Q X' + (cx - n - 26) + ' ' + (T + V * .5) + ' X' + (cx - n - 6) + ' ' + (T - 2) + ' Z';
+    }
+    if (L) {
+      var l = L.replace(/X/g, ""), r = mirror(L).replace(/X/g, "");
+      s += '<path d="' + l + '" fill="' + o.lapel + '"/><path d="' + r + '" fill="' + shade(o.lapel, -.16) + '"/>';
+      if (o.satin) s += '<path d="M' + (cx - n - 4) + ' ' + (T + 2) + 'q-12 ' + (V * .4) + ' ' + (n - 2) + ' ' + (V - 8) + '" stroke="#fff" stroke-opacity=".18" stroke-width="2.5" fill="none"/>';
+      else s += '<path d="' + l + '" fill="none" stroke="' + shade(o.lapel, -.3) + '" stroke-width=".8"/>';
+    }
+    if (o.lap === "stand") {   // форма: стійка-комір і застібка посередині
+      s += '<path d="M' + (cx - n) + ' ' + (T - 6) + 'h' + (2 * n) + 'v10h-' + (2 * n) + 'z" fill="' + o.lapel + '"/><path d="M' + (cx - n) + ' ' + (T + 4) + 'h' + (2 * n) + '" stroke="#E2BE6A" stroke-width="1.2"/>' +
+        '<path d="M100 ' + (T + 4) + 'V246" stroke="' + dark + '" stroke-width="1.6"/>';
+      for (x = 0; x < 4; x++) s += '<circle cx="100" cy="' + (T + 14 + x * 16) + '" r="2.6" fill="' + o.btn + '"/>';
+    }
+    if (o.collarUp)   // піднятий комір плаща
+      s += '<path d="M' + (cx - n - 10) + ' ' + (T + 6) + 'l-4-20 ' + (f ? 12 : 16) + ' 8z" fill="' + shade(o.coat, -.12) + '"/><path d="M' + (cx + n + 10) + ' ' + (T + 6) + 'l4-20-' + (f ? 12 : 16) + ' 8z" fill="' + shade(o.coat, -.25) + '"/>';
+    // ґудзики
+    if (o.dbl) {
+      [[-9, 8], [9, 8], [-9, 20], [9, 20]].forEach(function (p) {
+        s += '<circle cx="' + (cx + p[0]) + '" cy="' + (T + V + p[1]) + '" r="2.4" fill="' + o.btn + '"/>';
+      });
+    } else if (o.lap !== "stand") s += '<circle cx="100" cy="' + (T + V + 8) + '" r="2.4" fill="' + o.btn + '"/>';
+    // нагрудна кишеня з хусточкою
+    if (o.square) {
+      var px = f ? 120 : 126, py = T + 30;
+      s += '<path d="M' + px + ' ' + (py + 3) + 'l18-3" stroke="' + dark + '" stroke-width="1.4"/>' +
+        '<path d="M' + (px + 2) + ' ' + (py + 3) + 'l3-7 3 4 4-6 3 5 3-3 0 7z" fill="' + o.square + '"/>';
+    }
+    if (o.belt) {   // пояс плаща з пряжкою
+      var by = f ? 236 : 234, bw = f ? 60 : 76;
+      s += '<path d="M' + (100 - bw) + ' ' + by + 'h' + (2 * bw) + 'v7h-' + (2 * bw) + 'z" fill="' + o.belt + '"/>' +
+        '<rect x="93" y="' + (by - 2) + '" width="14" height="11" rx="2" fill="none" stroke="#C9A24E" stroke-width="2.2"/>';
+    }
+    if (o.epaulet) s += '<path d="M' + (f ? 48 : 36) + ' ' + (f ? 196 : 190) + 'l' + (f ? 18 : 22) + '-8 3 5-' + (f ? 18 : 22) + ' 8zM' + (f ? 152 : 164) + ' ' + (f ? 196 : 190) + 'l-' + (f ? 18 : 22) + '-8-3 5 ' + (f ? 18 : 22) + ' 8z" fill="' + (o.lap === "stand" ? "#E2BE6A" : shade(o.coat, -.2)) + '"/>';
+    if (o.badge) {   // зірка комісара й портупея
+      s += '<path d="M' + (f ? 84 : 78) + ' ' + T + 'L' + (f ? 128 : 140) + ' 246" stroke="' + o.strap + '" stroke-width="5"/>' +
+        '<path d="M' + (f ? 78 : 70) + ' 200l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#E2BE6A" stroke="#B8923F" stroke-width=".8"/>';
+    }
+    if (o.steth) {   // стетоскоп на шиї і ручка в кишені
+      s += '<path d="M' + (cx - n - 2) + ' ' + (T + 2) + 'c-10 20-6 38 6 40M' + (cx + n + 2) + ' ' + (T + 2) + 'c8 14 8 24 4 32" stroke="#3A404C" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+        '<circle cx="' + (cx - n + 4) + '" cy="' + (T + 42) + '" r="4.5" fill="#9AA0AA" stroke="#3A404C" stroke-width="2"/>' +
+        '<path d="M' + (f ? 124 : 130) + ' ' + (T + 28) + 'v10" stroke="#2A2F3A" stroke-width="2.4" stroke-linecap="round"/><path d="M' + (f ? 118 : 124) + ' ' + (T + 38) + 'h14" stroke="' + dark + '" stroke-width="1.2"/>' +
+        '<path d="M' + (f ? 70 : 64) + ' ' + (T + 30) + 'h8M' + (f ? 74 : 68) + ' ' + (T + 26) + 'v8" stroke="#C0453A" stroke-width="3"/>';
+    }
+    return s;
+  }
+
+  // Головні убори 1930-х: федора із защипами, кашкет-«восьмиклинка», берет, циліндр, корона
   var HAT = {
-    hat_none: '<path d="M70 92c2-18 14-28 30-28s28 10 30 28c-8-8-18-12-30-12s-22 4-30 12z" fill="#1B1E25"/>',
-    fedora: '<ellipse cx="100" cy="86" rx="52" ry="9" fill="#14171C"/><path d="M68 84c2-22 12-36 32-36s30 14 32 36z" fill="#1E222A"/><path d="M68 78h64v7H68z" fill="#E2BE6A"/>',
-    cap: '<path d="M66 86c0-20 14-32 34-32s34 10 36 26l14 6c-24 6-60 6-84 0z" fill="#4A4136"/><path d="M66 86c26 4 58 4 84 0" stroke="#2E2820" stroke-width="3" fill="none"/>',
-    beret: '<ellipse cx="96" cy="70" rx="40" ry="14" transform="rotate(-10 96 70)" fill="#7A1F2B"/><path d="M68 84c10-6 30-8 48-4" stroke="#4E141D" stroke-width="4" fill="none"/><circle cx="104" cy="56" r="3" fill="#4E141D"/>',
-    tophat: '<ellipse cx="100" cy="86" rx="44" ry="8" fill="#0E1014"/><rect x="74" y="28" width="52" height="58" rx="4" fill="#16191F"/><rect x="74" y="72" width="52" height="8" fill="#6E1F2A"/>',
-    crown: '<path d="M70 86l-4-34 18 16 16-26 16 26 18-16-4 34z" fill="#E2BE6A" stroke="#B8923F" stroke-width="2"/><circle cx="100" cy="66" r="4" fill="#C0453A"/><circle cx="80" cy="74" r="3" fill="#5B8DEF"/><circle cx="120" cy="74" r="3" fill="#7FC9A0"/>'
+    hat_none: "",
+    fedora: '<path d="M44 88c4-6 22-9 56-9s52 3 56 9c-2 5-10 6-14 4-12-3-26-4-42-4s-30 1-42 4c-4 2-12 1-14-4z" fill="#14171C"/>' +
+      '<path d="M68 84c0-16 4-30 12-36 6 4 14 4 20 0 6 4 14 4 20 0 8 6 12 20 12 36-20 4-44 4-64 0z" fill="#2B2F38"/>' +
+      '<path d="M100 48c-2 10-2 20 0 30" stroke="#1C1F25" stroke-width="2.2" fill="none"/>' +
+      '<path d="M68 76c20 4 44 4 64 0v8c-20 4-44 4-64 0z" fill="#0E1014"/><path d="M118 76.5l6 1v7l-6-1z" fill="#7A1F2B"/>' +
+      '<path d="M74 56c3-6 6-8 8-9" stroke="#4A505C" stroke-width="2" fill="none" stroke-linecap="round"/>',
+    cap: '<path d="M64 88c-2-22 14-38 36-38s38 14 36 34z" fill="#5B5246"/>' +
+      '<path d="M100 50l-30 30M100 50l-10 34M100 50l12 34M100 50l32 28" stroke="#463F35" stroke-width="1.6"/>' +
+      '<circle cx="100" cy="51" r="3.2" fill="#463F35"/><path d="M64 86c22 6 52 6 72-2l20 6c-30 10-72 10-94 2z" fill="#3F382F"/>' +
+      '<path d="M68 70c2-6 6-10 10-13" stroke="#7A705F" stroke-width="2" fill="none" stroke-linecap="round"/>',
+    beret: '<path d="M60 82c-6-16 12-30 40-30s48 12 42 24c-4 8-20 10-40 10-18 0-38 2-42-4z" fill="#7A1F2B"/>' +
+      '<path d="M66 84c14-6 36-8 56-4" stroke="#4E141D" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<path d="M108 52l4-6" stroke="#4E141D" stroke-width="3" stroke-linecap="round"/><path d="M74 62c6-4 14-6 22-6" stroke="#9E3542" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+    tophat: '<ellipse cx="100" cy="86" rx="46" ry="7" fill="#0B0D11"/><path d="M74 86l2-58c8-3 40-3 48 0l2 58z" fill="#16191F"/>' +
+      '<ellipse cx="100" cy="28" rx="24" ry="4" fill="#20242C"/><path d="M75 72h50l.4 9h-50.8z" fill="#7A1F2B"/>' +
+      '<path d="M82 34v34" stroke="#3A404C" stroke-width="3" stroke-linecap="round" opacity=".8"/>',
+    crown: '<defs><linearGradient id="gCr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#F6DC93"/><stop offset="1" stop-color="#B8923F"/></linearGradient></defs>' +
+      '<path d="M68 88l-4-36 18 14 18-26 18 26 18-14-4 36z" fill="url(#gCr)" stroke="#8E6E2C" stroke-width="1.6"/><path d="M68 82h64" stroke="#8E6E2C" stroke-width="2"/>' +
+      '<circle cx="100" cy="68" r="4.2" fill="#C0453A"/><circle cx="80" cy="74" r="3" fill="#5B8DEF"/><circle cx="120" cy="74" r="3" fill="#7FC9A0"/>' +
+      '<circle cx="64" cy="52" r="2.6" fill="#F6DC93"/><circle cx="100" cy="40" r="2.6" fill="#F6DC93"/><circle cx="136" cy="52" r="2.6" fill="#F6DC93"/>'
   };
   var ACC = {
     acc_none: "",
-    shades: '<rect x="74" y="98" width="22" height="12" rx="4" fill="#0B0D11"/><rect x="104" y="98" width="22" height="12" rx="4" fill="#0B0D11"/><path d="M96 103h8" stroke="#0B0D11" stroke-width="3"/>',
-    monocle: '<circle cx="114" cy="104" r="9" fill="none" stroke="#E2BE6A" stroke-width="2.5"/><path d="M122 110c6 14 4 30-4 44" fill="none" stroke="#E2BE6A" stroke-width="1.5"/>',
-    bowtie: '<path d="M86 166l14 7-14 7zM114 166l-14 7 14 7z" fill="#C0453A"/><circle cx="100" cy="173" r="3.5" fill="#8E2A22"/>',
-    rose: '<circle cx="72" cy="196" r="7" fill="#C0453A"/><circle cx="72" cy="196" r="3.5" fill="#8E2A22"/><path d="M76 202l8 8" stroke="#3E7A55" stroke-width="3"/>',
+    shades: '<path d="M73 98h24l-2 11c-1 3-4 4-8 4h-5c-5 0-8-2-9-6zM103 98h24l-1 9c-1 4-4 6-9 6h-5c-4 0-7-1-8-4z" fill="#0B0D11"/><path d="M97 100h6" stroke="#0B0D11" stroke-width="3"/><path d="M77 101h8" stroke="#3A404C" stroke-width="1.6" stroke-linecap="round"/>',
+    monocle: '<circle cx="113" cy="103" r="9.5" fill="#E9E1C8" fill-opacity=".12" stroke="#E2BE6A" stroke-width="2.5"/><path d="M122 110c6 14 4 30-4 44" fill="none" stroke="#E2BE6A" stroke-width="1.5"/>',
+    bowtie: function (f) { var y = f ? 164 : 166; return '<path d="M86 ' + (y - 6) + 'q7 4 14 6-7 2-14 6c-2-4-2-8 0-12zM114 ' + (y - 6) + 'q-7 4-14 6 7 2 14 6c2-4 2-8 0-12z" fill="#C0453A"/><path d="M88 ' + (y - 3) + 'l6 3M112 ' + (y - 3) + 'l-6 3" stroke="#8E2A22" stroke-width="1"/><rect x="97" y="' + (y - 3.5) + '" width="6" height="7" rx="2" fill="#8E2A22"/>'; },
+    rose: function (f) { var x = f ? 76 : 66, y = 186; return '<path d="M' + (x + 3) + ' ' + (y + 6) + 'l7 10" stroke="#3E7A55" stroke-width="2.4"/><path d="M' + (x + 7) + ' ' + (y + 12) + 'q6-2 7 3-5 1-7-3z" fill="#3E7A55"/>' +
+      '<circle cx="' + x + '" cy="' + y + '" r="7.5" fill="#B83A33"/><path d="M' + (x - 5) + ' ' + y + 'q5-7 10 0q-5 5-10 0z" fill="#D2483B"/><path d="M' + (x - 3) + ' ' + (y - 2) + 'q3 6 7 1" stroke="#7E2620" stroke-width="1.4" fill="none"/>'; },
     mask: '<path d="M68 96c10-6 54-6 64 0l-2 14c-8 4-22 4-30-2-8 6-22 6-30 2z" fill="#0B0D11"/><ellipse cx="86" cy="103" rx="6" ry="4" fill="#3A404C"/><ellipse cx="114" cy="103" rx="6" ry="4" fill="#3A404C"/>'
   };
-  var HAIR = "#3A2A1E";
+  var HAIR_M = "#211B17", HAIR_F = "#5A3A24";
+
+  function face(skin, f, hair) {
+    var sh = shade(skin, -.22), dk = shade(skin, -.42), hl = shade(skin, .18);
+    var rx = f ? 26 : 30;
+    return '<ellipse cx="' + (100 - rx - 1) + '" cy="108" rx="5" ry="8" fill="' + sh + '"/><ellipse cx="' + (100 + rx + 1) + '" cy="108" rx="5" ry="8" fill="' + sh + '"/>' +
+      // голова: ширше вгорі, звужене підборіддя
+      (f ? '<path d="M74 100c0-22 12-34 26-34s26 12 26 34c0 20-10 36-26 38-16-2-26-18-26-38z" fill="' + skin + '"/>'
+         : '<path d="M70 102c0-24 14-36 30-36s30 12 30 36c0 22-12 38-30 40-18-2-30-18-30-40z" fill="' + skin + '"/>') +
+      // тінь на правій щоці та під вилицею
+      (f ? '<path d="M126 100c0 20-10 36-26 38 10-6 18-18 20-34z" fill="' + sh + '" opacity=".55"/>'
+         : '<path d="M130 102c0 22-12 38-30 40 12-6 21-20 23-36z" fill="' + sh + '" opacity=".55"/>') +
+      '<ellipse cx="86" cy="96" rx="9" ry="5" fill="' + hl + '" opacity=".35"/>' +
+      // ніс і рот
+      '<path d="M101 104c-1 6-4 11-4 13 1 2 5 2 7 0" stroke="' + dk + '" stroke-width="1.6" fill="none" stroke-linecap="round"/>' +
+      (f ? '<path d="M92 124q8-4 16 0q-8 6-16 0z" fill="#B0545A"/><path d="M92 124q8 2 16 0" stroke="#7E3238" stroke-width="1" fill="none"/>'
+         : '<path d="M90 127q10 5 20 0" stroke="' + shade(skin, -.5) + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>') +
+      // очі: мигдалеві, райдужка, відблиск, повіка
+      '<path d="M' + (f ? 83 : 80) + ' 102q7-6 14 0q-7 5-14 0zM' + (f ? 103 : 106) + ' 102q7-6 14 0q-7 5-14 0z" fill="#F3EEE4"/>' +
+      '<circle cx="' + (f ? 90 : 87) + '" cy="102" r="2.8" fill="#3B5A4A"/><circle cx="' + (f ? 110 : 113) + '" cy="102" r="2.8" fill="#3B5A4A"/>' +
+      '<circle cx="' + (f ? 90 : 87) + '" cy="102" r="1.3" fill="#111"/><circle cx="' + (f ? 110 : 113) + '" cy="102" r="1.3" fill="#111"/>' +
+      '<circle cx="' + (f ? 91 : 88) + '" cy="101" r=".8" fill="#fff"/><circle cx="' + (f ? 111 : 114) + '" cy="101" r=".8" fill="#fff"/>' +
+      '<path d="M' + (f ? 83 : 80) + ' 102q7-6 14 0M' + (f ? 103 : 106) + ' 102q7-6 14 0" stroke="' + dk + '" stroke-width="1.5" fill="none" stroke-linecap="round"/>' +
+      (f ? '<path d="M83 101l-2-2M117 101l2-2" stroke="#1B1E25" stroke-width="1.3" stroke-linecap="round"/>' : '') +
+      // брови
+      (f ? '<path d="M82 94q7-4 14-1M104 93q7-3 14 1" stroke="' + hair + '" stroke-width="2" fill="none" stroke-linecap="round"/>'
+         : '<path d="M78 95q8-5 17-1M105 94q9-4 17 1" stroke="' + hair + '" stroke-width="3.4" fill="none" stroke-linecap="round"/>');
+  }
+
+  function accSVG(k, f) { var a = ACC[k]; return typeof a === "function" ? a(f) : (a || ""); }
+
   function charSVG(look, vb) {
     var o = OUTFIT[look.outfit] || OUTFIT.trench;
     var f = look.body === "body_f";
     var hat = look.hat || "hat_none";
-    var svg = '<svg viewBox="' + (vb || "0 0 200 240") + '" aria-hidden="true">' + (BG[look.bg] || BG.bg_night);
+    var skin = SKIN[look.skin] || SKIN.warm;
+    var id = ++_cid;
+    var svg = '<svg viewBox="' + (vb || "0 0 200 240") + '" aria-hidden="true">' + (BG[look.bg] || BG.bg_night) +
+      '<path d="M16 240V96a84 84 0 0 1 168 0v144" fill="none" stroke="#fff" stroke-opacity=".07" stroke-width="2"/>';
+    var neck = '<path d="M' + (f ? 91 : 88) + ' 138h' + (f ? 18 : 24) + 'v' + (f ? 40 : 34) + 'h-' + (f ? 18 : 24) + 'z" fill="' + shade(skin, -.12) + '"/>' +
+      '<path d="M' + (f ? 91 : 88) + ' 146q' + (f ? 9 : 12) + ' 8 ' + (f ? 18 : 24) + ' 0v-8h-' + (f ? 18 : 24) + 'z" fill="' + shade(skin, -.32) + '"/>';
     if (f) {
-      // жіночий персонаж: об'ємне довге волосся, пасма на плечах, вужчі плечі, кулон і сережки
-      var hl = "#5A4330";
-      // голова трохи нижче, плечі трохи вище: коротша шия
-      var headF = '<path d="M100 62c-28 0-44 20-44 50 0 26-2 44-12 60 4 6 12 6 16 2 4 6 12 8 18 2 6 6 14 4 18-2l8 0c4 6 12 8 18 2 6 6 14 4 18-2 4 4 12 4 16-2-10-16-12-34-12-60 0-30-16-50-44-50z" fill="' + HAIR + '"/>';
-      var bodyF = '<path d="M36 252c2-36 26-62 64-62s62 26 64 62z" fill="' + o.coat + '"/>' +
-        '<path d="M84 180l16 34 16-34c-5-2-10-3-16-3s-11 1-16 3z" fill="' + o.shirt + '"/>' +
-        '<path d="M84 180l16 34-22-14-4-18z" fill="' + o.lapel + '"/><path d="M116 180l-16 34 22-14 4-18z" fill="' + o.lapel + '"/>' +
-        o.extra +
-        '<path d="M90 182q10 12 20 0" stroke="#E2BE6A" stroke-width="1.6" fill="none"/><circle cx="100" cy="189" r="2.6" fill="#E2BE6A"/>';
-      svg += '<g transform="translate(0 10)">' + headF + '</g>' +
-        '<rect x="92" y="140" width="16" height="36" rx="7" fill="#3E434E"/>' +
-        '<g transform="translate(0 -12)">' + bodyF + '</g>' +
-        '<g transform="translate(0 10)">' +
-        '<path d="M76 90c-10 12-12 30-12 50 0 16-2 28-8 38 10 2 18-2 22-10 2-14 0-32 2-50z" fill="' + HAIR + '"/>' +
-        '<path d="M124 90c10 12 12 30 12 50 0 16 2 28 8 38-10 2-18-2-22-10-2-14 0-32-2-50z" fill="' + HAIR + '"/>' +
+      var hl = shade(HAIR_F, .22);
+      // довге волосся позаду, тіло, обличчя, пасма спереду
+      svg += '<g transform="translate(0 10)"><path d="M100 62c-28 0-44 20-44 50 0 26-2 44-12 60 4 6 12 6 16 2 4 6 12 8 18 2 6 6 14 4 18-2h8c4 6 12 8 18 2 6 6 14 4 18-2 4 4 12 4 16-2-10-16-12-34-12-60 0-30-16-50-44-50z" fill="' + HAIR_F + '"/></g>' +
+        neck + garment(o, true, id) +
+        '<path d="M90 172q10 12 20 0" stroke="#E2BE6A" stroke-width="1.6" fill="none"/><circle cx="100" cy="179" r="2.6" fill="#E2BE6A"/>' +
+        '<g transform="translate(0 10)">' + face(skin, true, HAIR_F) +
+        '<path d="M75 116v6M125 116v6" stroke="#E2BE6A" stroke-width="1.4"/><circle cx="75" cy="124" r="2.4" fill="#E2BE6A"/><circle cx="125" cy="124" r="2.4" fill="#E2BE6A"/>' +
+        '<path d="M76 92c-10 12-12 30-12 50 0 16-2 28-8 38 10 2 18-2 22-10 2-14 0-32 2-50z" fill="' + HAIR_F + '"/>' +
+        '<path d="M124 92c10 12 12 30 12 50 0 16 2 28 8 38-10 2-18-2-22-10-2-14 0-32-2-50z" fill="' + HAIR_F + '"/>' +
         '<path d="M68 120c-2 18-4 32-8 42M132 120c2 18 4 32 8 42" stroke="' + hl + '" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/>' +
-        '<ellipse cx="100" cy="104" rx="26" ry="32" fill="#4A505C"/>' +
-        '<path d="M74 106c2 16 12 30 26 30s24-14 26-30c-6 8-14 12-26 12s-20-4-26-12z" fill="#3E434E"/>' +
-        '<path d="M93 122q7 5 14 0q-7-2-14 0z" fill="#A65252"/>' +
-        // очі з віями та тонкі брови
-        '<path d="M83 101q6-5 12 0q-6 4-12 0zM105 101q6-5 12 0q-6 4-12 0z" fill="#ECE7DC"/>' +
-        '<circle cx="89" cy="101" r="2.3" fill="#2A1E16"/><circle cx="111" cy="101" r="2.3" fill="#2A1E16"/>' +
-        '<circle cx="89.8" cy="100.2" r=".7" fill="#fff"/><circle cx="111.8" cy="100.2" r=".7" fill="#fff"/>' +
-        '<path d="M82 100q7-6 14-1M104 99q7-5 14 1M82 100l-2-2M118 100l2-2" stroke="#1B1E25" stroke-width="1.4" fill="none" stroke-linecap="round"/>' +
-        '<path d="M82 93q7-4 13-1M105 92q6-3 13 1" stroke="' + HAIR + '" stroke-width="1.8" fill="none" stroke-linecap="round"/>' +
-        '<circle cx="75" cy="117" r="2.4" fill="#E2BE6A"/><circle cx="125" cy="117" r="2.4" fill="#E2BE6A"/>' +
         (hat === "hat_none"
-          ? '<path d="M100 66c-18 0-28 12-29 34 7-12 17-18 29-20z" fill="' + HAIR + '"/><path d="M100 66c18 0 28 12 29 34-7-12-17-18-29-20z" fill="' + HAIR + '"/>' +
-            '<path d="M100 67v12M90 70c-8 4-13 12-15 22M110 70c8 4 13 12 15 22" stroke="' + hl + '" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/>'
-          : '<path d="M76 98c2-10 8-16 18-18-6 6-8 12-8 20z" fill="' + HAIR + '"/><path d="M124 98c-2-10-8-16-18-18 6 6 8 12 8 20z" fill="' + HAIR + '"/>') +
-        (ACC[look.acc] || "") + (hat === "hat_none" ? "" : (HAT[hat] || "")) + '</g>';
+          // боковий проділ: пасмо спадає ліворуч на чоло
+          ? '<path d="M72 104c-2-26 10-42 28-42s30 14 28 40c-4-12-10-20-20-24-10 10-22 18-36 26z" fill="' + HAIR_F + '"/>' +
+            '<path d="M106 66c-12 6-22 16-30 30M112 70c6 4 10 10 12 18" stroke="' + hl + '" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".8"/>'
+          : '<path d="M76 100c2-10 8-16 18-18-6 6-8 12-8 20z" fill="' + HAIR_F + '"/><path d="M124 100c-2-10-8-16-18-18 6 6 8 12 8 20z" fill="' + HAIR_F + '"/>') +
+        accSVG(look.acc, f) + (HAT[hat] || "") + '</g>';
     } else {
-      svg += '<path d="M18 240c4-46 36-74 82-74s78 28 82 74z" fill="' + o.coat + '"/>' +
-        '<path d="M78 168l22 52 22-52c-6-2-14-3-22-3s-16 1-22 3z" fill="' + o.shirt + '"/>' +
-        '<path d="M96 170h8l4 10-8 44-8-44z" fill="' + o.tie + '"/>' +
-        '<path d="M78 168l22 52-30-20-6-24z" fill="' + o.lapel + '"/><path d="M122 168l-22 52 30-20 6-24z" fill="' + o.lapel + '"/>' +
-        o.extra +
-        '<rect x="88" y="140" width="24" height="30" rx="8" fill="#3E434E"/>' +
-        '<g transform="translate(0 8)">' +   // голова нижче: коротша шия
-        '<ellipse cx="100" cy="106" rx="30" ry="36" fill="#4A505C"/>' +
-        '<path d="M70 106c2 20 14 36 30 36s28-16 30-36c-6 10-16 16-30 16s-24-6-30-16z" fill="#3E434E"/>' +
-        '<path d="M84 126c10 5 22 5 32 0" stroke="#2A2E36" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-        // очі й густі брови
-        '<path d="M80 103q7-5 14 0q-7 4-14 0zM106 103q7-5 14 0q-7 4-14 0z" fill="#E4DED0"/>' +
-        '<circle cx="87" cy="103" r="2.4" fill="#1B1E25"/><circle cx="113" cy="103" r="2.4" fill="#1B1E25"/>' +
-        '<circle cx="87.8" cy="102.2" r=".7" fill="#fff"/><circle cx="113.8" cy="102.2" r=".7" fill="#fff"/>' +
-        '<path d="M79 95q8-4 16 0M105 95q8-4 16 0" stroke="#22252C" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-        (ACC[look.acc] || "") + (HAT[hat] || "") + '</g>';
+      var hm = shade(HAIR_M, .3);
+      svg += neck + garment(o, false, id) +
+        '<g transform="translate(0 8)">' + face(skin, false, HAIR_M) +
+        (hat === "hat_none"
+          // коротка зачіска з проділом і блиском
+          ? '<path d="M68 104c-4-26 10-42 32-42 20 0 34 12 32 40-3-8-6-14-10-18-10 2-24 0-34-8-6 6-14 14-20 28z" fill="' + HAIR_M + '"/>' +
+            '<path d="M88 68c10 4 22 6 32 6M84 74c-6 4-10 10-12 16" stroke="' + hm + '" stroke-width="2" fill="none" stroke-linecap="round" opacity=".9"/>'
+          : '<path d="M70 104c0-8 2-14 6-18v20zM130 104c0-8-2-14-6-18v20z" fill="' + HAIR_M + '"/>') +
+        accSVG(look.acc, f) + (HAT[hat] || "") + '</g>';
     }
     return svg + '</svg>';
   }
