@@ -538,9 +538,10 @@ body.night .amph .board::before { background: repeating-linear-gradient(90deg, r
   }
   // Адреса бота — лише тунель Cloudflare або localhost.run. Інші не беремо: посилання може підробити будь-хто,
   // і вікно віддало б чужому серверу підпис гравця. (Бот додатково перевіряє, що адреса саме його.)
-  function botApi(u) {   // адреси стола бота: тимчасовий Cloudflare, localhost.run або постійна Tailscale (ts.net)
+  function botApi(u) {   // адреси стола бота: тимчасовий Cloudflare, localhost.run, Tailscale (ts.net) або сервер Time Town
     return typeof u === "string" && (/^https:\/\/[a-z0-9-]+\.(trycloudflare\.com|lhr\.life)\/?$/i.test(u) ||
-      /^https:\/\/[a-z0-9-]+\.[a-z0-9-]+\.ts\.net(:\d{2,5})?\/?$/i.test(u));
+      /^https:\/\/[a-z0-9-]+\.[a-z0-9-]+\.ts\.net(:\d{2,5})?\/?$/i.test(u) ||
+      /^https:\/\/([a-z0-9-]+\.)?timetown\.duckdns\.org\/?$/i.test(u));   // сервер: timetown, mafia.timetown, discord.timetown
   }
   // Стіл: адреса бота https://… (у профілі поле "t" — це інше: масив найкращих ролей)
   // Друга адреса t2 — запасний тунель (якщо провайдер блокує основний)
