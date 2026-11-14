@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Перевірка мікрофона — Mafia Time</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root { --bg:#0E1013; --card:#171A1F; --line:#2A2E36; --gold:#E2BE6A; --text:#EAE5D7; --mute:#9A968C; --ok:#7BC47F; --bad:#C0453A; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; padding:18px 16px 40px; }
+  h1 { font:600 22px/1.2 Georgia, "Playfair Display", serif; color:var(--gold); margin:0 0 4px; }
+  .sub { color:var(--mute); font-size:14px; margin-bottom:16px; }
+  .step { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+  .step h2 { font-size:16px; margin:0 0 8px; display:flex; gap:8px; align-items:center; }
+  .n { display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%; background:var(--gold); color:#111; font-size:13px; font-weight:700; }
+  .st { margin-left:auto; font-size:20px; }
+  button { width:100%; padding:12px; border:0; border-radius:10px; background:var(--gold); color:#111; font:600 16px system-ui; margin-top:6px; }
+  button:disabled { opacity:.45; }
+  .meter { height:14px; background:#0b0c0f; border:1px solid var(--line); border-radius:7px; overflow:hidden; margin-top:10px; }
+  .meter i { display:block; height:100%; width:0; background:linear-gradient(90deg, var(--ok), var(--gold)); transition:width .06s; }
+  .msg { font-size:14px; color:var(--mute); margin-top:6px; white-space:pre-wrap; }
+  pre { background:#0b0c0f; border:1px solid var(--line); border-radius:10px; padding:10px; font:12px/1.5 ui-monospace, Consolas, monospace; white-space:pre-wrap; word-break:break-word; color:var(--text); }
+</style>
+</head>
+<body>
+<h1>🎙 Перевірка мікрофона</h1>
+<div class="sub">Чи може живий стіл Mafia Time сам вмикати твій мікрофон. Нічого не записується на сервер.</div>
+
+<div class="step"><h2><span class="n">1</span>Дозволити мікрофон<span class="st" id="s1">⏳</span></h2>
+  <button id="b1">Дозволити мікрофон</button>
+  <div class="meter"><i id="lvl"></i></div>
+  <div class="msg" id="m1">Натисни й дозволь доступ. Потім скажи щось — смужка має рухатись.</div>
+</div>
+
+<div class="step"><h2><span class="n">2</span>Послухати себе<span class="st" id="s2">⏳</span></h2>
+  <button id="b2" disabled>Записати 4 секунди й відтворити</button>
+  <div class="msg" id="m2">Скажи «раз, два, три» — і почуєш себе.</div>
+  <button id="ok2" disabled style="background:#2A2E36;color:var(--text)">👂 Я себе почув(ла)</button>
+</div>
+
+<div class="step"><h2><span class="n">3</span>Згорнути й повернутись<span class="st" id="s3">⏳</span></h2>
+  <div class="msg">Не закриваючи це вікно: згорни Telegram (або заблокуй екран) на 10 секунд, повернись і скажи щось. Перевіримо, чи мікрофон живий після цього.</div>
+</div>
+
+<div class="step"><h2><span class="n">4</span>Результат<span class="st" id="s4"></span></h2>
+  <pre id="out">…</pre>
+  <button id="copy">Скопіювати результат</button>
+  <div class="msg">Зроби скріншот або скопіюй і надішли Максиму.</div>
+</div>
+
+<script>
+const tg = window.Telegram && Telegram.WebApp;
+try { tg && tg.ready(); tg && tg.expand(); tg && tg.disableVerticalSwipes && tg.disableVerticalSwipes(); } catch (e) {}
+const $ = id => document.getElementById(id);
+const R = { mic: "не перевірено", level: false, playback: "не перевірено", heard: false, background: "не перевірено", events: [] };
+let stream = null, ctx = null, an = null, peak = 0, hiddenAt = 0, sinceBack = 0;
+const t0 = Date.now();
+const ev = s => { R.events.push(((Date.now() - t0) / 1000).toFixed(1) + "с " + s); if (R.events.length > 12) R.events.shift(); render(); };
+
+function env() {
+  const ua = navigator.userAgent;
+  const os = /iPhone|iPad|iPod/.test(ua) ? "iOS" : /Android/.test(ua) ? "Android" : /Windows/.test(ua) ? "Windows" : /Mac/.test(ua) ? "macOS" : "інше";
+  return {
+    telegram: tg ? (tg.platform + " " + tg.version) : "відкрито не з Telegram",
+    os, secure: window.isSecureContext, media: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+    recorder: typeof MediaRecorder !== "undefined", wakeLock: "wakeLock" in navigator, ua: ua.slice(0, 160)
+  };
+}
+function render() {
+  const e = env();
+  $("out").textContent =
+    "Telegram: " + e.telegram + "\nСистема: " + e.os + "\nБезпечна сторінка: " + (e.secure ? "так" : "ні") +
+    "\nМікрофон (API): " + (e.media ? "є" : "НЕМАЄ") + "\nЗапис (MediaRecorder): " + (e.recorder ? "є" : "немає") +
+    "\nНе гасити екран (Wake Lock): " + (e.wakeLock ? "є" : "немає") +
+    "\n\n1. Доступ: " + R.mic + (R.level ? " · звук іде ✅" : "") +
+    "\n2. Відтворення: " + R.playback + (R.heard ? " · почув себе ✅" : "") +
+    "\n3. Після згортання: " + R.background +
+    "\n\nПодії:\n" + R.events.join("\n") + "\n\n" + e.ua;
+  const ok = R.level && R.heard && /живий/.test(R.background);
+  $("s4").textContent = ok ? "✅" : "";
+}
+
+$("b1").onclick = async () => {
+  $("b1").disabled = true;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    R.mic = "дозволено"; $("s1").textContent = "✅"; $("m1").textContent = "Доступ є. Скажи щось — смужка має рухатись.";
+    const tr = stream.getAudioTracks()[0];
+    tr.onmute = () => ev("мікрофон призупинено системою");
+    tr.onunmute = () => ev("мікрофон знову працює");
+    tr.onended = () => { ev("мікрофон ВИМКНЕНО системою"); $("s1").textContent = "❌"; };
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    ctx.onstatechange = () => ev("звук сторінки: " + ctx.state);
+    an = ctx.createAnalyser(); an.fftSize = 512;
+    ctx.createMediaStreamSource(stream).connect(an);
+    const buf = new Uint8Array(an.fftSize);
+    (function loop() {
+      an.getByteTimeDomainData(buf);
+      let m = 0; for (const v of buf) m = Math.max(m, Math.abs(v - 128));
+      const p = Math.min(100, m * 1.6); $("lvl").style.width = p + "%";
+      if (p > 12) { if (!R.level) { R.level = true; render(); } if (hiddenAt && Date.now() > sinceBack) { R.background = "мікрофон живий ✅"; $("s3").textContent = "✅"; hiddenAt = 0; render(); } }
+      requestAnimationFrame(loop);
+    })();
+    $("b2").disabled = false;
+  } catch (e) {
+    R.mic = "ПОМИЛКА: " + e.name + " — " + e.message; $("s1").textContent = "❌";
+    $("m1").textContent = "Не вийшло: " + e.name + ". Перевір, чи дозволено Telegram мікрофон у налаштуваннях телефона, і спробуй ще раз.";
+    $("b1").disabled = false;
+  }
+  render();
+};
+
+$("b2").onclick = async () => {
+  if (!stream) return;
+  $("b2").disabled = true; $("m2").textContent = "🔴 Запис… говори";
+  try {
+    const rec = new MediaRecorder(stream); const parts = [];
+    rec.ondataavailable = e => e.data.size && parts.push(e.data);
+    rec.onstop = () => {
+      const a = new Audio(URL.createObjectURL(new Blob(parts, { type: rec.mimeType || "audio/webm" })));
+      a.onended = () => { $("m2").textContent = "Почув себе? Натисни кнопку нижче."; $("b2").disabled = false; };
+      a.play().then(() => { R.playback = "відтворилось"; $("m2").textContent = "▶️ Відтворюю…"; $("ok2").disabled = false; render(); })
+       .catch(e => { R.playback = "не відтворилось: " + e.name; $("m2").textContent = "Не вдалось відтворити: " + e.name; $("s2").textContent = "❌"; $("b2").disabled = false; render(); });
+    };
+    rec.start(); setTimeout(() => rec.state !== "inactive" && rec.stop(), 4000);
+  } catch (e) {
+    R.playback = "запис не підтримується: " + e.name; $("s2").textContent = "❌"; $("m2").textContent = "Запис не вийшов: " + e.name; $("b2").disabled = false; render();
+  }
+};
+$("ok2").onclick = () => { R.heard = true; $("s2").textContent = "✅"; $("ok2").disabled = true; render(); };
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) { ev("вікно згорнуто"); hiddenAt = Date.now(); }
+  else {
+    const secs = hiddenAt ? Math.round((Date.now() - hiddenAt) / 1000) : 0;
+    ev("повернувся через " + secs + " с");
+    if (stream && hiddenAt) {
+      const tr = stream.getAudioTracks()[0];
+      R.background = tr.readyState === "ended" ? "мікрофон ВИМКНУВСЯ ❌" : "повернувся, скажи щось…";
+      if (tr.readyState === "ended") $("s3").textContent = "❌";
+      sinceBack = Date.now() + 300;
+      if (ctx && ctx.state === "suspended") ctx.resume().then(() => ev("звук сторінки відновлено"));
+    }
+    render();
+  }
+});
+tg && tg.onEvent && tg.onEvent("activated", () => ev("Telegram: вікно розгорнуто"));
+tg && tg.onEvent && tg.onEvent("deactivated", () => ev("Telegram: вікно згорнуто"));
+
+$("copy").onclick = async () => {
+  const t = "Перевірка мікрофона Mafia Time\n" + $("out").textContent;
+  try { await navigator.clipboard.writeText(t); $("copy").textContent = "Скопійовано ✅"; }
+  catch { const r = document.createRange(); r.selectNode($("out")); getSelection().removeAllRanges(); getSelection().addRange(r); $("copy").textContent = "Виділено — скопіюй вручну"; }
+};
+render();
+</script>
+</body>
+</html>
