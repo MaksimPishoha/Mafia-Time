@@ -40,7 +40,7 @@
 </div>
 
 <div class="step"><h2><span class="n">3</span>Згорнути й повернутись<span class="st" id="s3">⏳</span></h2>
-  <div class="msg">Не закриваючи це вікно: згорни Telegram (або заблокуй екран) на 10 секунд, повернись і скажи щось. Перевіримо, чи мікрофон живий після цього.</div>
+  <div class="msg">Не закриваючи це вікно: згорни Telegram (або заблокуй екран) спершу на 10 секунд, а потім ще раз — на 40 секунд. Щоразу повернись і скажи щось. Друге вікно перевірки не відкривай — мікрофон може бути лише в одному.</div>
 </div>
 
 <div class="step"><h2><span class="n">4</span>Результат<span class="st" id="s4"></span></h2>
@@ -75,50 +75,62 @@ function render() {
     "\nНе гасити екран (Wake Lock): " + (e.wakeLock ? "є" : "немає") +
     "\n\n1. Доступ: " + R.mic + (R.level ? " · звук іде ✅" : "") +
     "\n2. Відтворення: " + R.playback + (R.heard ? " · почув себе ✅" : "") +
-    "\n3. Після згортання: " + R.background +
+    "\n3. Після згортання: " + R.background + (R.recovered ? " · відновлювався сам: " + R.recovered + " раз(и)" : "") +
     "\n\nПодії:\n" + R.events.join("\n") + "\n\n" + e.ua;
   const ok = R.level && R.heard && /живий/.test(R.background);
   $("s4").textContent = ok ? "✅" : "";
 }
 
-$("b1").onclick = async () => {
+let loopOn = false, tries = 0;
+async function startMic(auto) {
   $("b1").disabled = true;
   try {
+    if (stream) stream.getTracks().forEach(t => t.stop());
     stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    if (auto) { R.recovered = (R.recovered || 0) + 1; ev("мікрофон відновлено САМ ✅"); }
     R.mic = "дозволено"; $("s1").textContent = "✅"; $("m1").textContent = "Доступ є. Скажи щось — смужка має рухатись.";
     const tr = stream.getAudioTracks()[0];
     tr.onmute = () => ev("мікрофон призупинено системою");
     tr.onunmute = () => ev("мікрофон знову працює");
-    tr.onended = () => { ev("мікрофон ВИМКНЕНО системою"); $("s1").textContent = "❌"; };
-    ctx = new (window.AudioContext || window.webkitAudioContext)();
-    ctx.onstatechange = () => ev("звук сторінки: " + ctx.state);
+    tr.onended = () => { ev("мікрофон ВИМКНЕНО системою"); $("s1").textContent = "⚠️"; $("b1").disabled = false; $("b1").textContent = "Увімкнути мікрофон знову";
+      if (!document.hidden) recover(); };
+    if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); ctx.onstatechange = () => ev("звук сторінки: " + ctx.state); }
+    if (ctx.state === "suspended") ctx.resume();
     an = ctx.createAnalyser(); an.fftSize = 512;
     ctx.createMediaStreamSource(stream).connect(an);
-    const buf = new Uint8Array(an.fftSize);
-    (function loop() {
+    const buf = new Uint8Array(512);
+    if (!loopOn) { loopOn = true; (function loop() {
       an.getByteTimeDomainData(buf);
       let m = 0; for (const v of buf) m = Math.max(m, Math.abs(v - 128));
       const p = Math.min(100, m * 1.6); $("lvl").style.width = p + "%";
       if (p > 12) { if (!R.level) { R.level = true; render(); } if (hiddenAt && Date.now() > sinceBack) { R.background = "мікрофон живий ✅"; $("s3").textContent = "✅"; hiddenAt = 0; render(); } }
       requestAnimationFrame(loop);
-    })();
+    })(); }
     $("b2").disabled = false;
   } catch (e) {
     R.mic = "ПОМИЛКА: " + e.name + " — " + e.message; $("s1").textContent = "❌";
     $("m1").textContent = "Не вийшло: " + e.name + ". Перевір, чи дозволено Telegram мікрофон у налаштуваннях телефона, і спробуй ще раз.";
     $("b1").disabled = false;
+    if (auto) ev("САМ відновити не вийшло: " + e.name + " — натисни кнопку");
   }
   render();
-};
+}
+$("b1").onclick = () => startMic(false);
+// після повернення: якщо система забрала мікрофон — пробуємо взяти знову без натискань
+function recover() {
+  const tr = stream && stream.getAudioTracks()[0];
+  if (tr && (tr.readyState === "ended" || tr.muted) && tries < 3) { tries++; ev("пробую відновити мікрофон…"); startMic(true); }
+}
 
 $("b2").onclick = async () => {
   if (!stream) return;
   $("b2").disabled = true; $("m2").textContent = "🔴 Запис… говори";
   try {
-    const rec = new MediaRecorder(stream); const parts = [];
+    const mt = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm"].find(t => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t));
+    const rec = mt ? new MediaRecorder(stream, { mimeType: mt }) : new MediaRecorder(stream); const parts = [];
     rec.ondataavailable = e => e.data.size && parts.push(e.data);
     rec.onstop = () => {
-      const a = new Audio(URL.createObjectURL(new Blob(parts, { type: rec.mimeType || "audio/webm" })));
+      const a = new Audio(URL.createObjectURL(new Blob(parts, { type: rec.mimeType || mt || "" })));
       a.onended = () => { $("m2").textContent = "Почув себе? Натисни кнопку нижче."; $("b2").disabled = false; };
       a.play().then(() => { R.playback = "відтворилось"; $("m2").textContent = "▶️ Відтворюю…"; $("ok2").disabled = false; render(); })
        .catch(e => { R.playback = "не відтворилось: " + e.name; $("m2").textContent = "Не вдалось відтворити: " + e.name; $("s2").textContent = "❌"; $("b2").disabled = false; render(); });
@@ -141,6 +153,7 @@ document.addEventListener("visibilitychange", () => {
       if (tr.readyState === "ended") $("s3").textContent = "❌";
       sinceBack = Date.now() + 300;
       if (ctx && ctx.state === "suspended") ctx.resume().then(() => ev("звук сторінки відновлено"));
+      tries = 0; setTimeout(recover, 600);
     }
     render();
   }
