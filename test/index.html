@@ -7,83 +7,99 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Айдентика Time Town (Time Town\\Brand\\tokens.css): графіт, золото, світло вікон, ніч */
-  --bg: #0E1013; --card: #161A21; --line: #2A303B; --line2: #20252E; --chip: #2A303B;
-  --text: #EAE5D7; --muted: #9C9180; --soft: #C9C1AF; --gold: #E2BE6A; --gold2: #F2CF85;
-  --green: #7FC9A0; --red: #C0453A; --ink: #1A1407; --night: #97AEE6;
-  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  /* Айдентика Time Town: ніч кольору індиго, латунь, тепле світло ліхтаря, холодний синій для ночі й таємного */
+  --bg: #0F1220; --card: #171B2B; --inset: #121626; --deep: #0B0E1A; --line: #272C40; --line2: #1F2436; --chip: #262B40;
+  --text: #ECE7DA; --muted: #9A95A3; --soft: #C9C3B8; --gold: #E2BE6A; --gold2: #F2D28E; --goldbg: #262019; --lamp: #F5A65B;
+  --green: #7FC9A0; --red: #C0453A; --ink: #1A1407; --night: #8FB2F5;
+  --serif: 'Playfair Display', Georgia, serif;
+  --num: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --safe-top: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px));
+  --hd-h: 72px;   /* висота шапки-міста: однакова на всіх вкладках */
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; }
 body { min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
 button { font: inherit; color: inherit; }
-.wrap { max-width: 480px; margin: 0 auto; }
-.top { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 10px 12px; border-bottom: 1px solid var(--line2); min-height: 56px; }
-.top h2 { margin: 0; font-size: 15px; font-weight: 700; }
+.wrap { max-width: 640px; margin: 0 auto; }
+#app.wrap { max-width: none; }
+#appBody { max-width: 640px; margin: 0 auto; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--gold2); outline-offset: 2px; }
+/* шапка вкладки: смуга міста з вежею-годинником і назвою вкладки поверх неба */
+.th { position: relative; overflow: hidden; padding-top: var(--safe-top); }
+.th-in { position: relative; z-index: 1; min-height: var(--hd-h); max-width: 640px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.th h2 { margin: 0; font-family: var(--serif); font-size: 22px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; text-shadow: 0 1px 14px rgba(9,12,24,.9); }
+.th-r:empty { display: none; }
 .icon-btn { width: 44px; height: 44px; border: 0; background: none; display: flex; align-items: center; justify-content: center; color: #9AA0AA; cursor: pointer; border-radius: 12px; }
-.hero { display: flex; flex-direction: column; align-items: center; padding: 22px 16px 16px; gap: 6px; text-align: center; }
+.hero { position: relative; display: flex; flex-direction: column; align-items: center; padding: 20px 16px 0; gap: 6px; text-align: center; }
 .ava-wrap { position: relative; margin-bottom: 8px; }
 .ava { border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.ava-in { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--bg); background: var(--chip); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; }
+.ava-in { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--bg); background: var(--chip); display: flex; align-items: center; justify-content: center; font-family: var(--serif); }
 .ava-in { position: relative; overflow: hidden; }
 .ava-in img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.lvl-badge { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--ink); font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; white-space: nowrap; border: 2px solid var(--bg); }
-h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; line-height: 1.15; word-break: break-word; }
+.lvl-badge { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--ink); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; border: 2px solid var(--bg); }
+h1 { margin: 6px 0 0; font-family: var(--serif); font-size: 22px; line-height: 1.15; word-break: break-word; }
 .sub { font-size: 13px; color: var(--soft); }
 .tokens { display: flex; gap: 8px; margin-top: 6px; }
 .token { width: 40px; height: 40px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 20px; }
 .token.rare { border-color: var(--gold); }
-.xp { width: 100%; padding: 0 16px; margin-top: 4px; }
+.xp { width: 100%; padding: 0 16px; margin-top: 14px; }
 .bar { height: 8px; border-radius: 999px; background: var(--line2); overflow: hidden; }
 .bar > div { height: 100%; background: var(--gold); border-radius: 999px; }
-.xp-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.xp-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--muted); margin-top: 8px; }
 .actions { display: flex; gap: 8px; padding: 14px 16px 4px; }
-.patron { display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; color: var(--gold); border: 1px solid var(--gold); background: rgba(212, 175, 55, .08); }
-.btn { flex: 1; min-height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.patron { display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 999px; font-size: 13px; color: var(--gold); border: 1px solid rgba(226,190,106,.6); background: rgba(226,190,106,.08); }
+.btn { flex: 1; min-height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-weight: 600; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .btn.primary { background: var(--gold); color: var(--ink); border-color: var(--gold); }
 .btn:disabled { background: var(--line); color: var(--muted); border-color: var(--line); cursor: default; }
 .tabs { display: flex; gap: 4px; margin: 14px 16px 0; padding: 4px; background: var(--card); border-radius: 14px; border: 1px solid var(--line); }
-.tab { flex: 1; min-height: 40px; border: 0; border-radius: 10px; background: none; color: var(--muted); font-weight: 700; font-size: 13px; cursor: pointer; }
+.tab { flex: 1; min-height: 40px; border: 0; border-radius: 10px; background: none; color: var(--muted); font-weight: 600; font-size: 13px; cursor: pointer; }
 .tabs.four .tab { font-size: 12px; }
 .split { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--line2); margin-top: 10px; gap: 2px; }
 .split > div { height: 100%; }
 .tab.on { background: var(--chip); color: var(--text); }
 .section { padding: 14px 16px; }
-.label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin: 4px 0 8px; }
+.label { font-family: var(--serif); font-size: 17px; font-weight: 700; line-height: 1.25; color: var(--text); margin: 0 0 10px; }
+.label.mt { margin-top: 20px; }
+.cap { font-size: 13px; color: var(--muted); }
+.sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.sec-h .label { margin: 0; }
+.sec-n { font-size: 15px; color: var(--soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px; text-align: center; }
-.stat b { display: block; font-size: 20px; font-weight: 800; }
-.stat span { font-size: 11px; color: var(--muted); }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.stat { background: var(--card); border-radius: 12px; padding: 12px 6px; text-align: center; }
+.stat b { display: block; font-size: 22px; font-weight: 600; line-height: 1.2; }
+.stat span { display: block; font-size: 13px; line-height: 1.25; color: var(--muted); }
+.card { background: var(--card); border: 1px solid var(--line2); border-radius: 18px; padding: 14px 16px; }
 .row { display: flex; align-items: center; gap: 12px; }
-.ach { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
-.ach.rare { border-color: var(--gold); }
-.ach.locked { opacity: .45; }
-.ach .e { font-size: 26px; line-height: 1.1; }
-.ach .n { font-size: 12px; font-weight: 700; line-height: 1.2; }
-.ach .d { font-size: 10px; color: var(--muted); line-height: 1.25; }
-.ach .s { font-size: 11px; font-weight: 800; }
+/* досягнення — другорядні плитки: пласкі, без рамки; рамку має лише отримане рідкісне */
+.achs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ach { background: var(--card); border: 1px solid transparent; border-radius: 12px; padding: 14px 6px 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.ach.rare { border-color: rgba(226,190,106,.7); }
+.ach.locked { opacity: .5; }
+.ach .e { font-size: 28px; line-height: 1.1; }
+.ach .n { font-size: 13px; font-weight: 700; line-height: 1.2; }
+.ach .d { font-size: 12px; color: var(--muted); line-height: 1.3; }
+.ach .s { font-size: 12px; font-weight: 700; margin-top: auto; padding-top: 2px; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-.chip { min-height: 32px; padding: 6px 12px; border-radius: 999px; background: var(--card); border: 0; color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; }
+.chip { min-height: 34px; padding: 6px 14px; border-radius: 999px; background: var(--card); border: 0; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; }
 .chip.on { background: var(--chip); color: var(--text); }
-.list { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-.li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 16px; border-top: 1px solid var(--line); font-size: 14px; }
+.list { background: var(--card); border: 1px solid var(--line2); border-radius: 14px; overflow: hidden; }
+.li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 16px; border-top: 1px solid var(--line2); font-size: 15px; }
 .li:first-child { border-top: 0; }
-.note { font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 10px; }
-.lock-note { margin: 4px 16px 20px; padding: 12px 14px; border-radius: 12px; border: 1px dashed #2E333D; display: flex; gap: 10px; color: var(--muted); font-size: 12px; line-height: 1.5; }
-.frame-btn { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 12px 6px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
+.note { font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 10px; }
+.lock-note { margin: 4px 16px 20px; padding: 12px 14px; border-radius: 12px; border: 1px dashed var(--line); display: flex; gap: 10px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.frame-btn { background: var(--card); border: 2px solid transparent; border-radius: 14px; padding: 12px 6px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
 .frame-btn.sel { border-color: var(--gold); }
 .frame-btn.locked { opacity: .55; }
-.frame-btn .n { font-size: 11px; font-weight: 700; line-height: 1.2; }
-.frame-btn .t { font-size: 10px; }
-.rank { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); margin-bottom: 6px; }
-.rank.me { background: #1F1B12; border-color: var(--gold); color: var(--gold); }
-.rank .l { width: 52px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.demo { margin: 10px 16px 0; padding: 8px 12px; border-radius: 10px; background: #1F1B12; color: var(--gold); font-size: 12px; text-align: center; }
+.frame-btn .n { font-size: 13px; font-weight: 600; line-height: 1.2; }
+.frame-btn .t { font-size: 12px; }
+.rank { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: var(--card); border: 1px solid transparent; margin-bottom: 6px; }
+.rank.me { background: var(--goldbg); border-color: var(--gold); color: var(--gold); }
+.rank .l { width: 52px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.demo { margin: 12px 16px 0; font-size: 13px; line-height: 1.4; color: var(--muted); }
 .bottom { position: sticky; bottom: var(--nav-h, 0px); padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--line2); }
 .hidden { display: none !important; }
 .char { border-radius: 22px; padding: 4px; }
@@ -95,19 +111,19 @@ h1 { margin: 6px 0 0; font-family: 'Playfair Display', serif; font-size: 24px; l
 .flip-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .flip-face.back { transform: rotateY(180deg); }
 .flip:active .flip-in { scale: .97; }
-.flip-hint { font-size: 11px; color: var(--muted); margin-top: -2px; }
+.flip-hint { font-size: 13px; color: var(--muted); margin-top: -2px; }
 @media (prefers-reduced-motion: reduce) { .flip-in { transition: none; } }
-.witem { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 8px 6px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; text-align: center; min-height: 44px; }
+.witem { background: var(--card); border: 2px solid transparent; border-radius: 14px; padding: 8px 6px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; text-align: center; min-height: 44px; }
 .witem.sel { border-color: var(--gold); }
 .witem.locked .thumb { opacity: .45; }
 .witem .thumb { width: 72px; height: 86px; border-radius: 12px; overflow: hidden; }
 .witem .thumb svg { width: 100%; height: 100%; display: block; }
-.witem .n { font-size: 11px; font-weight: 700; line-height: 1.2; }
-.witem .t { font-size: 10px; line-height: 1.25; }
+.witem .n { font-size: 13px; font-weight: 600; line-height: 1.2; }
+.witem .t { font-size: 12px; line-height: 1.25; }
 /* ---------- живий стіл ---------- */
-body.night { background: #0A0D16; }
+body.night { --bg: #090C18; background: var(--bg); }
 .tbl-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid var(--line2); }
-.tbl-top h2 { margin: 0; font-family: 'Playfair Display', serif; font-size: 20px; }
+.tbl-top h2 { margin: 0; font-family: var(--serif); font-size: 20px; }
 .tbl-top .sub { font-size: 12px; }
 .pill { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; }
 .ring { position: relative; margin: 14px auto 0; }
@@ -116,7 +132,7 @@ body.night { background: #0A0D16; }
 /* Широкий екран (Discord Activity, браузер): три колонки — фаза й дії | зал | журнал */
 .wrap.wide { max-width: none; }
 .dc-grid { display: grid; grid-template-columns: 320px minmax(0, 1fr) 340px; height: 100vh; }
-.dc-left, .dc-right { overflow-y: auto; background: #12151B; }
+.dc-left, .dc-right { overflow-y: auto; background: var(--inset); }
 body.night .dc-left, body.night .dc-right { background: #0F1526; }
 .dc-left { border-right: 1px solid var(--line2); padding-bottom: 16px; }
 .dc-right { border-left: 1px solid var(--line2); padding: 8px 0 16px; }
@@ -134,7 +150,7 @@ body.night .amph .tiers { background: repeating-linear-gradient(0deg, rgba(112,1
 body.night .amph .board { border-color: #465D90; background: linear-gradient(120deg, #25304B, #151C2B); }
 .amph .board .k { font-size: 11px; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; color: var(--gold); }
 body.night .amph .board .k { color: #91AFFF; }
-.amph .board .t { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.amph .board .t { font-family: var(--serif); font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .amph .board .s { font-size: 12px; color: var(--soft); max-width: 78px; line-height: 1.25; }
 .amph .board .bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--gold); transition: width 1s linear; }
 .amph .board .bar.low { background: var(--red); }
@@ -153,13 +169,13 @@ body.night .amph .board .bar { background: #91AFFF; }
 .seat.me .face { box-shadow: 0 0 0 3px #5B8DEF; }
 .seat.ally .face { box-shadow: 0 0 0 3px var(--red); }
 .seat.won .face { box-shadow: 0 0 0 3px var(--gold, #E2BE6A), 0 0 18px rgba(226,190,106,.35); }
-.result { font-family: "Playfair Display", serif; font-size: 20px; font-weight: 700; color: #E2BE6A; }
+.result { font-family: var(--serif); font-size: 20px; font-weight: 700; color: #E2BE6A; }
 .seat.can .face { box-shadow: 0 0 0 2px rgba(226,190,106,.45); }
 .seat.pick .face { box-shadow: 0 0 0 4px var(--gold), 0 0 24px rgba(226,190,106,.55); }
 .seat .votes { position: absolute; right: -6px; top: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--gold); color: var(--ink); font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .clock { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 50%; background: #14171D; border: 1px solid var(--line); }
 .clock .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
-.clock .t { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; line-height: 1.1; }
+.clock .t { font-family: var(--serif); font-size: 28px; font-weight: 700; line-height: 1.1; }
 .clock .s { font-size: 11px; color: var(--muted); }
 .act { margin: 12px 16px 16px; padding: 16px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
 .act .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
@@ -193,7 +209,7 @@ body.night .act, body.night .banner, body.night .log-h { background: #121829; bo
 body.night .vc-row { background: #121829; border-color: #253048; }
 .talking { text-align: center; font-size: 13px; font-weight: 700; color: var(--gold); min-height: 18px; margin: 2px 16px 0; }
 .role-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.peek { flex: none; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: #1E222B; color: var(--text); font-weight: 700; font-size: 13px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+.peek { flex: none; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: #1E2336; color: var(--text); font-weight: 700; font-size: 13px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
 .log { margin: 0 16px 24px; }
 .log-h { width: 100%; justify-content: flex-start; padding: 0 14px; }
 .log-list { padding: 4px 4px 0; }
@@ -208,26 +224,22 @@ body.night .vc-row { background: #121829; border-color: #253048; }
 .banner .lock { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #8FB2F5; font-weight: 800; }
 .seat .kn { color: #8FB2F5; font-weight: 700; }
 .seat.known .face { box-shadow: 0 0 0 3px rgba(91,141,239,.55); }
-.phase-flash { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700; color: #EDE6D6; background: rgba(14,16,20,.55); animation: flash 1.8s ease forwards; z-index: 8; }
+.phase-flash { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: var(--serif); font-size: 34px; font-weight: 700; color: #EDE6D6; background: rgba(15,18,32,.55); animation: flash 1.8s ease forwards; z-index: 8; }
 .phase-flash.night { background: rgba(10,13,22,.75); color: #B5CBF8; }
 @keyframes flash { 0% { opacity: 0; } 20% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { body { transition: none; } .seat.talk .face { animation: none; } .clock .prog .arc { transition: none; } }
 #wtoast { bottom: calc(96px + var(--nav-h, 0px)); }
-.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2A2416; border: 1px solid var(--gold); color: var(--gold2); padding: 10px 16px; border-radius: 12px; font-size: 13px; max-width: 90vw; z-index: 9; }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2B2519; border: 1px solid var(--gold); color: var(--gold2); padding: 10px 16px; border-radius: 12px; font-size: 13px; max-width: 90vw; z-index: 9; }
 /* ===== Айдентика Time Town: шрифти, мітки, місто, циферблат ===== */
 h1, .tbl-top h2 { font-weight: 800; letter-spacing: -.01em; }
-.stat b, .lvl-badge, .pill, .clock .t, .amph .board .t, .rank .l, .xp-row, .seat .num, .seat .votes, .price, .token { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.stat b, .lvl-badge, .pill, .clock .t, .amph .board .t, .rank .l, .xp-row, .seat .num, .seat .votes, .price, .token { font-family: var(--num); font-variant-numeric: tabular-nums; }
 .clock .t, .amph .board .t { font-weight: 500; letter-spacing: .02em; }
-.label, .act .k, .log .ph, .amph .board .k, .clock .k, .banner .lock { font-family: var(--mono); font-weight: 500; letter-spacing: .2em; }
-.label { display: flex; align-items: center; gap: 10px; color: var(--gold); }
-.label::before { content: ""; width: 18px; height: 1px; background: currentColor; flex: none; }
+.act .k, .log .ph, .amph .board .k, .clock .k, .banner .lock { font-weight: 600; letter-spacing: .04em; }
 .btn, .vc-go, .peek { border-radius: 999px; }
 .tabs { border-radius: 999px; } .tab { border-radius: 999px; }
-/* нічне місто під шапкою профілю й столу */
-.hero { position: relative; overflow: hidden; padding-bottom: 72px; background: #0B0E15; }
-.hero > *:not(.sky) { position: relative; z-index: 1; }
-.hero.plain { padding-bottom: 16px; background: linear-gradient(180deg, #0B0E15, var(--bg)); }
-body.night .tbl-top, body.night .hero { background-color: #0A0D16; }
+.hero.plain { padding: 16px 16px 12px; }
+.hero.plain h1 { margin-top: 12px; }
+body.night .tbl-top { background-color: #090C18; }
 /* циферблат з рисками за персонажем (профіль) */
 .flip { position: relative; }
 .flip::before { content: ""; position: absolute; left: 50%; top: 50%; width: 214px; height: 214px; margin: -107px 0 0 -107px; border-radius: 50%; pointer-events: none;
@@ -241,25 +253,32 @@ body.night .tbl-top, body.night .hero { background-color: #0A0D16; }
 .amph .board::before { content: ""; position: absolute; left: 10px; right: 10px; top: 4px; height: 4px; background: repeating-linear-gradient(90deg, rgba(226,190,106,.55) 0 1px, transparent 1px 12px); opacity: .7; }
 body.night .amph .board::before { background: repeating-linear-gradient(90deg, rgba(151,174,230,.6) 0 1px, transparent 1px 12px); }
 .card, .stat, .ach, .act, .list, .witem, .frame-btn { background: var(--card); }
-.demo { border: 1px solid rgba(226,190,106,.3); }
 /* ---------- профіль: гра зараз, гаманець, досьє, склад ---------- */
-.ingame { display: flex; align-items: center; gap: 12px; margin: 12px 16px 0; padding: 12px 12px 12px 14px; border-radius: 16px; background: linear-gradient(100deg, #1F2A22, var(--card)); border: 1px solid rgba(127,201,160,.45); }
-.ingame .dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(127,201,160,.18); animation: igpulse 1.6s ease-in-out infinite; }
+.ingame { display: flex; align-items: center; gap: 12px; margin: 14px 16px 0; padding: 12px 12px 12px 16px; border-radius: 18px; background: linear-gradient(100deg, #2A2119, var(--card) 72%); border: 1px solid rgba(245,166,91,.45); }
+.ingame .dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--lamp); box-shadow: 0 0 0 4px rgba(245,166,91,.18); animation: igpulse 1.6s ease-in-out infinite; }
 .ingame > div { flex: 1; min-width: 0; }
-.ingame .k { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--green); font-weight: 800; }
+.ingame .k { font-size: 13px; color: var(--lamp); font-weight: 600; }
 .ingame .v { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ingame .s { font-size: 12px; color: var(--muted); }
-.ingame .btn { flex: none; padding: 0 14px; }
-@keyframes igpulse { 50% { box-shadow: 0 0 0 7px rgba(127,201,160,.06); } }
-.wallet { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px 16px 0; }
-.wcell { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); color: var(--text); font: inherit; cursor: pointer; }
-.wcell span { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-.wcell b { font-family: var(--mono); font-size: 16px; font-variant-numeric: tabular-nums; }
+.ingame .s { font-size: 13px; color: var(--muted); }
+.ingame .btn { flex: none; padding: 0 16px; }
+@keyframes igpulse { 50% { box-shadow: 0 0 0 7px rgba(245,166,91,.06); } }
+.wallet { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 14px 16px 0; }
+.wcell { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 10px 6px; border-radius: 12px; background: var(--card); border: 0; color: var(--text); font: inherit; cursor: pointer; }
+.wcell b { font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 17px; font-weight: 600; }
+.wcell span { font-size: 13px; color: var(--muted); }
+/* швидкий перехід у гардероб з мініатюрою персонажа (ліва колонка профілю на ПК) */
+.golink { width: 100%; display: flex; align-items: center; gap: 14px; margin-top: 12px; padding: 10px 14px 10px 10px; border-radius: 18px; background: var(--card); border: 1px solid var(--line2); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.golink .pic { flex: none; width: 54px; height: 64px; border-radius: 12px; overflow: hidden; background: var(--inset); display: flex; align-items: center; justify-content: center; font-size: 26px; }
+.golink .pic svg { width: 100%; height: 100%; display: block; }
+.golink .tx { flex: 1; min-width: 0; }
+.golink b { display: block; font-family: var(--serif); font-size: 17px; }
+.golink small { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+.golink .chev { transform: rotate(-90deg); }
 .dossier .stat b small { font-size: 12px; color: var(--muted); font-weight: 600; }
 .stash .slot { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); text-align: center; }
 .stash .slot .e { font-size: 26px; line-height: 1.1; }
 .stash .slot .n { font-size: 11.5px; font-weight: 700; line-height: 1.2; }
-.stash .slot b { font-family: var(--mono); font-size: 13px; color: var(--gold); }
+.stash .slot b { font-family: var(--num); font-size: 13px; color: var(--gold); }
 .stash .slot.empty { opacity: .5; }
 .stash .slot.empty b { color: var(--muted); }
 .ach .pbar { width: 80%; height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
@@ -269,8 +288,8 @@ body.night .amph .board::before { background: repeating-linear-gradient(90deg, r
 body.t2-on { overscroll-behavior: none; }
 .t2 { display: flex; flex-direction: column; height: calc(100vh - var(--nav-h, 0px)); height: calc(100dvh - var(--nav-h, 0px)); }
 .t2[hidden] { display: none; }
-.t2-head { position: relative; overflow: hidden; border-bottom: 1px solid var(--line2); flex: none; }
-.t2-headin { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; padding: 14px 14px 13px; }
+.t2-head { position: relative; overflow: hidden; flex: none; }
+.t2-headin { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; min-height: var(--hd-h); padding: 6px 14px; }
 .ring { position: relative; flex: none; display: inline-flex; }
 .ring svg { position: absolute; inset: 0; }
 .ring-bg { fill: none; stroke: var(--line); stroke-width: 4; }
@@ -280,20 +299,20 @@ body.night .ring-arc { stroke: var(--night); }
 body.night .ring-arc.low, .ring.red .ring-arc { stroke: var(--red); }
 .ring-in { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; font-variant-numeric: tabular-nums; }
 .ring-in b { font-size: 15px; }
-.ring .big { font-family: 'Playfair Display', serif; font-size: 40px; font-weight: 800; line-height: 1; }
+.ring .big { font-family: var(--serif); font-size: 40px; font-weight: 800; line-height: 1; }
 .ring b.sm { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .t2-ttl { flex: 1; min-width: 0; }
-.t2-stage { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; line-height: 1.15; }
-.t2-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-.t2-alive { flex: none; display: flex; flex-direction: column; align-items: center; font-weight: 800; font-size: 18px; line-height: 1.1; color: var(--gold2); padding: 5px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
-.t2-alive span { font-size: 9.5px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.t2-stage { font-family: var(--serif); font-size: 22px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; text-shadow: 0 1px 14px rgba(9,12,24,.9); }
+.t2-sub { font-size: 13px; color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.t2-alive { flex: none; display: flex; flex-direction: column; align-items: center; font-weight: 700; font-size: 17px; line-height: 1.1; color: var(--gold2); padding: 5px 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(23,27,43,.78); }
+.t2-alive span { font-size: 11px; font-weight: 500; color: var(--muted); }
 /* Розмір картки (--cw, --ch, --fw…) і кількість колонок рахує fitSeats(): картки якомога більші, але влазять без прокрутки */
 .t2-seats { flex: none; max-height: var(--seats-max, 45vh); overflow-y: auto; padding: 12px 10px 6px; scrollbar-width: none; }
 .t2-seats::-webkit-scrollbar { display: none; }
 .t2-grid, .lb-grid { display: grid; grid-template-columns: repeat(var(--cols, 4), var(--cw, minmax(0, 1fr))); grid-auto-rows: var(--ch, auto); gap: var(--gy, 10px) var(--gx, 6px); justify-content: center; }
 .t2-grid { align-content: center; min-height: 100%; }
 .t2-seat { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--pt, 7px) 4px 5px; border-radius: 14px; background: var(--card); border: 1px solid var(--line2); color: var(--text); font: inherit; cursor: default; min-width: 0; transition: transform .15s, border-color .2s, box-shadow .2s, opacity .3s; }
-.t2-seat .face { width: var(--fw, 54px); max-width: 100%; flex: none; aspect-ratio: 116 / 132; border-radius: clamp(12px, calc(var(--fw, 54px) * .16), 24px); overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; background: #232833; box-shadow: 0 0 0 2px var(--fr, transparent); }
+.t2-seat .face { width: var(--fw, 54px); max-width: 100%; flex: none; aspect-ratio: 116 / 132; border-radius: clamp(12px, calc(var(--fw, 54px) * .16), 24px); overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; background: #22273A; box-shadow: 0 0 0 2px var(--fr, transparent); }
 .t2-seat .face svg { width: 100%; height: 100%; display: block; }
 .t2-seat .ini { font-weight: 800; font-size: calc(var(--fw, 54px) * .34); color: var(--soft); }
 .t2-seat .x { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--red); font-size: calc(var(--fw, 54px) * .48); font-weight: 800; }
@@ -305,11 +324,11 @@ body.night .ring-arc.low, .ring.red .ring-arc { stroke: var(--red); }
 .t2-seat .rl.kn { color: var(--night); }
 .t2-seat .rl.al { color: #E08F7A; font-weight: 700; }
 .t2-seat .rl.host { color: var(--gold); }
-.t2-seat .num { position: absolute; left: 5px; top: 5px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; font-size: 10px; font-weight: 800; background: rgba(14,16,19,.85); color: var(--soft); display: flex; align-items: center; justify-content: center; }
+.t2-seat .num { position: absolute; left: 5px; top: 5px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; font-size: 10px; font-weight: 800; background: rgba(15,18,32,.85); color: var(--soft); display: flex; align-items: center; justify-content: center; }
 .t2-seat .crown { position: absolute; right: 4px; top: 2px; font-size: 13px; }
-.t2-seat .tag { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-size: 9.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 1px 8px; border-radius: 8px; background: var(--gold); color: var(--ink); z-index: 1; }
+.t2-seat .tag { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 700; line-height: 1.4; padding: 0 9px; border-radius: 8px; background: var(--gold); color: var(--ink); z-index: 1; }
 .t2-seat .votes { position: absolute; right: -6px; top: -7px; min-width: 22px; height: 22px; border-radius: 11px; background: var(--red); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; padding: 0 5px; z-index: 1; }
-.t2-seat .mic { position: absolute; right: 6px; top: 6px; width: 20px; height: 20px; border-radius: 50%; background: rgba(14,16,19,.85); display: flex; align-items: center; justify-content: center; }
+.t2-seat .mic { position: absolute; right: 6px; top: 6px; width: 20px; height: 20px; border-radius: 50%; background: rgba(15,18,32,.85); display: flex; align-items: center; justify-content: center; }
 .t2-seat.me { border-color: rgba(226,190,106,.6); background: linear-gradient(#211D14, var(--card)); }
 .t2-seat.ally { border-color: rgba(192,69,58,.6); }
 .t2-seat.dead { opacity: .55; }
@@ -334,20 +353,20 @@ body.night .ring-arc.low, .ring.red .ring-arc { stroke: var(--red); }
 .t2-bar .vc-row { margin: 0; }
 @keyframes t2pulse { 50% { box-shadow: 0 0 0 3px rgba(226,190,106,.28); } }
 .t2-feedwrap { flex: 1; min-height: 130px; display: flex; flex-direction: column; border-top: 1px solid var(--line2); }
-.t2-feed-h { display: flex; justify-content: space-between; padding: 8px 16px 2px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.t2-feed-h { display: flex; justify-content: space-between; padding: 10px 16px 2px; font-size: 13px; color: var(--muted); font-weight: 600; }
 .t2-feed { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
-.f-ph { align-self: center; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--gold2); background: #2A2416; border: 1px solid rgba(226,190,106,.35); padding: 4px 12px; border-radius: 999px; margin: 8px 0 2px; text-align: center; max-width: 92%; }
+.f-ph { align-self: center; font-size: 12px; font-weight: 700; color: var(--gold2); background: var(--goldbg); border: 1px solid rgba(226,190,106,.35); padding: 4px 12px; border-radius: 999px; margin: 8px 0 2px; text-align: center; max-width: 92%; }
 .f-ev { align-self: center; max-width: 92%; text-align: center; font-size: 12.5px; line-height: 1.4; color: var(--soft); background: var(--card); border: 1px solid var(--line2); padding: 6px 12px; border-radius: 12px; }
 .f-ev.night { font-style: italic; color: #B5CBF8; background: #121829; border-color: #253048; }
 .f-ev.death, .f-ev.lynch { color: #F0B3AA; background: #2A1615; border-color: rgba(192,69,58,.45); }
 .f-ev.vote { color: var(--night); }
-.f-ev.sec { color: var(--gold2); background: #1F1B12; border-color: rgba(226,190,106,.4); }
-.f-ev .lk { display: block; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; font-style: normal; font-weight: 700; }
-.f-msg { align-self: flex-start; max-width: 80%; background: #1C2029; border: 1px solid var(--line2); padding: 6px 11px; border-radius: 4px 14px 14px 14px; font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.f-ev.sec { color: #DCE6FB; background: #131A2E; border-color: rgba(143,178,245,.45); }
+.f-ev .lk { display: block; font-size: 12px; color: var(--night); margin-bottom: 2px; font-style: normal; font-weight: 600; }
+.f-msg { align-self: flex-start; max-width: 80%; background: #1B2033; border: 1px solid var(--line2); padding: 6px 11px; border-radius: 4px 14px 14px 14px; font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
 .f-msg b { display: block; font-size: 11.5px; margin-bottom: 1px; }
 .f-msg.mine { align-self: flex-end; background: #3A3018; border-color: rgba(226,190,106,.45); border-radius: 14px 4px 14px 14px; }
 .f-empty { margin: auto; text-align: center; color: var(--muted); font-size: 13px; padding: 20px; }
-.t2-bar { flex: none; border-top: 1px solid var(--line2); background: #12151B; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 8px; }
+.t2-bar { flex: none; border-top: 1px solid var(--line2); background: var(--inset); padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 8px; }
 .t2-bar > div:empty { display: none; }
 .t2-state { display: flex; align-items: center; gap: 10px; font-size: 18px; padding: 6px 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--line2); }
 .t2-state b { display: block; font-size: 13.5px; }
@@ -361,18 +380,19 @@ body.night .ring-arc.low, .ring.red .ring-arc { stroke: var(--red); }
 .t2-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .t2-tab { min-height: 40px; border-radius: 12px; border: 1px solid var(--line2); background: transparent; color: var(--soft); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; position: relative; }
 .t2-tab.on { background: var(--gold); color: var(--ink); border-color: var(--gold); }
-.t2-tab.pend::after { content: ""; position: absolute; top: 6px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 2px #12151B; }
+.t2-tab.pend::after { content: ""; position: absolute; top: 6px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--lamp); box-shadow: 0 0 0 2px var(--inset); }
+.t2-tab.on.pend::after { background: var(--ink); box-shadow: none; }
 .t2-hint { font-size: 13.5px; color: var(--soft); text-align: center; padding: 6px 4px; }
 .t2-do { display: flex; align-items: center; gap: 8px; }
 .t2-pick { flex: 1; min-width: 0; font-size: 13.5px; color: var(--soft); line-height: 1.3; }
 .t2-pick b { color: var(--text); }
-.t2-do .btn { flex: none; min-height: 44px; padding: 0 14px; }
+.t2-do .btn { flex: none; min-height: 44px; padding: 0 14px; font-size: 14px; }
 .t2-modes { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
 .t2-prog { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; margin-top: 8px; }
 .t2-prog span { display: block; height: 100%; background: var(--gold); transition: width .4s; }
 .t2-sub2 { font-size: 11.5px; color: var(--muted); text-align: center; margin-top: 4px; line-height: 1.4; }
 .t2-role { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.t2-role .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.t2-role .k { font-size: 13px; color: var(--muted); }
 .t2-role .v { font-weight: 700; font-size: 16px; }
 .t2-known { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .t2-known span { font-size: 12px; padding: 4px 8px; border-radius: 8px; background: #121829; color: var(--night); }
@@ -381,19 +401,19 @@ body.night .ring-arc.low, .ring.red .ring-arc { stroke: var(--red); }
 .linkbtn { background: none; border: 0; color: var(--gold2); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; padding: 4px; }
 /* заставка фази на весь екран */
 .t2-splash { position: fixed; inset: 0; z-index: 50; border: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; color: var(--text); font: inherit; text-align: center; cursor: pointer; overflow: hidden;
-  background: radial-gradient(120% 70% at 50% 115%, #8A4B22 0%, #3A1F1A 38%, #0E1013 72%); animation: t2in .45s ease-out; }
+  background: radial-gradient(120% 70% at 50% 115%, #8A4B22 0%, #3A1F1A 38%, #0F1220 72%); animation: t2in .45s ease-out; }
 .t2-splash.night { background: radial-gradient(120% 90% at 50% 0%, #1E2A4A 0%, #0D1222 55%, #070A12 100%); }
 .t2-splash .sp-sky { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
 .t2-splash.night .sp-sky { opacity: .8; background-image: radial-gradient(1.5px 1.5px at 12% 18%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 28% 42%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 66% 12%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 84% 30%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 46% 24%, #cfd9ff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 90% 62%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 8% 70%, #cfd9ff 50%, transparent 51%), radial-gradient(1px 1px at 58% 78%, #fff 50%, transparent 51%); animation: t2twinkle 3s ease-in-out infinite alternate; }
 .t2-splash .orb { width: 92px; height: 92px; border-radius: 50%; background: radial-gradient(circle, #FFE9B0, #F2B755 55%, #C9702F); box-shadow: 0 0 70px rgba(242,183,85,.55); animation: t2rise 1.1s cubic-bezier(.2,.8,.2,1); flex: none; }
 .t2-splash.night .orb { background: transparent; box-shadow: 20px 10px 0 0 #F1E3AE; transform: rotate(-18deg); filter: drop-shadow(0 0 22px rgba(241,227,174,.45)); }
-.t2-splash .ttl { font-family: 'Playfair Display', serif; font-size: 46px; font-weight: 800; color: var(--gold2); line-height: 1.05; position: relative; }
+.t2-splash .ttl { font-family: var(--serif); font-size: 46px; font-weight: 800; color: var(--gold2); line-height: 1.05; position: relative; }
 .t2-splash.night .ttl { color: #DCE6FF; }
 .t2-splash .sub { color: var(--soft); font-size: 15px; position: relative; }
 .t2-splash .lst { display: flex; flex-direction: column; gap: 6px; width: min(340px, 100%); margin-top: 6px; position: relative; }
-.t2-splash .lh { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
-.t2-splash .li { background: rgba(22,26,33,.88); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 14px; line-height: 1.4; }
-.t2-splash .lst.sec .li { border-color: rgba(226,190,106,.45); color: var(--gold2); }
+.t2-splash .lh { font-size: 13px; color: var(--muted); font-weight: 600; }
+.t2-splash .li { background: rgba(23,27,43,.88); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 14px; line-height: 1.4; }
+.t2-splash .lst.sec .li { border-color: rgba(143,178,245,.45); color: #DCE6FB; }
 .t2-splash .tap { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); left: 0; right: 0; font-size: 12px; color: var(--muted); }
 .t2-splash.small { background: rgba(10,12,16,.86); }
 .t2-splash.small .orb { display: none; }
@@ -404,14 +424,14 @@ body.t2-on .toast, body.t2-on #wtoast { top: 70px; bottom: auto; z-index: 60; }
 @keyframes t2twinkle { to { opacity: .45; } }
 /* «Фінальне рішення»: За / Проти */
 .t2-modal { position: fixed; inset: 0 0 var(--nav-h, 0px) 0; z-index: 40; background: rgba(8,9,12,.74); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; animation: t2in .25s ease-out; }
-.t2-mcard { width: min(360px, 100%); background: linear-gradient(#24171A, #161A21); border: 1px solid rgba(192,69,58,.45); border-radius: 22px; padding: 20px 18px 10px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
-.t2-mcard .k { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #E08F7A; font-weight: 800; }
+.t2-mcard { width: min(360px, 100%); background: linear-gradient(#24171A, #171B2B); border: 1px solid rgba(192,69,58,.45); border-radius: 22px; padding: 20px 18px 10px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.t2-mcard .k { font-size: 13px; color: #E08F7A; font-weight: 600; }
 .t2-mcard .q { font-size: 17px; line-height: 1.35; }
 .t2-mcard .q b { color: #F0B3AA; }
 .yn { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
 .yn button { min-height: 66px; border-radius: 16px; font: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--text); transition: background .2s, transform .1s; }
 .yn button:active:not(:disabled) { transform: scale(.97); }
-.yn button span { font-size: 12.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.yn button span { font-size: 14px; font-weight: 700; }
 .yn button b { font-size: 24px; font-variant-numeric: tabular-nums; }
 .yn .yes { border-color: rgba(192,69,58,.6); }
 .yn .yes.on { background: var(--red); color: #fff; border-color: var(--red); }
@@ -436,12 +456,13 @@ body.night .f-msg { background: #141B2E; }
 @media (prefers-reduced-motion: reduce) { .t2-seat.can, .t2-splash, .t2-splash .orb, .t2-splash .sp-sky, .t2-modal { animation: none; } .ring-arc { transition: none; } }
 /* ---------- кімната очікування (набір), вхід за стіл, кнопка «на весь екран» ---------- */
 /* Telegram на весь екран: шапка не залазить під його кнопки (без повного екрана ці відступи нульові) */
-.t2-head, #app, #tCard { padding-top: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)); }
+.t2-head { padding-top: var(--safe-top); }
+#tCard .section { max-width: 640px; margin: 0 auto; }
 body.t2-on .toast, body.t2-on #wtoast { top: calc(70px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)); }
-.t2-fs { flex: none; width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--line); background: rgba(22,26,33,.72); color: var(--soft); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.t2-fs { flex: none; width: 38px; height: 38px; border-radius: 12px; border: 1px solid var(--line); background: rgba(23,27,43,.72); color: var(--soft); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .t2-fs:active { transform: scale(.94); }
-.t2-kick { font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.t2-kick span { color: #7FC9A0; }
+.t2-kick { font-size: 13px; font-weight: 600; color: var(--lamp); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t2-kick span { color: var(--soft); font-weight: 500; }
 .t2-stage.one { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t2.lobby .t2-seats, .t2.lobby .t2-feedwrap, .t2.lobby .t2-bar { display: none; }
 .t2-lobby { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 12px 16px; display: flex; flex-direction: column; gap: 14px; }
@@ -468,12 +489,12 @@ body.t2-on .toast, body.t2-on #wtoast { top: calc(70px + var(--tg-safe-area-inse
 .t2-enter .dr::after { content: ""; position: absolute; top: 50%; right: 14px; width: 8px; height: 34px; margin-top: -17px; border-radius: 4px; background: var(--gold); opacity: .8; }
 .t2-enter .dr.r::after { right: auto; left: 14px; }
 @keyframes endoor { 0%, 40% { transform: none; } 100% { transform: translateX(var(--dx, -102%)); } }
-.en-card { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 20px 28px 16px; border-radius: 26px; background: radial-gradient(closest-side, #12151B 70%, rgba(18,21,27,0)); animation: encard 1.25s ease both; }
+.en-card { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 20px 28px 16px; border-radius: 26px; background: radial-gradient(closest-side, var(--inset) 70%, rgba(18,21,27,0)); animation: encard 1.25s ease both; }
 @keyframes encard { 0% { opacity: 0; transform: scale(.8); } 20%, 48% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-16vh) scale(.45); } }
-.en-card .face { width: 96px; aspect-ratio: 116 / 132; border-radius: 22px; overflow: hidden; background: #232833; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px var(--gold), 0 0 40px rgba(226,190,106,.45); }
+.en-card .face { width: 96px; aspect-ratio: 116 / 132; border-radius: 22px; overflow: hidden; background: #22273A; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px var(--gold), 0 0 40px rgba(226,190,106,.45); }
 .en-card .face svg { width: 100%; height: 100%; display: block; }
 .en-card .ini { font-size: 34px; font-weight: 800; color: var(--soft); }
-.en-card b { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold2); max-width: 80vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.en-card b { font-family: var(--serif); font-size: 22px; color: var(--gold2); max-width: 80vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .en-card small { font-size: 13px; color: var(--muted); }
 @media (min-width: 900px) {
   .t2-lobby { grid-column: 1 / -1; grid-row: 2 / 4; padding: 24px; }
@@ -487,17 +508,17 @@ body.has-nav.nav-compact { --nav-h: calc(42px + env(safe-area-inset-bottom)); }
 #app { padding-bottom: var(--nav-h, 0px); }
 #app[hidden], #game[hidden] { display: none; }
 .nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; height: var(--nav-h); padding-bottom: env(safe-area-inset-bottom); display: flex; justify-content: center;
-  background: rgba(14,16,19,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--line2); transition: height .25s ease, background-color 1.2s ease; }
+  background: rgba(15,18,32,.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--line2); transition: height .25s ease, background-color 1.2s ease; }
 .nav[hidden] { display: none; }
 body.night .nav { background: rgba(10,13,22,.94); }
-.nav-b { position: relative; flex: 1; max-width: 150px; min-width: 0; border: 0; background: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; }
+.nav-b { position: relative; flex: 1; max-width: 150px; min-width: 0; border: 0; background: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; font-size: 11.5px; font-weight: 600; }
 .nav-i { position: relative; font-size: 20px; line-height: 1; filter: grayscale(.8); opacity: .65; transition: transform .2s, opacity .2s, filter .2s; }
 .nav-b.on { color: var(--gold2); }
 .nav-b.on .nav-i { filter: none; opacity: 1; transform: translateY(-1px) scale(1.08); }
 .nav-b.on::before { content: ""; position: absolute; top: -1px; left: 50%; width: 30px; height: 2px; margin-left: -15px; background: var(--gold); border-radius: 2px; }
-.nav-dot { position: absolute; right: -8px; top: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 2px var(--bg); animation: navdot 1.2s ease-in-out infinite; }
-.nav-dot.live { width: 7px; height: 7px; background: var(--green); animation: none; }
-@keyframes navdot { 50% { box-shadow: 0 0 0 2px var(--bg), 0 0 0 6px rgba(192,69,58,.3); } }
+.nav-dot { position: absolute; right: -8px; top: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--lamp); box-shadow: 0 0 0 2px var(--bg); animation: navdot 1.2s ease-in-out infinite; }
+.nav-dot.live { width: 7px; height: 7px; opacity: .8; animation: none; }
+@keyframes navdot { 50% { box-shadow: 0 0 0 2px var(--bg), 0 0 0 6px rgba(245,166,91,.3); } }
 body.nav-compact .nav-t { display: none; }
 body.has-nav .t2-bar { padding-bottom: 8px; }
 body.has-nav .bottom { padding-bottom: 14px; }
@@ -510,25 +531,34 @@ body.has-nav .bottom { padding-bottom: 14px; }
 #game.pane-in { animation-name: panefade; }
 @keyframes panein { from { opacity: 0; transform: translateY(8px); } }
 @keyframes panefade { from { opacity: 0; } }
-/* ---------- небо й місто (силует малює citySVG): день теплий, ніч темна з вогниками у вікнах ---------- */
-.sky { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, #14121A 0%, #3A2520 55%, #8C5530 100%); }
-.sky::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #070A13 0%, #0F1730 60%, #1B2648 100%); opacity: 0; transition: opacity 1.2s ease; }
-.sky.night::before { opacity: 1; }
+/* ---------- небо й місто (силует малює citySVG): удень тепле, поза грою вечірнє, уночі темне з вогниками у вікнах ---------- */
+.sky { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: linear-gradient(180deg, #4B3243 0%, #9C5B3B 42%, #DDA055 100%); }
+.sky::before, .sky .dusk { content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
+.sky::before { background: linear-gradient(180deg, #060915 0%, #0E1530 60%, #1A2548 100%); }
+.sky .dusk { background: linear-gradient(180deg, #0F1330 0%, #2E2850 36%, #7D4E4C 70%, #B4683F 100%); }
+.sky.night::before, .sky.eve .dusk { opacity: 1; }
 .sky .stars { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease;
   background-image: radial-gradient(1.5px 1.5px at 8% 22%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 21% 48%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 37% 14%, #cfd9ff 50%, transparent 51%), radial-gradient(1px 1px at 52% 36%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 64% 12%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 78% 30%, #cfd9ff 50%, transparent 51%), radial-gradient(1px 1px at 91% 18%, #fff 50%, transparent 51%), radial-gradient(1px 1px at 46% 8%, #fff 50%, transparent 51%); }
 .sky.night .stars { opacity: .75; }
-.sky .moon, .sky .sun { position: absolute; right: 16%; top: 14px; width: 22px; height: 22px; border-radius: 50%; transition: opacity 1.2s ease, transform 1.2s ease; }
+.sky.eve .stars { opacity: .35; }
+.sky .moon, .sky .sun { position: absolute; right: var(--moon, 16%); top: 14px; width: 22px; height: 22px; border-radius: 50%; transition: opacity 1.2s ease, transform 1.2s ease, right 1.1s cubic-bezier(.4, 0, .2, 1); }
 .sky .moon { box-shadow: inset -7px -3px 0 0 #F1E3AE; opacity: 0; transform: translateY(18px); filter: drop-shadow(0 0 8px rgba(241,227,174,.45)); }
 .sky.night .moon { opacity: 1; transform: none; }
+.sky.eve .moon { opacity: .85; transform: translateY(5px); }
 .sky .sun { background: radial-gradient(circle, #FFE9B0, #F2B755 60%, #D98A3A); box-shadow: 0 0 26px rgba(242,183,85,.6); }
-.sky.night .sun { opacity: 0; transform: translateY(18px); }
-.city { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 78px; display: block; }
-.city .c-far { fill: #5C3A29; transition: fill 1.2s ease; }
+.sky.night .sun, .sky.eve .sun { opacity: 0; transform: translateY(18px); }
+/* місто не розтягується: має свій масштаб від висоти, по ширині — з запасом і від середини (вежа завжди в центрі) */
+.city { position: absolute; left: 50%; bottom: -1px; transform: translateX(-50%); width: auto; min-width: 100%; max-width: none; height: 78px; display: block; }
+.city .c-far { fill: #643B2B; transition: fill 1.2s ease; }
 .city .c-near { fill: #1F1512; transition: fill 1.2s ease; }
 .city .c-win rect { fill: #F2CF85; }
 .city .c-win { opacity: .12; transition: opacity 1.2s ease; }
 .city .clk { fill: #F2CF85; opacity: .4; transition: opacity 1.2s ease; }
 .city .clk-h { fill: none; stroke: #1A1407; stroke-width: 1.8; stroke-linecap: round; }
+.sky.eve .c-far { fill: #2C2947; }
+.sky.eve .c-near { fill: #121428; }
+.sky.eve .c-win { opacity: .55; }
+.sky.eve .clk { opacity: .9; }
 .sky.night .c-far, .t2-splash.night .c-far { fill: #172039; }
 .sky.night .c-near, .t2-splash.night .c-near { fill: #090C15; }
 .sky.night .c-win, .t2-splash.night .c-win { opacity: .9; }
@@ -536,12 +566,13 @@ body.has-nav .bottom { padding-bottom: 14px; }
 .sky.night .c-win .tw, .t2-splash.night .c-win .tw { animation: wink 3.4s ease-in-out infinite alternate; }
 .sky.night .c-win .tw2, .t2-splash.night .c-win .tw2 { animation: wink 4.8s 1.2s ease-in-out infinite alternate; }
 @keyframes wink { from { opacity: 1; } to { opacity: .2; } }
-.hero .sky.night .c-near { fill: var(--bg); }
-.hero .city { height: 84px; }
-.t2-sky::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(14,16,19,.9) 0%, rgba(14,16,19,.66) 55%, rgba(14,16,19,.25) 100%); }
-.t2-sky.night::after { background: linear-gradient(90deg, rgba(10,13,22,.88) 0%, rgba(10,13,22,.62) 55%, rgba(10,13,22,.15) 100%); }
-.t2-sky .city { height: 66%; }
-.t2-sky .moon, .t2-sky .sun { right: 92px; top: 10px; }
+/* шапка вкладки й стола: ближні будинки кольору сторінки — вміст ніби виростає з міста; ліворуч затемнення під назву */
+.sky.hd-sky .c-near { fill: var(--bg); }
+.hd-sky .city { height: 66%; }
+.hd-sky::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,18,32,.8) 0%, rgba(15,18,32,.4) 34%, rgba(15,18,32,0) 62%); }
+body.night .hd-sky::after { background: linear-gradient(90deg, rgba(9,12,24,.8) 0%, rgba(9,12,24,.4) 34%, rgba(9,12,24,0) 62%); }
+.hd-sky .moon, .hd-sky .sun { top: 12px; }
+.t2-sky .moon, .t2-sky .sun { right: 33%; top: 6px; }
 /* місто на заставках «Ніч N» / «День N» */
 .sp-city { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; pointer-events: none; animation: t2rise 1.1s cubic-bezier(.2,.8,.2,1); }
 .sp-city .city { height: 100%; }
@@ -558,76 +589,90 @@ body.has-nav .bottom { padding-bottom: 14px; }
 @keyframes seatLynch { 0% { transform: none; opacity: 1; } 30% { transform: translateY(-7px); opacity: 1; } 70% { transform: translateY(6px) rotate(4deg); opacity: .9; } 100% { transform: none; opacity: .55; } }
 @keyframes seatFlash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes xIn { from { transform: scale(2.4); opacity: 0; } }
-/* ---------- єдиний профіль: шапка, картки ігор, досягнення, склад ---------- */
-.top-t { padding-left: 6px; }
-.top h2 { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; }
-.brand { font-family: var(--mono); font-size: 9.5px; font-weight: 500; letter-spacing: .28em; color: var(--gold); }
-.top-m { font-family: var(--mono); font-weight: 600; font-size: 13px; padding: 6px 12px; margin-right: 4px; border: 1px solid var(--line); border-radius: 999px; white-space: nowrap; }
-.subnav .tabs { margin-top: 10px; }
+/* ---------- профіль: картки ігор, досягнення, склад ---------- */
+.top-m { font-family: var(--num); font-variant-numeric: tabular-nums; font-weight: 600; font-size: 15px; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; white-space: nowrap; background: rgba(23,27,43,.78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.subnav .tabs { margin-top: 14px; }
 .chips.slots { padding: 0 16px; margin: 14px 0 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 .chips.slots .chip { flex: none; }
-.gcard { background: var(--card); border: 1px solid var(--line); border-radius: 18px; margin-bottom: 10px; overflow: hidden; transition: border-color .25s; }
+.hero .sub { font-size: 15px; }
+.games { display: grid; gap: 12px; }
+/* картка гри — головний блок: великий радіус, усередині пласкі цифри через тонкі лінії */
+.gcard { background: var(--card); border: 1px solid var(--line2); border-radius: 20px; overflow: hidden; transition: border-color .25s; }
 .gcard.open { border-color: rgba(226,190,106,.5); }
-.gcard.invite { border-style: dashed; }
-.gc-h { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 14px; background: none; border: 0; text-align: left; cursor: pointer; }
+.gcard.invite { border-style: dashed; border-color: var(--line); }
+.gc-h { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 16px; background: none; border: 0; text-align: left; cursor: pointer; }
 div.gc-h { cursor: default; padding-bottom: 10px; }
-.gc-e { width: 44px; height: 44px; border-radius: 14px; background: #1F242E; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-.gc-t { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; }
+.gc-e { width: 44px; height: 44px; border-radius: 14px; background: var(--inset); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.gc-t { font-family: var(--serif); font-size: 22px; font-weight: 700; }
 .chev { color: var(--muted); transition: transform .25s; }
 .gcard.open .chev { transform: rotate(180deg); }
-.gc-s { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 8px; }
-.gc-s > span { min-width: 0; padding: 8px 10px; border-radius: 12px; background: #12151B; border: 1px solid var(--line2); }
-.gc-s b { display: block; font-family: var(--mono); font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.gc-s b small { font-size: 11px; color: var(--muted); }
-.gc-s > span > small { font-size: 10.5px; color: var(--muted); }
-.gc-b { padding: 0 14px 14px; animation: panein .22s ease-out; }
+.gc-s { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1.6fr; margin-top: 2px; padding-top: 12px; border-top: 1px solid var(--line2); }
+.gc-s > span { min-width: 0; padding: 0 12px; border-left: 1px solid var(--line2); }
+.gc-s > span:first-child { padding-left: 0; border-left: 0; }
+.gc-s b { display: block; font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gc-s b small { font-size: 13px; font-weight: 500; color: var(--muted); }
+.gc-s > span > small { display: block; font-size: 13px; line-height: 1.25; color: var(--muted); }
+.gc-b { padding: 0 16px 16px; animation: panein .22s ease-out; }
 .gc-b .tabs { margin: 0 0 12px; }
 .gc-b .dossier { margin-top: 0 !important; }
-.gcard .stat, .gcard .list, .gcard .card { background: #12151B; }
+.gc-b .sub { font-size: 15px; line-height: 1.45; }
+.gcard .stat, .gcard .list, .gcard .card { background: var(--inset); }
+.gcard .card { border-radius: 14px; }
 .ach { position: relative; }
 .ach .gm { position: absolute; left: 7px; top: 6px; font-size: 10px; opacity: .65; }
-.ach.todo { opacity: .78; }
-.balance b { font-family: var(--mono); font-size: 28px; font-weight: 600; color: var(--gold2); }
-.balance .sub, .support .sub { font-size: 12.5px; color: var(--soft); line-height: 1.5; }
+.ach.todo { opacity: .8; }
+.card.balance, .card.support { border-radius: 20px; padding: 18px; }
+.balance b { display: block; font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 28px; font-weight: 600; line-height: 1.25; color: var(--gold2); }
+.balance .sub, .support .sub { font-size: 13px; color: var(--soft); line-height: 1.5; }
 .balance .sub { margin-top: 8px; color: var(--muted); }
-/* екран «Зараз не граєш» */
+/* екран «Зараз не граєш»: кроки й малюнок стола (на ПК — поруч) */
 .nogame { display: flex; flex-direction: column; min-height: calc(100vh - var(--nav-h, 0px)); min-height: calc(100dvh - var(--nav-h, 0px)); }
-.ng-sky { position: relative; inset: auto; flex: none; height: 200px; }
-.ng-sky .city { height: 118px; }
-.ng-sky.night .c-near { fill: var(--bg); }
-.ng-sky .moon { right: 20%; top: 30px; width: 36px; height: 36px; box-shadow: inset -12px -5px 0 0 #F1E3AE; }
-.ng-in { padding: 20px 16px 24px; }
-.ng-in h1 { margin: 6px 0 6px; }
-.steps { margin-top: 16px; }
-.steps .li { justify-content: flex-start; line-height: 1.4; }
-.steps .li b { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: var(--ink); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 13px; }
-code { font-family: var(--mono); font-size: .95em; color: var(--gold2); background: #1F1B12; padding: 1px 6px; border-radius: 6px; }
+.ng { flex: 1; width: 100%; max-width: 640px; margin: 0 auto; padding: 16px 16px 24px; display: grid; gap: 16px; align-content: start; }
+.ng h1 { margin: 0 0 6px; }
+.ng .sub { font-size: 15px; line-height: 1.45; }
+.ng-art { height: 206px; border-radius: 20px; overflow: hidden; background: var(--inset); border: 1px solid var(--line2); }
+.tp { position: relative; width: 100%; height: 100%; }
+.tp-tbl { position: absolute; left: 27%; right: 27%; top: 29%; bottom: 29%; border-radius: 50%; background: var(--card); border: 2px solid var(--line); }
+.tp-ring { position: absolute; left: 50%; top: 50%; width: 18%; max-width: 96px; aspect-ratio: 1; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; }
+.tp-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tp-ring b { position: relative; font-size: clamp(13px, 2.2vw, 22px); font-weight: 600; font-variant-numeric: tabular-nums; }
+.tp-seat { position: absolute; width: 13.5%; aspect-ratio: 116 / 132; transform: translate(-50%, -50%); border-radius: 22%; overflow: hidden; background: #22273A; box-shadow: 0 0 0 2px var(--line); }
+.tp-seat svg { display: block; width: 100%; height: 100%; }
+.tp-seat.me { box-shadow: 0 0 0 2px var(--gold), 0 0 18px rgba(226,190,106,.35); }
+.tp-seat.dead svg { filter: grayscale(1) brightness(.45); }
+.tp-seat i { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-style: normal; font-weight: 800; font-size: clamp(16px, 3vw, 30px); color: var(--red); }
+.steps { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 10px; }
+.steps li { display: flex; align-items: baseline; gap: 14px; font-size: 15px; line-height: 1.4; }
+.steps li b { flex: none; width: 16px; text-align: center; font-family: var(--serif); font-size: 22px; line-height: 1; color: var(--gold); }
+.ng-btn { flex: none; width: 100%; min-height: 48px; margin-top: 16px; }
+code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: .92em; color: var(--gold2); background: var(--goldbg); padding: 1px 6px; border-radius: 6px; }
 @media (prefers-reduced-motion: reduce) {
   .pane-in, .gc-b, .nav-dot, .t2-seat.talk .face, .t2-seat .say i, .sp-city, .t2-seat.dying, .t2-seat.dying::after, .t2-seat.dying .x, .c-win .tw, .c-win .tw2 { animation: none !important; }
-  .sky::before, .sky .stars, .sky .moon, .sky .sun, .city .c-far, .city .c-near, .city .c-win, .nav, .chev { transition: none; }
+  .sky::before, .sky .dusk, .sky .stars, .sky .moon, .sky .sun, .city .c-far, .city .c-near, .city .c-win, .nav, .chev { transition: none; }
 }
 /* «Про мене», налаштування власника, описи предметів */
-.hero .bio { position: relative; max-width: 320px; margin-top: 2px; font-size: 13.5px; line-height: 1.45; color: var(--text); font-style: italic; word-break: break-word; }
-.me-l { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-.me-l span { font-family: var(--mono); }
+.hero .bio { position: relative; max-width: 340px; margin-top: 2px; font-size: 15px; line-height: 1.45; color: var(--text); font-style: italic; word-break: break-word; }
+.me-l { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.me-l span { font-variant-numeric: tabular-nums; }
 .me-row { display: flex; gap: 8px; }
-.me-in { flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line); background: #12151B; color: var(--text); font: inherit; font-size: 15px; }
+.me-in { flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--inset); color: var(--text); font: inherit; font-size: 15px; }
 .me-in:focus { outline: none; border-color: var(--gold); }
 .me-row .btn { flex: none; padding: 0 14px; }
 .me-sw { width: 100%; margin-top: 12px; padding: 12px 0 0; border: 0; border-top: 1px solid var(--line); background: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; cursor: pointer; min-height: 56px; }
-.me-sw b { display: block; font-size: 14px; }
-.me-sw small { display: block; margin-top: 2px; font-size: 12px; line-height: 1.4; color: var(--muted); }
+.me-sw b { display: block; font-size: 15px; }
+.me-sw small { display: block; margin-top: 2px; font-size: 13px; line-height: 1.4; color: var(--muted); }
 .sw { flex: none; position: relative; width: 46px; height: 28px; border-radius: 999px; background: var(--chip); transition: background .2s; }
 .sw::after { content: ""; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--soft); transition: transform .2s, background .2s; }
 .sw.on { background: var(--gold); }
 .sw.on::after { transform: translateX(18px); background: var(--ink); }
-.sitems { display: flex; flex-direction: column; gap: 8px; }
-.sitem { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+/* предмети складу — другорядні рядки: пласкі, без рамки */
+.sitems { display: grid; gap: 8px; }
+.sitem { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--card); }
 .sitem .e { flex: none; width: 34px; text-align: center; font-size: 26px; line-height: 1.15; }
 .sitem .t { flex: 1; min-width: 0; }
-.sitem .n { font-size: 14px; font-weight: 700; }
-.sitem .d { margin-top: 3px; font-size: 12px; line-height: 1.45; color: var(--muted); }
-.sitem > b { flex: none; font-family: var(--mono); font-size: 14px; color: var(--gold); }
+.sitem .n { font-size: 15px; font-weight: 600; }
+.sitem .d { margin-top: 3px; font-size: 13px; line-height: 1.4; color: var(--muted); }
+.sitem > b { flex: none; font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 600; color: var(--gold); }
 .sitem.empty .e, .sitem.empty .n { opacity: .55; }
 .sitem.empty > b { color: var(--muted); }
 /* знайомство для новачка: кілька коротких екранів поверх вікна */
@@ -638,22 +683,22 @@ code { font-family: var(--mono); font-size: .95em; color: var(--gold2); backgrou
 .onb-prog i { flex: 1; height: 4px; border-radius: 4px; background: var(--chip); transition: background .25s; }
 .onb-prog i.on { background: var(--gold); }
 .onb-body { text-align: center; animation: onbIn .3s ease; }
-.onb-art { position: relative; height: 170px; margin: 16px 0 14px; border-radius: 16px; overflow: hidden; background: #0B0E15; border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center; }
+.onb-art { position: relative; height: 170px; margin: 16px 0 14px; border-radius: 16px; overflow: hidden; background: var(--deep); border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center; }
 .onb-art .sky { position: absolute; inset: 0; height: auto; }
 .onb-art .sky .city { height: 104px; }
 .onb-art .sky.night .c-near { fill: #090C15; }
 .onb-masks { position: relative; display: flex; gap: 14px; font-size: 44px; line-height: 1; margin-top: -34px; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .6)); }
 .onb-chat { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 18px; }
 .onb-chat span { max-width: 82%; padding: 8px 12px; border-radius: 14px; font-size: 13.5px; background: var(--chip); align-self: flex-start; text-align: left; }
-.onb-chat .cmd { align-self: flex-end; font-family: var(--mono); color: var(--gold2); background: #1F1B12; border: 1px solid rgba(226, 190, 106, .35); }
+.onb-chat .cmd { align-self: flex-end; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; color: var(--gold2); background: var(--goldbg); border: 1px solid rgba(226, 190, 106, .35); }
 .onb-chat .go { align-self: center; background: var(--gold); color: var(--ink); font-weight: 700; }
 .onb-art svg.onb-tbl { width: 100%; height: 100%; }
 .onb-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; padding: 0 14px; }
-.onb-tiles span { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 2px 10px; border-radius: 14px; background: #12151B; border: 1px solid var(--line); font-size: 11px; color: var(--soft); }
+.onb-tiles span { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 2px 10px; border-radius: 12px; background: var(--inset); font-size: 12px; color: var(--soft); }
 .onb-tiles span i { font-style: normal; font-size: 28px; line-height: 1; }
 .onb-tiles span.gold { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(226, 190, 106, .18); }
 .onb-body h1 { margin: 6px 0 8px; font-size: 22px; }
-.onb-body p { margin: 0; min-height: 6.2em; font-size: 14.5px; line-height: 1.55; color: var(--soft); }
+.onb-body p { margin: 0; min-height: 6.2em; font-size: 15px; line-height: 1.55; color: var(--soft); }
 .onb-btns { display: flex; gap: 8px; margin-top: 16px; }
 .onb-skip { align-self: flex-end; margin: 8px 0 -6px; padding: 4px 2px; background: none; border: 0; color: var(--muted); font: inherit; font-size: 12.5px; cursor: pointer; }
 .onb-btns .btn { min-height: 48px; }
@@ -662,42 +707,73 @@ body.onb-on { overflow: hidden; }
 @keyframes onbFade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes onbIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .onb, .onb-body { animation: none; } .onb-prog i, .sw, .sw::after { transition: none; } }
+/* ---------- планшет і вузьке вікно Telegram Desktop (600–899): одна ширша колонка, сітки щільніші ---------- */
+@media (min-width: 600px) {
+  .achs, .wgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sitems { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ng-art { height: 240px; }
+  .gcard .dossier { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 /* ---------- широкий екран (ПК, Telegram Desktop на весь екран): меню збоку, сторінки у дві колонки ---------- */
 @media (min-width: 900px) {
+  :root { --hd-h: 96px; }
   body.has-nav, body.has-nav.nav-compact { --nav-h: 0px; --nav-w: 84px; padding-left: var(--nav-w); }
   .nav { top: 0; right: auto; width: var(--nav-w); height: auto; flex-direction: column; justify-content: flex-start; gap: 4px; border-top: 0; border-right: 1px solid var(--line2);
-    padding: calc(14px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) 0 14px; }
+    padding: calc(14px + var(--safe-top)) 0 14px; }
   .nav-b { flex: none; width: 100%; max-width: none; height: 66px; }
   .nav-b.on::before { top: 50%; left: 0; width: 3px; height: 30px; margin: -15px 0 0; }
   body.nav-compact .nav-t { display: inline; }
   body.has-nav .toast, body.has-nav #wtoast { left: calc(50% + var(--nav-w) / 2); }
-  #app.wrap { max-width: 1160px; }
-  #app .top { padding-left: 24px; padding-right: 24px; }
-  #app .demo { max-width: 520px; margin-left: auto; margin-right: auto; }
-  .subnav { max-width: 520px; margin: 0 auto; }
-  .only-col { max-width: 760px; margin: 0 auto; }
-  /* профіль: герой і гаманець ліворуч, ігри й досягнення праворуч */
-  .pw { display: grid; grid-template-columns: minmax(320px, 400px) minmax(0, 1fr); gap: 0 16px; align-items: start; padding: 18px 16px 0; }
-  .pw-l { border: 1px solid var(--line2); border-radius: 20px; overflow: hidden; padding-bottom: 16px; background: #0B0E15; }
-  .pw-r > .section:first-child { padding-top: 0; }
-  /* гардероб: персонаж і кнопка ліворуч, речі праворуч */
-  .duo { display: grid; grid-template-columns: clamp(280px, 32%, 380px) minmax(0, 1fr); gap: 0 16px; align-items: start; padding: 18px 16px 0; }
-  .duo-l .hero { border: 1px solid var(--line2); border-radius: 20px; padding-top: 28px; padding-bottom: 24px; }
-  .duo-l .bottom { position: static; background: none; border-top: 0; padding: 14px 0 0; }
-  .duo-r .chips.slots { flex-wrap: wrap; overflow: visible; margin-top: 0; }
-  .duo-r .section { padding-top: 12px; }
-  .duo-r > .section:first-child { padding-top: 0; }
-  .duo-r .grid3 { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  #game.wrap { max-width: none; }
+  #appBody { max-width: 1280px; padding: 0 24px 32px; }
+  .th-in { max-width: 1280px; padding: 0 24px; }
+  .th h2 { font-size: 28px; }
+  h1 { font-size: 28px; }
+  .hero.plain h1 { font-size: 22px; }
+  .label.big { font-size: 22px; margin-bottom: 14px; }
+  #appBody .section { padding-left: 0; padding-right: 0; }
+  #appBody .demo { margin: 14px 0 0; }
+  #appBody .lock-note { margin-left: 0; margin-right: 0; }
+  .subnav .tabs { margin: 18px 0 0; max-width: 420px; }
+  /* дві колонки: ліва вузька (прилипає, коли влазить в екран — клас .stick ставить stickFit), права — основний вміст */
+  .pw, .duo { display: grid; grid-template-columns: clamp(300px, 31%, 380px) minmax(0, 1fr); gap: 0 24px; align-items: start; padding-top: 20px; }
+  .stick { position: sticky; top: calc(16px + var(--safe-top)); }
+  /* профіль: герой, гра, гаманець, гардероб і «Про мене» ліворуч; ігри й досягнення праворуч */
+  .pw-l .hero-card { background: var(--card); border: 1px solid var(--line2); border-radius: 20px; padding-bottom: 20px; }
+  .pw-l .ingame { margin: 12px 0 0; }
+  .pw-l .wallet { padding: 12px 0 0; }
+  .pw-l .section { padding: 20px 0 0; }
+  .pw-l .label.big { font-size: 17px; margin-bottom: 10px; }
+  .pw-r > .section:first-child, .duo-r > .section:first-child { padding-top: 0; }
+  /* гардероб: персонаж і кнопка ліворуч, усі речі праворуч */
+  .duo-l .hero { background: var(--card); border: 1px solid var(--line2); border-radius: 20px; padding: 28px 16px 24px; }
+  .duo-l .bottom { position: static; background: none; border-top: 0; padding: 12px 0 0; }
+  .duo-r .section { padding-top: 6px; padding-bottom: 18px; }
+  .duo-r .wgrid { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 10px; }
   .duo-r .witem .thumb { width: 88px; height: 105px; }
-  .duo-r .witem .n, .duo-r .frame-btn .n { font-size: 12.5px; }
-  .duo-r .witem .t, .duo-r .frame-btn .t { font-size: 11px; }
-  /* склад: баланс і підтримка ліворуч, предмети праворуч у два стовпчики */
-  .duo.stash .duo-l, .duo.stash .duo-r { padding: 0; }
-  .duo.stash .duo-r .label { margin-top: 4px !important; }
-  .duo.stash .sitems { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+  /* рівні: рівень і звання ліворуч, досвід і нагороди праворуч */
+  .lv2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; align-items: start; }
+  .lv2 .label.mt, .duo-r > .label.mt:first-child { margin-top: 0; }
+  /* склад: баланс і підтримка ліворуч, предмети праворуч */
+  .duo.stash .sitems { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); align-items: stretch; }
+  /* «Зараз не граєш»: ліворуч кроки, праворуч стіл */
+  .ng { max-width: 1080px; padding: 24px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); grid-template-areas: "t art" "s art"; gap: 22px 56px; align-content: center; }
+  .ng-t { grid-area: t; align-self: end; }
+  .ng-s { grid-area: s; }
+  .ng-art { grid-area: art; align-self: center; height: min(440px, 56vh); }
+  .ng-btn { width: auto; padding: 0 28px; }
 }
-@media (min-width: 900px) and (min-height: 760px) {
-  .pw-l, .duo-l { position: sticky; top: calc(14px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)); }
+@media (min-width: 1180px) {
+  .games { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+
+/* великі екрани (1500+): вміст ширшає разом з вікном, щоб по боках не лишалось порожніх смуг */
+@media (min-width: 1500px) {
+  #appBody, .th-in { max-width: 1720px; padding-left: 40px; padding-right: 40px; }
+  .pw, .duo { grid-template-columns: clamp(360px, 26%, 440px) minmax(0, 1fr); gap: 0 32px; }
+  .pw-r .achs { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+  .duo-r .wgrid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }   /* auto-fit: без порожніх стовпчиків */
+  .duo.stash .sitems { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 </style>
 </head>
@@ -1034,7 +1110,7 @@ body.onb-on { overflow: hidden; }
     if (_city) return _city;
     var seed = 20261114;
     function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
-    var W = 1440, H = 120, far = "", near = "", wins = "", winsA = "", winsB = "", x = -8, w, h, i, j;
+    var W = 3600, H = 120, C = W / 2, far = "", near = "", wins = "", winsA = "", winsB = "", x = -8, w, h, i, j;
     while (x < W) {
       w = 22 + Math.round(rnd() * 30); h = 44 + Math.round(rnd() * 44);
       far += "M" + x + " " + H + "V" + (H - h) + (rnd() < .3 ? "h" + Math.round(w / 2) + "v-7h" + (w - Math.round(w / 2)) : "h" + w) + "V" + H + "Z";
@@ -1043,7 +1119,7 @@ body.onb-on { overflow: hidden; }
     x = -4;
     while (x < W) {
       w = 26 + Math.round(rnd() * 34); h = 20 + Math.round(rnd() * 42);
-      if (x + w > 700 && x < 740) { x = 742; continue; }   // місце для вежі з годинником
+      if (x + w > C - 30 && x < C + 30) { x = C + 32; continue; }   // місце для вежі з годинником
       near += "M" + x + " " + H + "V" + (H - h) + "h" + w + "V" + H + "Z";
       for (i = x + 5; i < x + w - 6; i += 8) for (j = H - h + 6; j < H - 6; j += 10) {
         var r = rnd();
@@ -1052,14 +1128,19 @@ body.onb-on { overflow: hidden; }
       }
       x += w + (rnd() < .4 ? 5 : 1);
     }
-    var tower = '<path class="c-near" d="M704 120V44h32v76Z M700 44h40l-20-30Z M718 14h4v-10h-4Z"/>' +
-      '<circle class="clk" cx="720" cy="60" r="10"/><path class="clk-h" d="M720 60v-7M720 60l5 3" />';
+    // вежа з годинником посередині; стрілки показують час, коли вікно відкрили
+    var now = new Date(), am = now.getMinutes() * 6, ah = (now.getHours() % 12) * 30 + now.getMinutes() / 2;
+    function hand(a, len) { a = a * Math.PI / 180; return "M" + C + " 62L" + (C + Math.sin(a) * len).toFixed(1) + " " + (62 - Math.cos(a) * len).toFixed(1); }
+    var tower = '<path class="c-near" d="M' + (C - 20) + ' 120V42h40v78Z M' + (C - 26) + ' 42h52l-26-32Z M' + (C - 2) + ' 10h4v-10h-4Z"/>' +
+      '<circle class="clk" cx="' + C + '" cy="62" r="13"/><path class="clk-h" d="' + hand(am, 10) + hand(ah, 6.5) + '"/>';
     _city = '<svg class="city" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">' +
-      '<path class="c-far" d="' + far + '"/><path class="c-near" d="' + near + '"/>' + tower + '<g class="c-win">' + wins + '<g class="tw">' + winsA + '</g><g class="tw2">' + winsB + '</g></g></svg>';
+      '<path class="c-far" d="' + far + '"/><path class="c-near" d="' + near + 'M0 115H' + W + 'V' + H + 'H0Z"/>' + tower + '<g class="c-win">' + wins + '<g class="tw">' + winsA + '</g><g class="tw2">' + winsB + '</g></g></svg>';
     return _city;
   }
-  function sky(night, extra) {
-    return '<div class="sky' + (night ? " night" : "") + (extra ? " " + extra : "") + '" aria-hidden="true"><i class="stars"></i><i class="moon"></i><i class="sun"></i>' + citySVG() + '</div>';
+  var SKY_IN = '<i class="dusk"></i><i class="stars"></i><i class="moon"></i><i class="sun"></i>';
+  function sky(mode, extra) {   // mode: "night", "eve" (вечір) або "" (день); true — теж ніч
+    var cls = mode === true ? "night" : mode || "";
+    return '<div class="sky' + (cls ? " " + cls : "") + (extra ? " " + extra : "") + '" aria-hidden="true">' + SKY_IN + citySVG() + '</div>';
   }
 
   // ---------- звідки відкрили вікно ----------
@@ -1172,6 +1253,25 @@ body.onb-on { overflow: hidden; }
   var app = document.getElementById("app"), gameEl = document.getElementById("game"), nav = document.getElementById("nav");
   var TABS = [["game", "🎭", "Гра"], ["profile", "👤", "Профіль"], ["wardrobe", "👔", "Гардероб"], ["stash", "🎒", "Склад"]];
   var gameCtl = null, gameInfo = { on: false, pend: false }, navHtml = "";
+  // Шапка вкладки — смуга міста з вежею-годинником. Небо живе з грою: уночі партії темне з вогниками, вдень тепле, поза грою — вечір.
+  function skyMode() { return gameInfo.on && !gameInfo.lobby ? (gameInfo.night ? "night" : "day") : "eve"; }
+  var MOON = { game: "40%", profile: "30%", wardrobe: "20%", stash: "10%" };   // місяць пливе небом від вкладки до вкладки
+  function townHead(title, right, tab) {
+    var m = skyMode();
+    return '<header class="th"><div class="sky hd-sky' + (m === "day" ? "" : " " + m) + '" style="--moon:' + MOON[tab || "game"] + '" aria-hidden="true">' + SKY_IN + citySVG() + '</div>' +
+      '<div class="th-in"><h2>' + title + '</h2><div class="th-r">' + (right || "") + '</div></div></header>';
+  }
+  // У профілі, гардеробі й складі шапка одна на всі вкладки: міняються лише назва, небо й місяць — тому перехід плавний.
+  app.innerHTML = townHead("", "", "profile") + '<div id="appBody"></div>';
+  var appBody = document.getElementById("appBody"), appSky = app.querySelector(".sky"), appTitle = app.querySelector("h2"), appRight = app.querySelector(".th-r");
+  var headNow = { t: "", r: "" }, headWas = { t: "", r: "" };
+  function drawTop() {
+    if (headWas.t !== headNow.t) { headWas.t = headNow.t; appTitle.innerHTML = headNow.t; }
+    if (headWas.r !== headNow.r) { headWas.r = headNow.r; appRight.innerHTML = headNow.r; }
+    var m = skyMode();
+    appSky.classList.toggle("night", m === "night"); appSky.classList.toggle("eve", m === "eve");
+    appSky.style.setProperty("--moon", MOON[state.tab] || MOON.profile);
+  }
   // Меню є у своєму вікні в Telegram. Чужий профіль — одна сторінка; у Discord — лише стіл.
   var navOn = !DK && (!D || own);
   document.body.classList.toggle("has-nav", navOn);
@@ -1203,21 +1303,46 @@ body.onb-on { overflow: hidden; }
       if (changed) window.scrollTo(0, 0);
       loadProfile();
     }
-    if (changed) paneIn(isGame ? gameEl : app);
+    if (changed) { paneIn(isGame ? gameEl : appBody); if (!isGame) paneIn(appTitle); }
     drawNav();
   }
   // Екран «Зараз не граєш»: як почати гру й кнопка до профілю.
+  // Малюнок стола: гравці довкола, таймер посередині (для «Зараз не граєш» і знайомства).
+  function tableArt() {
+    var seats = "", n = 8;
+    for (var i = 0; i < n; i++) {
+      var a = Math.PI * 2 * i / n - Math.PI / 2, x = 120 + Math.cos(a) * 92, y = 85 + Math.sin(a) * 58;
+      seats += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="13" fill="' + (i === 4 ? "#E2BE6A" : "#262B40") + '" stroke="' + (i === 4 ? "#F2D28E" : "#3A4160") + '" stroke-width="2"/>' +
+        (i === 2 ? '<path d="M' + (x - 5).toFixed(1) + ' ' + (y - 5).toFixed(1) + 'l10 10m0-10l-10 10" stroke="#C0453A" stroke-width="2.5" stroke-linecap="round"/>' : "");
+    }
+    return '<svg class="onb-tbl" viewBox="0 0 240 170" aria-hidden="true" focusable="false"><ellipse cx="120" cy="85" rx="62" ry="36" fill="#171B2B" stroke="#272C40" stroke-width="2"/>' + seats +
+      '<circle cx="120" cy="85" r="21" fill="none" stroke="#272C40" stroke-width="4"/><path d="M120 64a21 21 0 1 1 -19.7 13.8" fill="none" stroke="#E2BE6A" stroke-width="4" stroke-linecap="round"/>' +
+      '<text x="120" y="90" text-anchor="middle" font-size="13" font-weight="600" fill="#ECE7DA" font-family="IBM Plex Sans, sans-serif">0:42</text></svg>';
+  }
+  // Стіл з персонажами міста: великий малюнок для екрана «Зараз не граєш».
+  function tablePreview() {
+    var looks = [["fedora", "suit", "acc_none", "body_m"], ["hat_none", "trench", "shades", "body_f"], ["fedora", "trench", "acc_none", "body_m"], ["hat_none", "burgundy", "rose", "body_f"],
+                 ["fedora", "burgundy", "acc_none", "body_m"], ["hat_none", "suit", "acc_none", "body_f"], ["fedora", "suit", "shades", "body_m"], ["hat_none", "trench", "acc_none", "body_m"]];
+    var h = '<div class="tp"><div class="tp-tbl"></div><div class="tp-ring"><svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="21" class="ring-bg"/><path d="M25 4a21 21 0 1 1 -19.7 13.8" class="ring-arc"/></svg><b>0:42</b></div>';
+    looks.forEach(function (l, i) {
+      var a = Math.PI * 2 * i / looks.length - Math.PI / 2, look = Object.assign({}, LOOK, { hat: l[0], outfit: l[1], acc: l[2], bg: "bg_night", body: l[3] });
+      Object.keys(look).forEach(function (k) { if (!W_BY_KEY[look[k]]) look[k] = LOOK[k]; });
+      h += '<span class="tp-seat' + (i === 4 ? " me" : i === 2 ? " dead" : "") + '" style="left:' + (50 + Math.cos(a) * 39).toFixed(1) + '%;top:' + (50 + Math.sin(a) * 33).toFixed(1) + '%">' + charSVG(look, "42 30 116 132") + (i === 2 ? "<i>✕</i>" : "") + '</span>';
+    });
+    return h + '</div>';
+  }
   function noGame() {
-    return '<div class="nogame">' + sky(true, "ng-sky") +
-      '<div class="ng-in"><div class="brand">TIME TOWN · МАФІЯ</div><h1>Зараз не граєш</h1>' +
-      '<div class="sub">Живий стіл з’явиться тут сам, щойно почнеться гра з тобою.</div>' +
-      '<div class="list steps">' +
-      '<div class="li"><b>1</b><span>Додай бота в групу з друзями</span></div>' +
-      '<div class="li"><b>2</b><span>Напиши в групі <code>/game</code> — почнеться набір</span></div>' +
-      '<div class="li"><b>3</b><span>Тисни «Приєднатися»: роль прийде в особисті, а стіл відкриється тут</span></div></div>' +
-      '<div class="note">💡 Грати можна від 4 гравців. На столі видно фазу й таймер, гравців, події й чат гри — ходити й голосувати можна просто у вікні.</div>' +
-      (navOn ? '<button class="btn primary" data-nav="profile" style="margin-top:14px;width:100%;min-height:48px">👤 До профілю</button>' : "") +
-      '</div></div>';
+    return '<div class="nogame">' + townHead("Гра") +
+      '<div class="ng"><div class="ng-t"><h1>Зараз не граєш</h1>' +
+      '<div class="sub">Стіл з’явиться тут сам, щойно почнеться гра з тобою.</div></div>' +
+      '<div class="ng-art" aria-hidden="true">' + tablePreview() + '</div>' +
+      '<div class="ng-s"><ol class="steps">' +
+      '<li><b>1</b><span>Додай бота в групу з друзями</span></li>' +
+      '<li><b>2</b><span>Напиши в групі <code>/game</code> — почнеться набір</span></li>' +
+      '<li><b>3</b><span>Тисни «Приєднатися»: роль прийде в особисті, а стіл відкриється тут</span></li></ol>' +
+      '<div class="note">Грати можна від 4 гравців. За столом видно таймер, гравців, події й чат гри — ходити й голосувати можна просто у вікні.</div>' +
+      (navOn ? '<button class="btn primary ng-btn" data-nav="profile">Відкрити профіль</button>' : "") +
+      '</div></div></div>';
   }
   // Профіль з бота: коли вікно відкрили кнопкою стола, даних у посиланні немає.
   var profAt = 0, profBusy = false, profErr = "", profRaw = "";
@@ -1284,14 +1409,14 @@ body.onb-on { overflow: hidden; }
     // ---- каркас: блоки створюються один раз ----
     root.innerHTML =
       '<div class="t2" id="t2" hidden>' +
-        '<header class="t2-head"><div class="sky t2-sky" id="tSky" aria-hidden="true"><i class="stars"></i><i class="moon"></i><i class="sun"></i>' + citySVG() + '</div>' +
+        '<header class="t2-head"><div class="sky t2-sky hd-sky eve" id="tSky" aria-hidden="true">' + SKY_IN + citySVG() + '</div>' +
           '<div class="t2-headin" id="tHead"></div>' +
           // Місце під власний голос стола (LiveKit): сюди пізніше вставлять вмикач мікрофона й стан з'єднання.
           // Зараз порожнє й не займає місця; хто може говорити, вирішує бот (seat.mic), вікно лише показує.
           '<div class="t2-voice" id="tVoice"></div></header>' +
         '<section class="t2-lobby" id="tLobby" aria-label="Кімната очікування" hidden></section>' +
         '<section class="t2-seats" id="tSeats" aria-label="Гравці"></section>' +
-        '<section class="t2-feedwrap" aria-label="Події й чат гри"><div class="t2-feed-h"><span>Події · чат</span><span id="tFeedN"></span></div>' +
+        '<section class="t2-feedwrap" aria-label="Події й чат гри"><div class="t2-feed-h"><span>Події та чат</span><span id="tFeedN"></span></div>' +
           '<div class="t2-feed" id="tFeed" role="log" aria-live="polite"></div></section>' +
         '<footer class="t2-bar" id="tBar">' +
           '<div id="tVc"></div><div id="tStatus"></div>' +
@@ -1431,7 +1556,7 @@ body.onb-on { overflow: hidden; }
         (fsOn ? '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>' : '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>') + '</svg></button>';
     }
     function setColors() {
-      try { var c = active && S && S.stage === "night" ? "#0A0D16" : "#0E1014"; tgw && tgw.setHeaderColor && tgw.setHeaderColor(c); tgw && tgw.setBackgroundColor && tgw.setBackgroundColor(c); } catch (e) {}
+      try { var c = active && S && S.stage === "night" ? "#090C18" : "#0F1220"; tgw && tgw.setHeaderColor && tgw.setHeaderColor(c); tgw && tgw.setBackgroundColor && tgw.setBackgroundColor(c); } catch (e) {}
     }
     // Заставка на весь екран: «Ніч N» або «День N» з підсумком ночі (загиблі й те, що сталося саме з тобою).
     function phaseSplash(prev) {
@@ -1511,12 +1636,12 @@ body.onb-on { overflow: hidden; }
       el.t2.hidden = true;
       document.body.classList.remove("night", "t2-on");
       put("tOver", "");
-      put("tCard", text === null ? noGame() : topBar("Гра") + '<div class="section"><div class="card">' + text + '</div></div>');
+      put("tCard", text === null ? noGame() : townHead("Гра") + '<div class="section"><div class="card">' + text + '</div></div>');
     }
     // Для меню: чи йде гра і чи чекає вона на хід гравця (червона крапка на «Гра»).
     function info() {
       var on = !!(S && S.seats && S.stage !== "finished"), lobby = on && S.stage === "lobby";
-      return { on: on, lobby: lobby, pend: !!(on && S.act && !S.act.done), known: !!(S && !S.offline), chat: (S && S.chat) || "", day: +(S && S.day) || 0, alive: lobby ? S.seats.length : +(S && S.alive) || 0 };
+      return { on: on, lobby: lobby, pend: !!(on && S.act && !S.act.done), night: on && S.stage === "night", known: !!(S && !S.offline), chat: (S && S.chat) || "", day: +(S && S.day) || 0, alive: lobby ? S.seats.length : +(S && S.alive) || 0 };
     }
     function targetsNow() {
       var A = S.act;
@@ -1552,6 +1677,7 @@ body.onb-on { overflow: hidden; }
       document.body.classList.add("t2-on");
       root.classList.toggle("wide", window.innerWidth >= 900);
       el.tSky.classList.toggle("night", night);
+      el.tSky.classList.toggle("eve", lobby || fin);   // набір і кінець гри — вечір, як поза грою
       var meSeat = S.seats.filter(function (x) { return x.me; })[0] || {};
       var fem = !!(meSeat.look && meSeat.look[4] === "body_f");
       var A = S.act, targets = targetsNow();
@@ -1663,9 +1789,9 @@ body.onb-on { overflow: hidden; }
     function drawHead(fin) {
       if (S.stage === "lobby") {
         return put("tHead", ring(46, '<b class="js-time">' + clockText(leftNow()) + '</b>') +
-          '<div class="t2-ttl"><div class="t2-kick">' + (leftNow() ? "⏳ Йде набір" : "⏳ Починаємо…") + (S.voice ? ' · <span>🎙 голосова гра</span>' : "") + '</div>' +
+          '<div class="t2-ttl"><div class="t2-kick">' + (leftNow() ? "⏳ Йде набір" : "⏳ Починаємо…") + (S.voice ? ' <span>🎙 голосова гра</span>' : "") + '</div>' +
           '<div class="t2-stage one">' + escT(S.chat || "Гра") + '</div>' +
-          '<div class="t2-sub">Гравців ' + S.seats.length + ' · мінімум ' + (+S.min || 0) + ' · місць ' + (+S.max || 0) + '</div></div>' + fsBtn());
+          '<div class="t2-sub">Гравців ' + S.seats.length + ' з ' + (+S.max || 0) + ', для старту треба ' + (+S.min || 0) + '</div></div>' + fsBtn());
       }
       var stg = STAGE[S.stage] || ["🎲", "Гра"];
       var inner = fin ? "🏁" : '<b class="js-time">' + clockText(leftNow()) + '</b>';
@@ -1879,7 +2005,7 @@ body.onb-on { overflow: hidden; }
       if (b.id === "doVote" && pick) return act({ kind: "vote", target: pick });
       if (b.id === "doAbstain") return act({ kind: "vote", target: 0 });
     });
-    if (tgw) { try { tgw.ready(); tgw.expand(); tgw.setHeaderColor && tgw.setHeaderColor("#0E1014"); tgw.disableVerticalSwipes && tgw.disableVerticalSwipes(); } catch (e) {} }
+    if (tgw) { try { tgw.ready(); tgw.expand(); tgw.setHeaderColor && tgw.setHeaderColor("#0F1220"); tgw.disableVerticalSwipes && tgw.disableVerticalSwipes(); } catch (e) {} }
     // Як часто питати бота: у грі — щосекунди-півтори; гри немає чи скінчилась — рідко;
     // бот не відповідає — не смикаємо його; вікно згорнуте — не питаємо зовсім.
     function pollDelay() {
@@ -1923,7 +2049,8 @@ body.onb-on { overflow: hidden; }
 
   // ---------- екрани профілю ----------
   function topBar(title, right) {
-    return '<div class="top"><div class="top-t"><div class="brand">TIME TOWN</div><h2>' + title + '</h2></div>' + (right || "") + '</div>';
+    headNow = { t: title, r: right || "" };   // шапку малює drawTop: вона одна на всі вкладки
+    return "";
   }
   function demoNote(text) {
     if (!demo) return "";
@@ -1948,8 +2075,8 @@ body.onb-on { overflow: hidden; }
     var all = allAch(), gotAll = all.filter(function (x) { return x.got; }).length;
     var tokens = (D.t || []).map(function (i) { var a = ACH[i]; return a ? '<div class="token' + (a.rare ? " rare" : "") + '" title="' + esc(a.name) + '">' + a.emoji + '</div>' : ""; }).join("");
     var h = topBar(own ? "Мій профіль" : "Профіль гравця");
-    h += demoNote("Демо: так виглядатиме вікно. Справжні дані прийдуть з кнопки в боті.");
-    var wide = isWide();
+    h += demoNote("Це приклад вікна. Справжній профіль відкривається кнопкою в боті.");
+    var wide = isWide(), meLeft = wide && own && window.innerHeight >= 900 && !meRight;   // на високому екрані «Про мене» стає в ліву колонку
     if (wide) h += '<div class="pw"><div class="pw-l">';
     // Спершу аватарка в рамці; торкнешся — картка перевертається й показує персонажа
     var heroPic = hasLook
@@ -1957,30 +2084,34 @@ body.onb-on { overflow: hidden; }
           '<span class="flip-in"><span class="flip-face front">' + avatar(current, 132, 46) + '</span>' +
           '<span class="flip-face back">' + charCard(LOOK, 150) + '</span></span></button>'
       : avatar(current, 112, 40);
-    h += '<div class="hero">' + sky(true) + '<div class="' + (hasLook ? "char-wrap" : "ava-wrap") + '">' + heroPic + '<div class="lvl-badge">Рів. ' + L.level + '</div></div>' +
+    h += '<div class="hero-card"><div class="hero"><div class="' + (hasLook ? "char-wrap" : "ava-wrap") + '">' + heroPic + '<div class="lvl-badge">Рівень ' + L.level + '</div></div>' +
       (hasLook ? '<div class="flip-hint">' + (state.showChar ? "Торкнись, щоб побачити аватарку" : "Торкнись, щоб побачити персонажа") + '</div>' : "") +
       '<h1>' + esc(D.n || "Гравець") + '</h1>' +
       (D.bio ? '<div class="bio">«' + esc(D.bio) + '»</div>' : "") +
-      '<div class="sub">' + esc(rankOf(L.level)) + ' · рівень Time Town' + (current.key !== "none" ? " · рамка «" + esc(current.name) + "»" : "") + '</div>' +
+      '<div class="sub">' + esc(rankOf(L.level)) + (current.key !== "none" ? ", рамка «" + esc(current.name) + "»" : "") + '</div>' +
       (D.dn ? '<div class="patron">💎 Меценат Time Town</div>' : "") +
       (tokens ? '<div class="tokens">' + tokens + '</div>' : "") + '</div>' +
       '<div class="xp"><div class="bar"><div style="width:' + Math.min(100, L.cur / L.need * 100) + '%"></div></div>' +
-      '<div class="xp-row"><span>' + num(L.cur) + ' / ' + num(L.need) + ' XP</span><span>до рівня ' + (L.level + 1) + '</span></div></div>';
+      '<div class="xp-row"><span>' + num(L.cur) + ' / ' + num(L.need) + ' XP</span><span>ще ' + num(L.need - L.cur) + ' до рівня ' + (L.level + 1) + '</span></div></div></div>';
     var gm = gameInfo.on ? [gameInfo.chat, gameInfo.day, gameInfo.alive] : (!gameInfo.known && D.gm) || null;   // поки бот не відповів — з посилання
     if (own && gm && gameCtl) h += '<div class="ingame"><span class="dot" aria-hidden="true"></span><div><div class="k">Ти зараз у грі</div>' +
-      '<div class="v">' + esc(gm[0] || "Мафія") + '</div><div class="s">' + (gameInfo.on && gameInfo.lobby ? 'йде набір · гравців ' + num(gm[2]) : 'день ' + num(gm[1]) + ' · живих ' + num(gm[2])) + '</div></div>' +
-      '<button class="btn primary" data-nav="game">🎭 Стіл ›</button></div>';
+      '<div class="v">' + esc(gm[0] || "Мафія") + '</div><div class="s">' + (gameInfo.on && gameInfo.lobby ? 'Йде набір, гравців: ' + num(gm[2]) : 'День ' + num(gm[1]) + ', живих ' + num(gm[2])) + '</div></div>' +
+      '<button class="btn primary" data-nav="game">До столу</button></div>';
     if (own && D.m !== undefined) {
       var itemsN = (D.i || []).reduce(function (s, v) { return s + (+v || 0); }, 0);
-      h += '<div class="wallet"><button class="wcell" data-nav="stash"><span>Баланс</span><b>' + num(D.m) + ' 💵</b></button>' +
-        '<button class="wcell" data-nav="stash"><span>Предмети</span><b>🎒 ' + itemsN + '</b></button>' +
-        '<button class="wcell" data-scroll="achSec"><span>Досягнення</span><b>🏅 ' + gotAll + '</b></button></div>';
+      h += '<div class="wallet"><button class="wcell" data-nav="stash"><b>' + num(D.m) + ' 💵</b><span>на рахунку</span></button>' +
+        '<button class="wcell" data-nav="stash"><b>🎒 ' + itemsN + '</b><span>' + plural(itemsN, "предмет", "предмети", "предметів") + '</span></button>' +
+        '<button class="wcell" data-scroll="achSec"><b>🏅 ' + gotAll + '</b><span>' + plural(gotAll, "досягнення", "досягнення", "досягнень") + '</span></button></div>';
     }
+    // На ПК меню збоку дрібне — тож у лівій колонці є ще й великий перехід у гардероб з мініатюрою персонажа.
+    if (wide && own && navOn) h += '<button class="golink" data-nav="wardrobe"><span class="pic" aria-hidden="true">' + (hasLook ? charSVG(LOOK, "42 30 116 132") : "👔") + '</span>' +
+      '<span class="tx"><b>Гардероб</b><small>' + (hasLook ? "Змінити образ і рамку" : "Рамки й рівні") + '</small></span>' + ICON_DOWN + '</button>';
+    if (meLeft) h += meCard();
     if (wide) h += '</div><div class="pw-r">';
-    h += '<div class="section"><div class="label" style="margin-top:0">Ігри Time Town</div>' +
-      (fromSpy ? spyCard() + mafiaCard() : mafiaCard() + spyCard()) + '</div>';
+    h += '<div class="section"><div class="label big">Ігри</div><div class="games">' +
+      (fromSpy ? spyCard() + mafiaCard() : mafiaCard() + spyCard()) + '</div></div>';
     h += achSection(all, gotAll);
-    h += meCard();
+    if (!meLeft) h += meCard();
     if (!own) h += '<div class="lock-note">' + ICON_LOCK + '<div>Склад і баланс видно лише власнику профілю.</div></div>';
     if (wide) h += '</div></div>';
     return h;
@@ -1990,7 +2121,7 @@ body.onb-on { overflow: hidden; }
   function meCard() {
     if (!own) return "";
     var can = demo || WAPI.length, bio = state.bioDraft != null ? state.bioDraft : (D.bio || "");
-    var h = '<div class="section" id="meSec"><div class="label" style="margin-top:0">Про мене й топи</div><div class="card">';
+    var h = '<div class="section" id="meSec"><div class="label big">Про мене й топи</div><div class="card">';
     if (can) {
       h += '<label class="me-l" for="bioIn">Про мене <span id="bioN">' + bio.length + '/140</span></label>' +
         '<div class="me-row"><input class="me-in" id="bioIn" type="text" maxlength="140" autocomplete="off" enterkeyhint="done" placeholder="Кілька слів про себе" value="' + esc(bio) + '">' +
@@ -2030,7 +2161,7 @@ body.onb-on { overflow: hidden; }
         '<div class="stat"><b>' + earnedCount + '<small>/' + ACH.length + '</small></b><span>досягнень</span></div>' +
         '<div class="stat"><b>' + (D.a || 0) + '</b><span>покинуто</span></div></div>';
       if (fav) h += '<div class="card row" style="margin-top:8px"><div style="font-size:28px">' + fav[0] + '</div><div>' +
-        '<div class="label" style="margin:0">Улюблена роль</div><div style="font-weight:700;margin-top:2px">' + esc(fav[1]) + ' · ' + D.f[1] + ' ' + plural(D.f[1], "гра", "гри", "ігор") + '</div></div></div>';
+        '<div class="cap">Улюблена роль</div><div style="font-weight:600;margin-top:2px">' + esc(fav[1]) + ', ' + D.f[1] + ' ' + plural(D.f[1], "гра", "гри", "ігор") + '</div></div></div>';
       if (!games) h += '<div class="note">Ще жодної гри. Почни: /game у групі з ботом Мафії.</div>';
       else if (D.kl !== undefined) h += '<div class="note">Вбивств — скільки гравців загинуло вночі від твоєї ролі: постріли Комісара, жертви Маньяка, а в мафії — вбивства всієї сім’ї.</div>';
       return h;
@@ -2041,7 +2172,7 @@ body.onb-on { overflow: hidden; }
       var bot = fromSpy && D.b ? D.b : SPY_BOT;
       return '<div class="gcard invite"><div class="gc-h"><span class="gc-e" aria-hidden="true">🕵️</span><span class="gc-t">Шпигун</span></div>' +
         '<div class="gc-b"><div class="sub">Усі знають слово, крім шпигуна. Вирахуй його за запитаннями — або сам не видай себе. Досвід і 💵 спільні з Мафією.</div>' +
-        '<button class="btn" data-link="' + esc(bot) + '" style="margin-top:12px;width:100%">🕵️ Зіграй у Шпигуна · @' + esc(bot) + '</button></div></div>';
+        '<button class="btn" data-link="' + esc(bot) + '" style="margin-top:12px;width:100%">🕵️ Відкрити @' + esc(bot) + '</button></div></div>';
     }
     var S = SP, got = SPY.filter(spyEarned).length;
     var rate = S.games ? Math.round(S.wins / S.games * 100) + "%" : "—";
@@ -2051,8 +2182,8 @@ body.onb-on { overflow: hidden; }
         '<div class="stat"><b>' + num(S.wins) + '</b><span>виграно</span></div>' +
         '<div class="stat"><b>' + got + '<small>/' + SPY.length + '</small></b><span>досягнень</span></div></div>' +
         '<div class="list" style="margin-top:8px">' +
-        [["🕶 Шпигуном", S.spy_games + " · перемог " + S.spy_wins], ["🔓 Вгадано слів", S.guessed],
-         ["👥 Мирним", (S.games - S.spy_games) + " · перемог " + (S.wins - S.spy_wins)], ["🎯 Вистежено шпигунів", S.hunted]]
+        [["🕶 Шпигуном", S.spy_games + " " + plural(S.spy_games, "гра", "гри", "ігор") + ", виграно " + S.spy_wins], ["🔓 Вгадано слів", S.guessed],
+         ["👥 Мирним", (S.games - S.spy_games) + " " + plural(S.games - S.spy_games, "гра", "гри", "ігор") + ", виграно " + (S.wins - S.spy_wins)], ["🎯 Вистежено шпигунів", S.hunted]]
           .map(function (r) { return '<div class="li"><span>' + r[0] + '</span><b>' + r[1] + '</b></div>'; }).join("") + '</div>' +
         '<div class="note">Досвід зі Шпигуна йде в спільний рівень Time Town. Грати: /spy у групі з @' + esc(fromSpy && D.b ? D.b : SPY_BOT) + '.</div>';
     });
@@ -2074,8 +2205,8 @@ body.onb-on { overflow: hidden; }
     if (!n) return h + '<div class="card" style="color:var(--muted);text-align:center">Ще немає зіграних ігор.</div></div>';
     h += '<div class="grid3">' +
       '<div class="stat"><b>' + num(n) + '</b><span>ігор</span></div>' +
-      '<div class="stat"><b style="color:var(--green)">' + num(w) + '</b><span>перемог · ' + pct(w, n) + '</span></div>' +
-      '<div class="stat"><b style="color:var(--red)">' + num(n - w) + '</b><span>поразок · ' + pct(n - w, n) + '</span></div></div>';
+      '<div class="stat"><b style="color:var(--green)">' + num(w) + '</b><span>перемог, ' + pct(w, n) + '</span></div>' +
+      '<div class="stat"><b style="color:var(--red)">' + num(n - w) + '</b><span>поразок, ' + pct(n - w, n) + '</span></div></div>';
     h += '<div class="label" style="margin-top:16px">Сторони</div><div class="card">' +
       '<div class="row" style="justify-content:space-between;font-size:14px"><span>👨🏼 За мирних <b>' + town + '</b></span><span>🤵🏻 За мафію <b>' + maf + '</b></span></div>' +
       '<div class="split"><div style="width:' + (n ? town / n * 100 : 0) + '%;background:var(--green)"></div><div style="width:' + (n ? maf / n * 100 : 0) + '%;background:var(--red)"></div></div>' +
@@ -2102,8 +2233,7 @@ body.onb-on { overflow: hidden; }
   // ---------- досягнення обох ігор ----------
   function achSection(all, gotAll) {
     var filters = [["all", "Усі"], ["mafia", "🎭 Мафія"], ["spy", "🕵️ Шпигун"], ["done", "Отримані"], ["rare", "Рідкісні"]];
-    var h = '<div class="section" id="achSec"><div class="label" style="margin-top:0">Досягнення</div>' +
-      '<div class="row" style="justify-content:space-between;margin-bottom:10px"><b style="font-family:\'Playfair Display\',serif;font-size:20px">' + gotAll + ' з ' + all.length + '</b></div>' +
+    var h = '<div class="section" id="achSec"><div class="sec-h"><div class="label big">Досягнення</div><span class="sec-n">' + gotAll + ' з ' + all.length + '</span></div>' +
       '<div class="bar" style="margin-bottom:14px"><div style="width:' + (all.length ? gotAll / all.length * 100 : 0) + '%"></div></div>' +
       '<div class="chips" role="tablist">' + filters.map(function (f) { return '<button class="chip' + (state.filter === f[0] ? " on" : "") + '" data-filter="' + f[0] + '" aria-pressed="' + (state.filter === f[0]) + '">' + f[1] + '</button>'; }).join("") + '</div>';
     var list = all.filter(function (x) {
@@ -2112,7 +2242,7 @@ body.onb-on { overflow: hidden; }
       if (state.filter === "mafia" || state.filter === "spy") return x.g === state.filter;
       return true;
     });
-    h += '<div class="grid3">' + list.map(function (x) {
+    h += '<div class="achs">' + list.map(function (x) {
       var a = x.a, got = x.got, badge = '<span class="gm" aria-hidden="true">' + (x.g === "spy" ? "🕵️" : "🎭") + '</span>';
       if (!got && a.secret) return '<div class="ach locked">' + badge + '<div class="e">🔒</div><div class="n">???</div><div class="d">Таємне досягнення</div><div class="s" style="color:var(--muted)">?</div></div>';
       var p = x.p;
@@ -2133,50 +2263,54 @@ body.onb-on { overflow: hidden; }
     subs.push(["frames", "Рамки"], ["levels", "Рівні"]);
     if (!subs.some(function (s) { return s[0] === state.wsub; })) state.wsub = subs[0][0];
     var h = topBar("Гардероб", D.m !== undefined ? '<span class="top-m">' + num(D.m) + ' 💵</span>' : "");
-    h += demoNote("Демо: так виглядатиме гардероб.");
+    h += demoNote("Це приклад гардероба: тут нічого не зберігається.");
     h += '<div class="subnav">' + segTabs(subs, state.wsub, "wsub") + '</div>';
-    return h + (state.wsub === "look" ? lookView() : state.wsub === "frames" ? framesView() : '<div class="only-col">' + levelsView() + '</div>');
+    return h + (state.wsub === "look" ? lookView() : state.wsub === "frames" ? framesView() : levelsView());
   }
   function framesView() {
     var pick = FRAMES.filter(function (f) { return f.key === state.pick; })[0] || current;
     var canFrame = own && !fromSpy;
     var wide = isWide();
     var hero = '<div class="hero plain">' + avatar(pick, wide ? 168 : 124, wide ? 60 : 44) +
-      '<h1 style="font-size:20px;margin-top:10px">' + esc(pick.name) + '</h1><div class="sub" style="color:var(--muted);font-size:12px">' + esc(frameHow(pick)) + '</div></div>';
-    var list = '<div class="section"><div class="grid3">' + FRAMES.map(function (f) {
+      '<h1>' + esc(pick.name) + '</h1><div class="cap">' + esc(frameHow(pick)) + '</div></div>';
+    var list = '<div class="section"><div class="grid3 wgrid">' + FRAMES.map(function (f) {
         var ok = frameOwned(f);
         var tag = f.key === current.key ? "Обрана" : (ok ? "Є" : (f.ach ? "Досягнення" : "Рівень " + f.level));
         return '<button class="frame-btn' + (f.key === pick.key ? " sel" : "") + (ok ? "" : " locked") + '" data-pick="' + f.key + '" aria-pressed="' + (f.key === pick.key) + '">' +
-          avatar(f, 54, 0) + '<div class="n">' + esc(f.name) + '</div><div class="t" style="color:' + (ok ? "var(--green)" : "var(--muted)") + '">' + tag + '</div></button>';
+          avatar(f, 54, 0) + '<div class="n">' + esc(f.name) + '</div><div class="t" style="color:' + (f.key === current.key ? "var(--gold)" : ok ? "var(--soft)" : "var(--muted)") + '">' + tag + '</div></button>';
       }).join("") + '</div><div class="note">Рамку видно навколо аватарки в профілі й на картці гравця за столом.</div></div>';
     var ok = frameOwned(pick);
-    var label = pick.key === current.key ? "Уже обрано" : (ok ? "Встановити рамку" : "Ще не відкрито: " + frameHow(pick));
+    var label = pick.key === current.key ? "Уже обрано" : (ok ? "Поставити рамку «" + pick.name + "»" : "Ще не відкрито: " + frameHow(pick));
     if (!canFrame && own && fromSpy) label = "Змінити рамку: бот Mafia Time → /profile";
-    var bottom = '<div class="bottom"><button class="btn primary" id="apply"' + (canFrame && ok && pick.key !== current.key ? "" : " disabled") + ' style="width:100%;min-height:50px;font-size:15px">' + esc(label) + '</button>' +
-      (D.b ? "" : '<div class="note" style="text-align:center">У демо рамка не зберігається.</div>') + '</div>';
+    var bottom = '<div class="bottom"><button class="btn primary" id="apply"' + (canFrame && ok && pick.key !== current.key ? "" : " disabled") + ' style="width:100%;min-height:50px">' + esc(label) + '</button>' +
+      (D.b ? "" : '<div class="note" style="text-align:center">У прикладі рамка не зберігається.</div>') + '</div>';
     return wide ? '<div class="duo"><div class="duo-l">' + hero + bottom + '</div><div class="duo-r">' + list + '</div></div>' : hero + list + bottom;
   }
   function lookView() {
-    var slot = state.slot;
-    var items = WITEMS.filter(function (w) { return w.slot === slot; });
-    var pick = W_BY_KEY[state.wpick] && W_BY_KEY[state.wpick].slot === slot ? W_BY_KEY[state.wpick] : W_BY_KEY[LOOK[slot]];
-    if (!pick) pick = items[0];
+    var slot = state.slot, wide = isWide();
+    // На ПК усі розділи гардероба видно одразу, тож обрана річ може бути з будь-якого; на телефоні — з відкритого розділу.
+    var pick = W_BY_KEY[state.wpick] && (wide || W_BY_KEY[state.wpick].slot === slot) ? W_BY_KEY[state.wpick] : W_BY_KEY[LOOK[slot]];
+    if (!pick) pick = WITEMS.filter(function (w) { return w.slot === slot; })[0];
     if (!pick) return '<div class="section"><div class="note">Тут поки порожньо.</div></div>';
     var preview = Object.assign({}, LOOK); preview[pick.slot] = pick.key;
     var canEdit = own && !fromSpy && D.b;
-    var wide = isWide();
-    var hero = '<div class="hero plain" style="padding-top:16px">' + charCard(preview, wide ? 250 : 180) +
-      '<h1 style="font-size:20px">' + esc(pick.name) + '</h1><div class="sub">' + esc(wTag(pick, true)) + '</div></div>';
-    var h = '<div class="chips slots" role="tablist">' + WR.slots.map(function (s) {
-      return '<button class="chip' + (slot === s[0] ? " on" : "") + '" role="tab" aria-selected="' + (slot === s[0]) + '" data-slot="' + esc(s[0]) + '">' + esc(s[1]) + '</button>';
-    }).join("") + '</div>';
-    h += '<div class="section" style="padding-top:4px"><div class="grid3">' + items.map(function (w) {
-      var look = Object.assign({}, LOOK); look[w.slot] = w.key;
-      var open = wOpen(w), worn = LOOK[w.slot] === w.key;
-      var color = worn ? "var(--gold)" : open ? "var(--soft)" : w.how === "price" ? "var(--green)" : "var(--muted)";
-      return '<button class="witem' + (w.key === pick.key ? " sel" : "") + (open ? "" : " locked") + '" data-witem="' + esc(w.key) + '" aria-pressed="' + (w.key === pick.key) + '">' +
-        '<div class="thumb">' + charSVG(look) + '</div><div class="n">' + esc(w.name) + '</div><div class="t" style="color:' + color + '">' + esc(wTag(w, false)) + '</div></button>';
-    }).join("") + '</div><div class="note">Персонаж один на всі ігри Time Town. Речі відкриваються рівнем, досягненнями з Мафії й Шпигуна або купуються за спільні 💵.</div></div>';
+    var hero = '<div class="hero plain">' + charCard(preview, wide ? (window.innerWidth >= 1500 ? 280 : 236) : 180) +
+      '<h1>' + esc(pick.name) + '</h1><div class="cap">' + esc(wTag(pick, true)) + '</div></div>';
+    function grid(sl) {
+      return '<div class="grid3 wgrid">' + WITEMS.filter(function (w) { return w.slot === sl; }).map(function (w) {
+        var look = Object.assign({}, LOOK); look[w.slot] = w.key;
+        var open = wOpen(w), worn = LOOK[w.slot] === w.key;
+        var color = worn ? "var(--gold)" : open ? "var(--soft)" : w.how === "price" ? "var(--gold2)" : "var(--muted)";
+        return '<button class="witem' + (w.key === pick.key ? " sel" : "") + (open ? "" : " locked") + '" data-witem="' + esc(w.key) + '" aria-pressed="' + (w.key === pick.key) + '">' +
+          '<div class="thumb">' + charSVG(look) + '</div><div class="n">' + esc(w.name) + '</div><div class="t" style="color:' + color + '">' + esc(wTag(w, false)) + '</div></button>';
+      }).join("") + '</div>';
+    }
+    var note = '<div class="note">Персонаж один на всі ігри Time Town. Речі відкриваються рівнем, досягненнями з Мафії й Шпигуна або купуються за спільні 💵.</div>';
+    var h;
+    if (wide) h = WR.slots.map(function (s) { return '<div class="section"><div class="label">' + esc(s[1]) + '</div>' + grid(s[0]) + '</div>'; }).join("") + note;
+    else h = '<div class="chips slots" role="tablist">' + WR.slots.map(function (s) {
+        return '<button class="chip' + (slot === s[0] ? " on" : "") + '" role="tab" aria-selected="' + (slot === s[0]) + '" data-slot="' + esc(s[0]) + '">' + esc(s[1]) + '</button>';
+      }).join("") + '</div><div class="section" style="padding-top:4px">' + grid(slot) + note + '</div>';
     var label, ok = false, action = "";
     if (LOOK[pick.slot] === pick.key) label = pick.slot === "body" ? "Уже обрано" : "Уже вдягнено";
     else if (wOpen(pick)) { label = pick.slot === "body" ? "Обрати: " + pick.name.toLowerCase() + " персонаж" : "Вдягнути «" + pick.name + "»"; ok = true; action = "look"; }
@@ -2185,7 +2319,7 @@ body.onb-on { overflow: hidden; }
       label = enough ? "Купити за " + num(pick.value) + " 💵" : "Не вистачає 💵 (" + num(pick.value) + ")"; ok = enough; action = "buy";
     } else label = "Закрито: " + pick.hint;
     if (!canEdit) { ok = false; if (!demo && own && fromSpy) label = "Змінити образ: бот Mafia Time → /wardrobe"; }
-    var bottom = '<div class="bottom"><button class="btn primary" id="wapply" data-action="' + action + '" data-key="' + esc(pick.key) + '"' + (ok ? "" : " disabled") + ' style="width:100%;min-height:50px;font-size:15px">' + esc(label) + '</button>' +
+    var bottom = '<div class="bottom"><button class="btn primary" id="wapply" data-action="' + action + '" data-key="' + esc(pick.key) + '"' + (ok ? "" : " disabled") + ' style="width:100%;min-height:50px">' + esc(label) + '</button>' +
       (canEdit && ok ? '<div class="note" style="text-align:center">' + (WAPI.length ? "Зміниться одразу тут." : "Бот підтвердить і поверне тебе в гардероб.") + '</div>' : "") + '</div>';
     return wide ? '<div class="duo"><div class="duo-l">' + hero + bottom + '</div><div class="duo-r">' + h + '</div></div>' : hero + h + bottom;
   }
@@ -2201,44 +2335,46 @@ body.onb-on { overflow: hidden; }
     var src = [["Зіграна гра до кінця", "+" + x.play + " XP"], ["Перемога команди", "+" + x.win + " XP"], ["Дожив до кінця гри", "+" + x.survive + " XP"],
       ["Корисний хід (знайшов мафію, врятував, відволік)", "+" + x.feat + " XP, до +" + x.featCap], ["Нове досягнення", "+50…300 XP"],
       ["Вигнали за неактивність", "0"], ["Тестова гра з ботами", "0"]];
-    var h = '<div class="section">' +
-      '<div class="card"><div class="row" style="justify-content:space-between;align-items:baseline"><b style="font-family:\'Playfair Display\',serif;font-size:22px">Рівень ' + L.level + '</b><span class="sub">' + esc(rankOf(L.level)) + '</span></div>' +
+    var card = '<div class="card"><div class="row" style="justify-content:space-between;align-items:baseline"><b style="font-family:var(--serif);font-size:22px">Рівень ' + L.level + '</b><span class="cap">' + esc(rankOf(L.level)) + '</span></div>' +
       '<div class="bar" style="margin-top:12px"><div style="width:' + Math.min(100, L.cur / L.need * 100) + '%"></div></div>' +
-      '<div class="xp-row"><span>' + num(L.cur) + ' / ' + num(L.need) + ' XP</span><span>ще ≈ ' + Math.max(1, Math.ceil((L.need - L.cur) / (x.play + x.win / 2 + x.survive / 2))) + ' ігор</span></div></div>' +
-      '<div class="label" style="margin-top:18px">У Мафії</div><div class="list">' +
-      src.map(function (s) { return '<div class="li"><span' + (s[1] === "0" ? ' style="color:var(--muted)"' : "") + '>' + s[0] + '</span><b style="color:' + (s[1] === "0" ? "var(--red)" : "var(--green)") + ';white-space:nowrap">' + s[1] + '</b></div>'; }).join("") +
-      '</div>' + (SPY_R.xp && SPY_R.xp.play ? '<div class="label" style="margin-top:18px">У Шпигуні</div><div class="list">' +
+      '<div class="xp-row"><span>' + num(L.cur) + ' / ' + num(L.need) + ' XP</span><span>ще ≈ ' + Math.max(1, Math.ceil((L.need - L.cur) / (x.play + x.win / 2 + x.survive / 2))) + ' ігор</span></div></div>';
+    var maf = '<div><div class="label mt">Досвід у Мафії</div><div class="list">' +
+      src.map(function (s) { return '<div class="li"><span' + (s[1] === "0" ? ' style="color:var(--muted)"' : "") + '>' + s[0] + '</span><b style="color:' + (s[1] === "0" ? "var(--muted)" : "var(--green)") + ';white-space:nowrap">' + s[1] + '</b></div>'; }).join("") +
+      '</div></div>';
+    var spy = SPY_R.xp && SPY_R.xp.play ? '<div><div class="label mt">Досвід у Шпигуні</div><div class="list">' +
         [["Зіграна гра", "+" + SPY_R.xp.play + " XP"], ["Перемога", "+" + SPY_R.xp.win + " XP"], ["Вгадав слово шпигуном", "+" + SPY_R.xp.guess + " XP"], ["Вистежив шпигуна", "+" + SPY_R.xp.hunt + " XP"]]
-          .map(function (s) { return '<div class="li"><span>' + s[0] + '</span><b style="color:var(--green);white-space:nowrap">' + s[1] + '</b></div>'; }).join("") + '</div>' : "") +
-      '<div class="note">Рівень один на всі ігри Time Town: досвід з Мафії та Шпигуна складається. З рівня N на N+1 треба ' + R.levelStep + ' XP × N.</div>' +
-      '<div class="label" style="margin-top:18px">Звання</div>' +
+          .map(function (s) { return '<div class="li"><span>' + s[0] + '</span><b style="color:var(--green);white-space:nowrap">' + s[1] + '</b></div>'; }).join("") + '</div></div>' : "";
+    var note = '<div class="note">Рівень один на всі ігри Time Town: досвід з Мафії та Шпигуна складається. З рівня N на N+1 треба ' + R.levelStep + ' XP × N.</div>';
+    var ranks = '<div class="label mt">Звання</div>' +
       R.ranks.map(function (r, i) {
         var next = R.ranks[i + 1], me = L.level >= r[0] && (!next || L.level < next[0]);
-        return '<div class="rank' + (me ? " me" : "") + '"><div class="l">' + r[0] + (next ? "–" + (next[0] - 1) : "+") + '</div><b style="flex:1">' + esc(r[1]) + '</b><span style="font-size:11px;color:var(--muted)">' + (me ? "ти тут" : "") + '</span></div>';
-      }).join("") +
-      '<div class="label" style="margin-top:18px">Нагороди за рівні</div><div class="list">' +
+        return '<div class="rank' + (me ? " me" : "") + '"><div class="l">' + r[0] + (next ? "–" + (next[0] - 1) : "+") + '</div><b style="flex:1">' + esc(r[1]) + '</b><span style="font-size:13px">' + (me ? "ти тут" : "") + '</span></div>';
+      }).join("");
+    var rewards = '<div class="label mt">Нагороди за рівні</div><div class="list">' +
       R.levelRewards.map(function (r) {
         var frames = FRAMES.filter(function (f) { return !f.ach && f.level === r[0]; }).map(function (f) { return "рамка «" + esc(f.name) + "»"; });
         var got = L.level >= r[0];
-        return '<div class="li"' + (got ? "" : ' style="opacity:.6"') + '><span><b style="color:var(--gold)">' + r[0] + '</b> · ' + num(r[1]) + ' 💵' + (frames.length ? " · " + frames.join(", ") : "") + '</span><b style="color:var(--green)">' + (got ? "✓" : "") + '</b></div>';
-      }).join("") + '</div></div>';
+        return '<div class="li"' + (got ? "" : ' style="opacity:.6"') + '><span>Рівень <b style="color:var(--gold)">' + r[0] + '</b>: ' + num(r[1]) + ' 💵' + (frames.length ? ", " + frames.join(", ") : "") + '</span><b style="color:var(--green)">' + (got ? "✓" : "") + '</b></div>';
+      }).join("") + '</div>';
+    if (isWide()) return '<div class="duo lv"><div class="duo-l">' + card + ranks + '</div><div class="duo-r"><div class="lv2">' + maf + spy + '</div>' + note + rewards + '</div></div>';
+    var h = '<div class="section">' + card + maf + spy + note + ranks + rewards + '</div>';
     return h;
   }
 
   // ---------- склад: баланс, предмети, підтримка ----------
   function stashTab() {
-    var h = topBar("Склад") + demoNote("Демо: так виглядатиме склад.");
+    var h = topBar("Склад") + demoNote("Це приклад складу: справжні гроші й предмети покаже бот.");
     if (D.m === undefined) return h + '<div class="lock-note" style="margin-top:16px">' + ICON_LOCK + '<div>Баланс і предмети видно, коли відкриваєш вікно з особистих з ботом: /profile.</div></div>';
-    var bal = '<div class="card balance"><div><div class="label" style="margin:0 0 4px">Баланс Time Town</div>' +
-      '<b>' + num(D.m) + ' 💵</b></div><div class="sub">Спільний для Мафії й Шпигуна: заробляєш в одній грі — витрачаєш в іншій.</div></div>';
-    var items = '<div class="label" style="margin-top:18px">Предмети</div><div class="sitems">' +
+    var bal = '<div class="card balance"><div class="cap">На рахунку</div>' +
+      '<b>' + num(D.m) + ' 💵</b><div class="sub">Гроші спільні для Мафії й Шпигуна: заробляєш в одній грі — витрачаєш в іншій.</div></div>';
+    var items = '<div class="label big mt">Предмети</div><div class="sitems">' +
       R.items.map(function (it, i) { var c = (D.i || [])[i] || 0; return '<div class="sitem' + (c ? "" : " empty") + '"><span class="e" aria-hidden="true">' + it[1] + '</span><div class="t"><div class="n">' + esc(it[2]) + '</div>' + (it[3] ? '<div class="d">' + esc(it[3]) + '</div>' : "") + '</div><b>×' + num(c) + '</b></div>'; }).join("") +
-      '</div><div class="note">🛒 Купити предмети: <b>/shop</b> у бота Мафії. Узяти їх на гру чи відкласти: <b>/inventory</b>. Склад бачиш лише ти.</div>';
-    var sup = '<div class="label" style="margin-top:18px">Підтримка</div><div class="card support">' +
+      '</div><div class="note">Купити предмети: <b>/shop</b> у боті Мафії. Узяти їх на гру чи відкласти: <b>/inventory</b>. Склад бачиш лише ти.</div>';
+    var sup = '<div class="card support" style="margin-top:12px"><div class="label">Підтримка міста</div>' +
       '<div class="sub">' + (D.dn ? "💎 Дякуємо, ти — Меценат Time Town! Значок видно у твоєму профілі." : "Time Town росте завдяки гравцям. Підтримай місто зірками Telegram — і отримай значок «Меценат» у профілі.") + '</div>' +
       (own && !fromSpy && D.b ? '<button class="btn primary" data-donate="1" style="margin-top:12px;width:100%;min-height:48px">💎 Підтримати Time Town</button>' :
-        '<div class="note">' + (fromSpy ? "Підтримати можна в боті Мафії: /donate." : "У демо кнопка підтримки не працює.") + '</div>') +
-      '</div><button class="btn" id="howBtn" style="margin-top:14px;width:100%">❔ Як це працює?</button>';
+        '<div class="note">' + (fromSpy ? "Підтримати можна в боті Мафії: /donate." : "У прикладі кнопка підтримки не працює.") + '</div>') +
+      '</div><button class="btn" id="howBtn" style="margin-top:12px;width:100%">❔ Як це працює?</button>';
     if (isWide()) return h + '<div class="duo stash"><div class="duo-l">' + bal + sup + '</div><div class="duo-r">' + items + '</div></div>';
     return h + '<div class="section">' + bal + items + sup + '</div>';
   }
@@ -2272,16 +2408,29 @@ body.onb-on { overflow: hidden; }
   // ---------- малювання й події ----------
   // Широкий екран (від 900 px): сторінки складаються у дві колонки. На телефоні розмітка та сама, що й була.
   function isWide() { return window.innerWidth >= 900; }
-  var wasWide = isWide();
+  // Що впливає на розкладку ПК: висота (чи стає «Про мене» ліворуч) і дуже широкий екран (більший персонаж). На телефоні — нічого:
+  // там висота міняється від клавіатури, і перемальовувати сторінку через це не можна.
+  function layoutKey() { return isWide() ? "w" + (window.innerHeight >= 900 ? "t" : "") + (window.innerWidth >= 1500 ? "x" : "") : "n"; }
+  var wasKey = layoutKey(), meRight = false;   // meRight: ліва колонка з «Про мене» не влізла в екран — картка йде праворуч
+  // Ліва колонка прилипає лише тоді, коли вся влазить в екран: інакше її низ було б не дістати.
+  function stickFit() {
+    var cols = appBody.querySelectorAll(".pw-l, .duo-l");
+    for (var i = 0; i < cols.length; i++) {
+      var fits = cols[i].offsetHeight + 32 <= window.innerHeight;
+      if (!fits && !meRight && cols[i].querySelector("#meSec")) { meRight = true; return render(); }
+      cols[i].classList.toggle("stick", fits);
+    }
+  }
   window.addEventListener("resize", function () {
-    if (isWide() === wasWide) return;
-    wasWide = isWide();
+    if (layoutKey() === wasKey) { if (state.tab !== "game") stickFit(); return; }
+    wasKey = layoutKey(); meRight = false;
     if (state.tab !== "game") render();
   });
   function render() {
     if (state.tab === "game") return;
-    if (!D) { app.innerHTML = loadingView(); return; }
-    app.innerHTML = state.tab === "wardrobe" ? wardrobeTab() : state.tab === "stash" ? stashTab() : profileView();
+    appBody.innerHTML = !D ? loadingView() : state.tab === "wardrobe" ? wardrobeTab() : state.tab === "stash" ? stashTab() : profileView();
+    drawTop();
+    stickFit();
   }
   app.addEventListener("click", function (ev) {
     var el = ev.target.closest("button");
@@ -2326,7 +2475,7 @@ body.onb-on { overflow: hidden; }
       return;
     }
     if (el.dataset.slot) { state.slot = el.dataset.slot; state.wpick = ""; haptic(); return render(); }
-    if (el.dataset.witem) { state.wpick = el.dataset.witem; haptic(); return render(); }
+    if (el.dataset.witem) { state.wpick = el.dataset.witem; if (W_BY_KEY[state.wpick]) state.slot = W_BY_KEY[state.wpick].slot; haptic(); return render(); }
     if (el.id === "wapply" && WAPI.length && !wBusy) {
       wBusy = true; el.disabled = true;
       botCall("/api/wardrobe", { action: el.dataset.action, key: el.dataset.key }).then(function (res) {
@@ -2378,15 +2527,7 @@ body.onb-on { overflow: hidden; }
       art: function () { return '<div class="onb-chat"><span class="cmd">/game</span><span>Набір відкрито! Хто з нами?</span><span class="go">🎭 Приєднатися</span></div>'; } },
     { t: "Живий стіл", d: "Таймер, гравці й чат гри — на одному екрані. Ходиш і голосуєш дотиком. А свою роль бачиш, лише поки тримаєш кнопку: ніхто не підгляне.",
       art: function () {
-        var seats = "", n = 8;
-        for (var i = 0; i < n; i++) {
-          var a = Math.PI * 2 * i / n - Math.PI / 2, x = 120 + Math.cos(a) * 92, y = 85 + Math.sin(a) * 58;
-          seats += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="13" fill="' + (i === 4 ? "#E2BE6A" : "#2A303B") + '" stroke="' + (i === 4 ? "#F2CF85" : "#3A4250") + '" stroke-width="2"/>' +
-            (i === 2 ? '<path d="M' + (x - 5).toFixed(1) + ' ' + (y - 5).toFixed(1) + 'l10 10m0-10l-10 10" stroke="#C0453A" stroke-width="2.5" stroke-linecap="round"/>' : "");
-        }
-        return '<svg class="onb-tbl" viewBox="0 0 240 170" role="img" aria-label="Стіл із гравцями й таймером"><ellipse cx="120" cy="85" rx="62" ry="36" fill="#141A26" stroke="#2A303B" stroke-width="2"/>' + seats +
-          '<circle cx="120" cy="85" r="21" fill="none" stroke="#2A303B" stroke-width="4"/><path d="M120 64a21 21 0 1 1 -19.7 13.8" fill="none" stroke="#E2BE6A" stroke-width="4" stroke-linecap="round"/>' +
-          '<text x="120" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="#EAE5D7" font-family="IBM Plex Mono, monospace">0:42</text></svg>';
+        return tableArt();
       } },
     { t: "Гардероб і склад", d: "Одягни персонажа на свій смак, відкривай рамки за досягнення й рівні, а предмети з магазину чекатимуть на гру у складі.",
       art: function () { return '<div class="onb-tiles"><span class="gold"><i>🎩</i>Образ</span><span><i>🖼</i>Рамки</span><span><i>🛡</i>Предмети</span><span><i>💵</i>Гаманець</span></div>'; } }
@@ -2399,7 +2540,7 @@ body.onb-on { overflow: hidden; }
       ONB.map(function (_, i) { return '<i' + (i <= onbStep ? ' class="on"' : "") + '></i>'; }).join("") + '</div>' +
       (onbStep > 0 && !last ? '<button class="onb-skip" data-onb="skip">Пропустити</button>' : "") +
       '<div class="onb-body"><div class="onb-art" aria-hidden="true">' + st.art() + '</div>' +
-      '<div class="brand">TIME TOWN · ' + (onbStep + 1) + ' / ' + ONB.length + '</div><h1 id="onbT">' + st.t + '</h1><p>' + st.d + '</p></div>' +
+      '<h1 id="onbT">' + st.t + '</h1><p>' + st.d + '</p></div>' +
       // «Назад» — щоб повернутись, якщо випадково гортнув далі; «Пропустити» — тихим посиланням угорі.
       '<div class="onb-btns">' + (onbStep > 0 ? '<button class="btn" data-onb="back">‹ Назад</button>' :
         '<button class="btn" data-onb="skip">Пропустити</button>') +
@@ -2443,8 +2584,8 @@ body.onb-on { overflow: hidden; }
   if (tg) {
     try {
       tg.ready(); tg.expand();
-      tg.setHeaderColor && tg.setHeaderColor("#0E1014");
-      tg.setBackgroundColor && tg.setBackgroundColor("#0E1014");
+      tg.setHeaderColor && tg.setHeaderColor("#0F1220");
+      tg.setBackgroundColor && tg.setBackgroundColor("#0F1220");
       tg.BackButton && tg.BackButton.hide();
     } catch (e) {}
   }
@@ -2465,6 +2606,7 @@ body.onb-on { overflow: hidden; }
     gameCtl = tableMode(gameApis, {
       info: function (i) {
         gameInfo = i; drawNav();
+        if (state.tab !== "game") drawTop();   // небо в шапці йде за грою
         if (onbWait && i.known && !i.on) showOnboard();   // гри немає — можна знайомитись; посеред партії не заважаємо
       },
       turn: function () { if (state.tab !== "game") showToast("🔔 Твій хід — відкрий «Гра»"); }
