@@ -120,6 +120,15 @@ h1 { margin: 6px 0 0; font-family: var(--serif); font-size: 22px; line-height: 1
 .witem .thumb svg { width: 100%; height: 100%; display: block; }
 .witem .n { font-size: 13px; font-weight: 600; line-height: 1.2; }
 .witem .t { font-size: 12px; line-height: 1.25; }
+/* персонаж v3 (стиль емодзі): картка, мініатюри редактора, кружечки кольорів */
+.char.c3 svg, .witem .thumb.c3 { background: var(--inset); }
+.sws { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; padding: 2px 0 14px; }
+.csw { flex: none; width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 3px solid var(--line); cursor: pointer; }
+.csw.on { border-color: var(--bg); box-shadow: 0 0 0 3px var(--gold); }
+.witem .thumb.c3 { width: 88px; height: 105px; }
+.witem.locked.sel .thumb { opacity: 1; }
+.sws .cap { margin-left: 2px; }
+.l3-reset { width: 100%; min-height: 40px; margin-top: 8px; background: none; border: 0; color: var(--soft); font: inherit; font-size: 14px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 /* ---------- живий стіл ---------- */
 body.night { --bg: #090C18; background: var(--bg); }
 .tbl-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid var(--line2); }
@@ -751,6 +760,9 @@ body.onb-on { overflow: hidden; }
   .duo-r .section { padding-top: 6px; padding-bottom: 18px; }
   .duo-r .wgrid { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 10px; }
   .duo-r .witem .thumb { width: 88px; height: 105px; }
+  .duo-r .wgrid.l3g { grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; }
+  .l3cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 0 28px; align-items: start; }
+  .duo-r .witem .thumb.c3 { width: 120px; height: 143px; }
   /* рівні: рівень і звання ліворуч, досвід і нагороди праворуч */
   .lv2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; align-items: start; }
   .lv2 .label.mt, .duo-r > .label.mt:first-child { margin-top: 0; }
@@ -784,7 +796,209 @@ body.onb-on { overflow: hidden; }
 
 <!-- Правила гри для вікна. Генеруються з mafia_time/progress.py командою: python webapp/build.py -->
 <script id="rules" type="application/json">
-/*RULES*/{"levelStep": 250, "xp": {"play": 20, "win": 30, "survive": 10, "feat": 5, "featCap": 25}, "ranks": [[1, "Новачок"], [5, "Мешканець"], [10, "Детектив"], [20, "Інспектор"], [30, "Хрещений батько"], [50, "Легенда міста"]], "levelRewards": [[5, 100], [10, 150], [15, 200], [20, 300], [30, 500], [50, 1000]], "achievements": [["first_game", "🎲", "Перша ніч", "Зіграй першу гру", 1, 50, 0, 0], ["games_50", "🗓", "Завсідник", "Зіграй 50 ігор", 50, 150, 0, 0], ["wins_10", "🏅", "Смак перемоги", "Виграй 10 ігор", 10, 100, 0, 0], ["wins_100", "🎯", "Сотня", "Виграй 100 ігор", 100, 300, 1, 0], ["streak_5", "🔥", "На хвилі", "Виграй 5 ігор поспіль", 5, 150, 0, 0], ["nights_10", "🌙", "Нічний вовк", "Доживи до 10-го дня в одній грі", 1, 100, 0, 0], ["civ_wins", "👨🏼", "Голос народу", "Виграй 10 разів Мирним жителем", 10, 100, 0, 0], ["found_50", "🕵🏼", "Гроза мафії", "Знайди 50 мафіозі перевірками", 50, 300, 1, 0], ["saved_25", "💉", "Ангел-охоронець", "Врятуй 25 гравців Лікарем", 25, 200, 0, 0], ["don_20", "🤵🏻", "Хрещений батько", "Виграй 20 разів Доном", 20, 300, 1, 0], ["charmed_10", "💃🏼", "Серцеїдка", "Відволічи 10 гравців Коханкою", 10, 100, 0, 0], ["maniac_5", "🔪", "Тінь міста", "Виграй 5 разів Маньяком", 5, 200, 0, 0], ["suicide", "🤦🏼‍♂️", "Мрія збулася", "Добийся страти Самогубцем", 1, 100, 0, 0], ["kamikaze", "💣", "Не сам", "Забери когось із собою Камікадзе", 1, 100, 0, 1], ["lucky", "🤞", "Народжений у сорочці", "Переживи замах Щасливчиком", 1, 100, 0, 1]], "frames": [["none", "Без рамки", "#2A2F3A", 0, "", ""], ["steel", "Сталь", "#9AA0AA", 5, "", ""], ["gold", "Золота зірка", "#E2BE6A", 10, "", ""], ["police", "Поліцейська", "#5B8DEF", 0, "found_50", ""], ["blood", "Кривава ніч", "#C0453A", 0, "don_20", ""], ["angel", "Ангельська", "#EDEAE0", 0, "saved_25", ""], ["double", "Подвійна", "#E2BE6A", 20, "", "#C0453A"], ["hundred", "Сотня", "#7FC9A0", 0, "wins_100", ""], ["legend", "Легенда міста", "#F3D58E", 50, "", "#E2BE6A"]], "roles": {"civilian": ["👨🏼", "Мирний житель"], "don": ["🤵🏻", "Дон"], "mafia": ["🤵🏼", "Мафія"], "commissioner": ["🕵🏼", "Комісар Каттані"], "sergeant": ["👮🏻‍♂️", "Сержант"], "doctor": ["👨🏼‍⚕️", "Лікар"], "maniac": ["🔪", "Маньяк"], "lover": ["💃🏼", "Коханка"], "lawyer": ["👨🏼‍💼", "Адвокат"], "suicide": ["🤦🏼‍♂️", "Самогубець"], "bomj": ["🧙🏼‍♂️", "Бомж"], "lucky": ["🤞", "Щасливчик"], "kamikaze": ["💣", "Камікадзе"]}, "items": [["docs", "📂", "Документи", "Для мафії: Комісар перевірить тебе — побачить «Мирний житель». Згорає, коли спрацює."], ["shields", "🛡", "Захист", "Бронежилет: рятує від нічного вбивства (мафія, маньяк, постріл Комісара). Згорає, коли спрацює."], ["ap", "🔫", "Бронебійний патрон", "Твій нічний постріл пробиває 🛡 захист жертви (але не Лікаря). Згорає, лише коли пробив."], ["tap", "🎧", "Прослуховування", "Для Комісара: бачиш справжню роль навіть крізь 📂 документи чи Адвоката. Згорає, лише коли викрив."]], "spy": {"xp": {"play": 20, "win": 30, "guess": 15, "hunt": 5}, "achievements": [["first", "🎲", "Перша місія", "Зіграй першу гру в Шпигуна", 1, 50, 0, "games"], ["games_50", "🗓", "Постійний агент", "Зіграй 50 ігор у Шпигуна", 50, 150, 0, "games"], ["wins_10", "🏅", "Без провалів", "Виграй 10 ігор у Шпигуна", 10, 100, 0, "wins"], ["spy_10", "🕵️", "Під прикриттям", "Зіграй 10 ігор шпигуном", 10, 100, 0, "spy_games"], ["spy_wins_10", "🕶", "Невловимий", "Виграй 10 разів шпигуном", 10, 200, 1, "spy_wins"], ["guess", "🔓", "Зламав шифр", "Вгадай слово, будучи шпигуном", 1, 100, 0, "guessed"], ["guess_10", "🧠", "Дешифрувальник", "Вгадай слово шпигуном 10 разів", 10, 300, 1, "guessed"], ["hunt", "🎯", "Мисливець", "Проголосуй проти шпигуна, коли його викрили", 1, 50, 0, "hunted"], ["hunt_25", "🦅", "Пильне око", "Вистеж шпигуна 25 разів", 25, 200, 1, "hunted"]]}, "wardrobe": {"slots": [["body", "Персонаж"], ["hat", "Капелюх"], ["outfit", "Одяг"], ["acc", "Аксесуар"], ["bg", "Тло"]], "items": [["hat_none", "hat", "Без капелюха", "free", 0, "доступна", "", ""], ["fedora", "hat", "Федора", "free", 0, "доступна", "", ""], ["cap", "hat", "Кашкет", "price", 150, "купити за 150 💵", "", ""], ["beret", "hat", "Берет", "ach", 0, "досягнення «Невловимий» (🕵️ Шпигун)", "spy", "spy_wins_10"], ["tophat", "hat", "Циліндр", "level", 20, "рівень 20", "", ""], ["crown", "hat", "Корона", "level", 50, "рівень 50", "", ""], ["trench", "outfit", "Плащ детектива", "free", 0, "доступна", "", ""], ["suit", "outfit", "Чорний костюм", "free", 0, "доступна", "", ""], ["burgundy", "outfit", "Бордовий костюм", "price", 250, "купити за 250 💵", "", ""], ["white", "outfit", "Білий костюм", "level", 15, "рівень 15", "", ""], ["police", "outfit", "Форма комісара", "ach", 0, "досягнення «Гроза мафії» (🎭 Мафія)", "mafia", "found_50"], ["medic", "outfit", "Халат лікаря", "ach", 0, "досягнення «Ангел-охоронець» (🎭 Мафія)", "mafia", "saved_25"], ["acc_none", "acc", "Без аксесуара", "free", 0, "доступна", "", ""], ["shades", "acc", "Темні окуляри", "free", 0, "доступна", "", ""], ["monocle", "acc", "Монокль", "price", 200, "купити за 200 💵", "", ""], ["bowtie", "acc", "Метелик", "level", 10, "рівень 10", "", ""], ["rose", "acc", "Троянда в петлиці", "ach", 0, "досягнення «Серцеїдка» (🎭 Мафія)", "mafia", "charmed_10"], ["mask", "acc", "Маска", "ach", 0, "досягнення «Дешифрувальник» (🕵️ Шпигун)", "spy", "guess_10"], ["bg_night", "bg", "Ніч", "free", 0, "доступна", "", ""], ["bg_city", "bg", "Місто вночі", "level", 5, "рівень 5", "", ""], ["bg_rain", "bg", "Дощ", "price", 150, "купити за 150 💵", "", ""], ["bg_curtain", "bg", "Червона завіса", "price", 400, "купити за 400 💵", "", ""], ["bg_gold", "bg", "Золото", "level", 30, "рівень 30", "", ""], ["body_m", "body", "Чоловічий", "free", 0, "доступна", "", ""], ["body_f", "body", "Жіночий", "free", 0, "доступна", "", ""]], "default": ["body_m", "fedora", "trench", "acc_none", "bg_night"]}}/*END*/
+/*RULES*/{"levelStep": 250, "xp": {"play": 20, "win": 30, "survive": 10, "feat": 5, "featCap": 25}, "ranks": [[1, "Новачок"], [5, "Мешканець"], [10, "Детектив"], [20, "Інспектор"], [30, "Хрещений батько"], [50, "Легенда міста"]], "levelRewards": [[5, 100], [10, 150], [15, 200], [20, 300], [30, 500], [50, 1000]], "achievements": [["first_game", "🎲", "Перша ніч", "Зіграй першу гру", 1, 50, 0, 0], ["games_50", "🗓", "Завсідник", "Зіграй 50 ігор", 50, 150, 0, 0], ["wins_10", "🏅", "Смак перемоги", "Виграй 10 ігор", 10, 100, 0, 0], ["wins_100", "🎯", "Сотня", "Виграй 100 ігор", 100, 300, 1, 0], ["streak_5", "🔥", "На хвилі", "Виграй 5 ігор поспіль", 5, 150, 0, 0], ["nights_10", "🌙", "Нічний вовк", "Доживи до 10-го дня в одній грі", 1, 100, 0, 0], ["civ_wins", "👨🏼", "Голос народу", "Виграй 10 разів Мирним жителем", 10, 100, 0, 0], ["found_50", "🕵🏼", "Гроза мафії", "Знайди 50 мафіозі перевірками", 50, 300, 1, 0], ["saved_25", "💉", "Ангел-охоронець", "Врятуй 25 гравців Лікарем", 25, 200, 0, 0], ["don_20", "🤵🏻", "Хрещений батько", "Виграй 20 разів Доном", 20, 300, 1, 0], ["charmed_10", "💃🏼", "Серцеїдка", "Відволічи 10 гравців Коханкою", 10, 100, 0, 0], ["maniac_5", "🔪", "Тінь міста", "Виграй 5 разів Маньяком", 5, 200, 0, 0], ["suicide", "🤦🏼‍♂️", "Мрія збулася", "Добийся страти Самогубцем", 1, 100, 0, 0], ["kamikaze", "💣", "Не сам", "Забери когось із собою Камікадзе", 1, 100, 0, 1], ["lucky", "🤞", "Народжений у сорочці", "Переживи замах Щасливчиком", 1, 100, 0, 1]], "frames": [["none", "Без рамки", "#2A2F3A", 0, "", ""], ["steel", "Сталь", "#9AA0AA", 5, "", ""], ["gold", "Золота зірка", "#E2BE6A", 10, "", ""], ["police", "Поліцейська", "#5B8DEF", 0, "found_50", ""], ["blood", "Кривава ніч", "#C0453A", 0, "don_20", ""], ["angel", "Ангельська", "#EDEAE0", 0, "saved_25", ""], ["double", "Подвійна", "#E2BE6A", 20, "", "#C0453A"], ["hundred", "Сотня", "#7FC9A0", 0, "wins_100", ""], ["legend", "Легенда міста", "#F3D58E", 50, "", "#E2BE6A"]], "roles": {"civilian": ["👨🏼", "Мирний житель"], "don": ["🤵🏻", "Дон"], "mafia": ["🤵🏼", "Мафія"], "commissioner": ["🕵🏼", "Комісар Каттані"], "sergeant": ["👮🏻‍♂️", "Сержант"], "doctor": ["👨🏼‍⚕️", "Лікар"], "maniac": ["🔪", "Маньяк"], "lover": ["💃🏼", "Коханка"], "lawyer": ["👨🏼‍💼", "Адвокат"], "suicide": ["🤦🏼‍♂️", "Самогубець"], "bomj": ["🧙🏼‍♂️", "Бомж"], "lucky": ["🤞", "Щасливчик"], "kamikaze": ["💣", "Камікадзе"]}, "items": [["docs", "📂", "Документи", "Для мафії: Комісар перевірить тебе — побачить «Мирний житель». Згорає, коли спрацює."], ["shields", "🛡", "Захист", "Бронежилет: рятує від нічного вбивства (мафія, маньяк, постріл Комісара). Згорає, коли спрацює."], ["ap", "🔫", "Бронебійний патрон", "Твій нічний постріл пробиває 🛡 захист жертви (але не Лікаря). Згорає, лише коли пробив."], ["tap", "🎧", "Прослуховування", "Для Комісара: бачиш справжню роль навіть крізь 📂 документи чи Адвоката. Згорає, лише коли викрив."]], "spy": {"xp": {"play": 20, "win": 30, "guess": 15, "hunt": 5}, "achievements": [["first", "🎲", "Перша місія", "Зіграй першу гру в Шпигуна", 1, 50, 0, "games"], ["games_50", "🗓", "Постійний агент", "Зіграй 50 ігор у Шпигуна", 50, 150, 0, "games"], ["wins_10", "🏅", "Без провалів", "Виграй 10 ігор у Шпигуна", 10, 100, 0, "wins"], ["spy_10", "🕵️", "Під прикриттям", "Зіграй 10 ігор шпигуном", 10, 100, 0, "spy_games"], ["spy_wins_10", "🕶", "Невловимий", "Виграй 10 разів шпигуном", 10, 200, 1, "spy_wins"], ["guess", "🔓", "Зламав шифр", "Вгадай слово, будучи шпигуном", 1, 100, 0, "guessed"], ["guess_10", "🧠", "Дешифрувальник", "Вгадай слово шпигуном 10 разів", 10, 300, 1, "guessed"], ["hunt", "🎯", "Мисливець", "Проголосуй проти шпигуна, коли його викрили", 1, 50, 0, "hunted"], ["hunt_25", "🦅", "Пильне око", "Вистеж шпигуна 25 разів", 25, 200, 1, "hunted"]]}, "wardrobe": {"slots": [["body", "Персонаж"], ["hat", "Капелюх"], ["outfit", "Одяг"], ["acc", "Аксесуар"], ["bg", "Тло"]], "items": [["hat_none", "hat", "Без капелюха", "free", 0, "доступна", "", ""], ["fedora", "hat", "Федора", "free", 0, "доступна", "", ""], ["cap", "hat", "Кашкет", "price", 150, "купити за 150 💵", "", ""], ["beret", "hat", "Берет", "ach", 0, "досягнення «Невловимий» (🕵️ Шпигун)", "spy", "spy_wins_10"], ["tophat", "hat", "Циліндр", "level", 20, "рівень 20", "", ""], ["crown", "hat", "Корона", "level", 50, "рівень 50", "", ""], ["trench", "outfit", "Плащ детектива", "free", 0, "доступна", "", ""], ["suit", "outfit", "Чорний костюм", "free", 0, "доступна", "", ""], ["burgundy", "outfit", "Бордовий костюм", "price", 250, "купити за 250 💵", "", ""], ["white", "outfit", "Білий костюм", "level", 15, "рівень 15", "", ""], ["police", "outfit", "Форма комісара", "ach", 0, "досягнення «Гроза мафії» (🎭 Мафія)", "mafia", "found_50"], ["medic", "outfit", "Халат лікаря", "ach", 0, "досягнення «Ангел-охоронець» (🎭 Мафія)", "mafia", "saved_25"], ["acc_none", "acc", "Без аксесуара", "free", 0, "доступна", "", ""], ["shades", "acc", "Темні окуляри", "free", 0, "доступна", "", ""], ["monocle", "acc", "Монокль", "price", 200, "купити за 200 💵", "", ""], ["bowtie", "acc", "Метелик", "level", 10, "рівень 10", "", ""], ["rose", "acc", "Троянда в петлиці", "ach", 0, "досягнення «Серцеїдка» (🎭 Мафія)", "mafia", "charmed_10"], ["mask", "acc", "Маска", "ach", 0, "досягнення «Дешифрувальник» (🕵️ Шпигун)", "spy", "guess_10"], ["bg_night", "bg", "Ніч", "free", 0, "доступна", "", ""], ["bg_city", "bg", "Місто вночі", "level", 5, "рівень 5", "", ""], ["bg_rain", "bg", "Дощ", "price", 150, "купити за 150 💵", "", ""], ["bg_curtain", "bg", "Червона завіса", "price", 400, "купити за 400 💵", "", ""], ["bg_gold", "bg", "Золото", "level", 30, "рівень 30", "", ""], ["body_m", "body", "Чоловічий", "free", 0, "доступна", "", ""], ["body_f", "body", "Жіночий", "free", 0, "доступна", "", ""]], "default": ["body_m", "fedora", "trench", "acc_none", "bg_night"]}, "look3": {"fields": [["face", ["angular", "round", "long"]], ["body", ["broad", "slim", "soft"]], ["skin", ["light", "warm", "tan", "deep"]], ["eyes", ["m", "f"]], ["expr", ["calm", "smile", "laugh", "angry", "sly"]], ["hair", ["bald", "crop", "messy", "bob", "bun", "long"]], ["hairColor", ["brown", "black", "blond", "red", "grey"]], ["hat", ["none", "fedora", "cap", "beret"]], ["outfit", ["suit", "trench", "burgundy", "sweater", "police", "dress"]], ["bg", ["none", "night", "city", "curtain", "gold", "teal"]]], "items": [["hat", "fedora", "price", 100, "купити за 100 💵", "", "hat3_fedora", "Федора"], ["hat", "cap", "price", 150, "купити за 150 💵", "", "hat3_cap", "Кашкет"], ["hat", "beret", "ach", 0, "досягнення «Невловимий» (🕵️ Шпигун)", "spy", "hat3_beret", "Берет"], ["outfit", "trench", "price", 150, "купити за 150 💵", "", "outfit3_trench", "Тренч"], ["outfit", "burgundy", "price", 250, "купити за 250 💵", "", "outfit3_burgundy", "Бордовий костюм"], ["outfit", "sweater", "price", 200, "купити за 200 💵", "", "outfit3_sweater", "Светр"], ["outfit", "police", "ach", 0, "досягнення «Гроза мафії» (🎭 Мафія)", "mafia", "outfit3_police", "Форма комісара"], ["outfit", "dress", "price", 300, "купити за 300 💵", "", "outfit3_dress", "Сукня"], ["bg", "city", "level", 5, "рівень 5", "", "bg3_city", "Місто"], ["bg", "curtain", "price", 400, "купити за 400 💵", "", "bg3_curtain", "Завіса"], ["bg", "gold", "level", 30, "рівень 30", "", "bg3_gold", "Золото"], ["bg", "teal", "price", 150, "купити за 150 💵", "", "bg3_teal", "Смарагд"]]}}/*END*/
+</script>
+
+<script>
+/*TTCHAR*/
+/* Персонаж Time Town у стилі емодзі (версія 3, перша для редактора).
+ * Плаский вектор із товстим контуром; усе складається з шарів на одній голові-шаблоні,
+ * знятій з аркуша Codex (G:\AI-Share\From GPT\Картинки\2026-11-15 персонаж-редактор).
+ * Порядок шарів: тло → волосся ззаду → тіло й одяг → шия → вуха й голова → обличчя → волосся спереду → капелюх.
+ *
+ *   TTChar.render(look)  → рядок <svg> (viewBox 0 -16 200 202)
+ *   TTChar.CATALOG       → категорії й варіанти для редактора
+ *   TTChar.DEFAULT       → образ за замовчуванням
+ * look: { face, body, skin, eyes, expr, hair, hairColor, hat, outfit, bg } — невідомі ключі замінюються стандартними.
+ */
+(function (root) {
+  var INK = "#161314", W = 4.2;
+  var uid = 0;
+  function id(p) { uid += 1; return p + uid; }
+  function P(d, fill, w) { return '<path d="' + d + '" fill="' + fill + '" stroke="' + INK + '" stroke-width="' + (w || W) + '" stroke-linejoin="round" stroke-linecap="round"/>'; }
+  function L(d, w, c) { return '<path d="' + d + '" fill="none" stroke="' + (c || INK) + '" stroke-width="' + (w || W) + '" stroke-linecap="round" stroke-linejoin="round"/>'; }
+  function F(d, c, op) { return '<path d="' + d + '" fill="' + c + '"' + (op ? ' opacity="' + op + '"' : "") + "/>"; }
+
+  // ---------- кольори ----------
+  var SKIN = {
+    light: { label: "Світлий", c: ["#F7D3BC", "#E2AE8F"] }, warm: { label: "Теплий", c: ["#F1BC9C", "#D99A79"] },
+    tan: { label: "Смаглявий", c: ["#C98B64", "#A86E4A"] }, deep: { label: "Темний", c: ["#8A5B3E", "#6C432C"] }
+  };
+  var HAIR_COLOR = {
+    brown: { label: "Каштанове", c: ["#4A3024", "#6B4636"] }, black: { label: "Чорне", c: ["#211D1F", "#433C42"] },
+    blond: { label: "Русяве", c: ["#B8894A", "#D7AE6E"] }, red: { label: "Руде", c: ["#86361F", "#B0573A"] },
+    grey: { label: "Сиве", c: ["#8F8C8D", "#BDBAB8"] }
+  };
+
+  // ---------- форма обличчя ----------
+  var FACE = {
+    angular: { label: "Кутасте", d: "M44 70C44 36 70 18 100 18S156 36 156 70L152 104L143 121L100 147L57 121L48 104Z" },
+    round: { label: "Кругле", d: "M44 70C44 36 70 18 100 18S156 36 156 70V100C156 128 132 146 100 146S44 128 44 100Z" },
+    long: { label: "Видовжене", d: "M48 66C48 34 72 16 100 16S152 34 152 66L150 110C146 134 126 152 100 152S54 134 50 110Z" }
+  };
+
+  // ---------- тіло: точки коміра для одягу ----------
+  var BODY = {
+    broad: { label: "Широке", d: "M12 186C16 164 44 152 74 150L100 166L126 150C156 152 184 164 188 186Z", nl: 74, nr: 126, ny: 150, neck: "M74 122V156L100 166L126 156V122Z" },
+    slim: { label: "Струнке", d: "M24 186C28 166 52 154 76 151L100 166L124 151C148 154 172 166 176 186Z", nl: 76, nr: 124, ny: 151, neck: "M76 122V156L100 166L124 156V122Z" },
+    soft: { label: "Тендітне", d: "M30 186C34 168 54 158 79 155L100 168L121 155C146 158 166 168 170 186Z", nl: 80, nr: 120, ny: 155, neck: "M81 124V158L100 168L119 158V124Z" }
+  };
+
+  // ---------- одяг (малюється по точках коміра тіла) ----------
+  function lapels(b, col) {
+    return P("M" + b.nl + " " + b.ny + "L" + (b.nl - 9) + " " + (b.ny + 7) + "L" + (b.nl + 5) + " " + (b.ny + 32) + "L" + (b.nl + 16) + " " + (b.ny + 10) + "Z", col, 3.4) +
+      P("M" + b.nr + " " + b.ny + "L" + (b.nr + 9) + " " + (b.ny + 7) + "L" + (b.nr - 5) + " " + (b.ny + 32) + "L" + (b.nr - 16) + " " + (b.ny + 10) + "Z", col, 3.4);
+  }
+  function shirt(b, col) { return P("M" + (b.nl + 8) + " " + (b.ny + 3) + "L100 " + (b.ny + 26) + "L" + (b.nr - 8) + " " + (b.ny + 3) + "Z", col || "#EEE8DC", 3.4); }
+  function tie(b, col) { return P("M96 " + (b.ny + 14) + "H104L106 " + (b.ny + 36) + "H94Z", col, 3); }
+  var OUTFIT = {
+    suit: { label: "Костюм", coat: "#2B2D33", draw: function (b) { return shirt(b) + tie(b, "#7A1F2A") + lapels(b, "#1E2026"); } },
+    trench: { label: "Тренч", coat: "#9C7B52", draw: function (b) { return shirt(b) + tie(b, "#2A2F3A") + lapels(b, "#836542"); } },
+    burgundy: { label: "Бордовий", coat: "#6E1F2A", draw: function (b) { return shirt(b) + tie(b, "#14171C") + lapels(b, "#4E141D"); } },
+    sweater: { label: "Светр", coat: "#3B3536", draw: function (b) { return P("M" + (b.nl - 2) + " " + (b.ny - 8) + "H" + (b.nr + 2) + "V" + (b.ny + 6) + "C" + (b.nr - 10) + " " + (b.ny + 13) + " " + (b.nl + 10) + " " + (b.ny + 13) + " " + (b.nl - 2) + " " + (b.ny + 6) + "Z", "#2E292A", 3.4); } },
+    police: { label: "Форма комісара", coat: "#1F3554", draw: function (b) {
+      return shirt(b, "#C9D3E3") + tie(b, "#14171C") + lapels(b, "#152640") +
+        F("M" + (b.nl - 18) + " " + (b.ny + 18) + "l3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z", "#E2BE6A") +
+        L("M" + (b.nl - 40) + " " + (b.ny + 10) + "h18M" + (b.nr + 22) + " " + (b.ny + 10) + "h18", 3.4, "#E2BE6A");
+    } },
+    dress: { label: "Сукня", coat: "#9E1F2C", skinNeck: true, draw: function (b, sk) {
+      return F("M" + (b.nl + 2) + " " + (b.ny - 1) + "L100 " + (b.ny + 26) + "L" + (b.nr - 2) + " " + (b.ny - 1) + "Z", sk[0]) +
+        L("M" + (b.nl + 2) + " " + (b.ny - 1) + "L100 " + (b.ny + 26) + "L" + (b.nr - 2) + " " + (b.ny - 1), 3.4) +
+        F("M100 " + (b.ny + 30) + "a4 4 0 1 0 .1 0", "#E2BE6A");
+    } }
+  };
+
+  // ---------- очі, брови, вирази ----------
+  function eye(cx, kind, mirror, fem) {
+    var m = function (v) { return mirror ? 2 * cx - v : v; };
+    var x0 = m(cx - 18), x1 = m(cx + 18);
+    if (kind === "closed") return L("M" + x0 + " 95Q" + cx + " 83 " + x1 + " 95", 4.8);
+    var lidY = kind === "half" ? 89 : 83;
+    var white = "M" + x0 + " 89Q" + cx + " " + (lidY - 7) + " " + x1 + " 89Q" + m(cx + 14) + " 103 " + cx + " 104Q" + m(cx - 14) + " 103 " + x0 + " 89Z";
+    var cid = id("e");
+    var s = '<clipPath id="' + cid + '"><path d="' + white + '"/></clipPath>' + F(white, "#fff") +
+      '<g clip-path="url(#' + cid + ')"><circle cx="' + m(cx + 3) + '" cy="95" r="10" fill="' + INK + '"/>' +
+      '<circle cx="' + m(cx + 6.5) + '" cy="90.5" r="3" fill="#fff"/>' +
+      (kind === "half" ? F("M" + x0 + " 78H" + x1 + "V" + (lidY + 3) + "H" + x0 + "Z", "SKIN") : "") + "</g>" +
+      L("M" + x0 + " 89Q" + cx + " " + (lidY - 7) + " " + x1 + " 89", 5.4) +
+      L("M" + m(cx - 14) + " 102Q" + cx + " 105 " + m(cx + 14) + " 102", 2);
+    if (fem) s += L("M" + x1 + " 89l" + (mirror ? -6 : 6) + " -5M" + m(cx + 14) + " 85l" + (mirror ? -4 : 4) + " -6", 3);   // вії назовні
+    return s;
+  }
+  function brows(l, r, w) {
+    var b = function (a) { return L("M" + a[0] + " " + a[1] + "Q" + ((a[0] + a[2]) / 2) + " " + (Math.min(a[1], a[3]) - 3) + " " + a[2] + " " + a[3], w || 7); };
+    return b(l) + b(r);
+  }
+  var NOSE = F("M101 94L105 110L98 110Z", "SHADE") + L("M98 110H105", 2.2, "SHADE");
+  var EXPR = {
+    calm: { label: "Спокій", draw: function (f) { return brows([56, 74, 94, 78], [144, 70, 106, 77], f ? 5 : 7) + eye(77, "open", false, f) + eye(123, "open", true, f) + NOSE + L("M91 124H109", 3); } },
+    smile: { label: "Усмішка", draw: function (f) { return brows([56, 73, 94, 77], [144, 71, 106, 76], f ? 5 : 7) + eye(77, "half", false, f) + eye(123, "half", true, f) + NOSE + L("M90 118Q100 125 110 118", 3.2); } },
+    laugh: { label: "Сміх", draw: function (f) {
+      return brows([56, 70, 94, 73], [144, 70, 106, 73], f ? 5 : 7) + eye(77, "closed") + eye(123, "closed", true) + NOSE +
+        P("M88 116H112C112 128 106 134 100 134S88 128 88 116Z", "#6A1C22", 3) + F("M90 117H110V121H90Z", "#fff") +
+        F("M93 129Q100 125 107 129Q100 133 93 129Z", "#E3828A") + F("M62 108h14v5h-14z", "#F09C8C", 0.5) + F("M124 108h14v5h-14z", "#F09C8C", 0.5);
+    } },
+    angry: { label: "Злість", draw: function (f) {
+      return brows([56, 70, 95, 82], [144, 70, 105, 82], f ? 6 : 8) + eye(77, "half", false, f) + eye(123, "half", true, f) + NOSE +
+        P("M90 118H110V125H90Z", "#fff", 3) + L("M95 118V125M100 118V125M105 118V125", 1.6);
+    } },
+    sly: { label: "Хитрий", draw: function (f) { return brows([56, 76, 94, 79], [144, 64, 106, 72], f ? 5 : 7) + eye(77, "half", false, f) + eye(123, "open", true, f) + NOSE + L("M91 121Q103 124 112 115", 3.2); } }
+  };
+  var EYES = { m: { label: "Чоловічі" }, f: { label: "Жіночі" } };
+
+  // ---------- волосся ----------
+  var HAIR = {
+    bald: { label: "Без волосся" },
+    crop: { label: "Коротка", front: "M40 78C36 62 36 46 42 36C46 26 54 20 60 18L62 9L72 15L80 4L88 12L100 1L106 10L116 3L120 13L132 8L134 18C146 22 156 32 160 46C163 58 162 68 158 80C156 72 153 66 150 62L146 68C140 60 132 55 122 53Q110 53 100 61Q92 53 80 52C70 53 62 57 56 63L52 57C47 63 43 70 40 78Z",
+            lines: "M66 30L74 21M92 25L98 13M116 27L121 16M140 34L147 25M56 63L60 50M146 68L144 56" },
+    messy: { label: "Скуйовджена", front: "M38 84C30 78 22 76 13 78C21 70 25 60 25 50C17 48 13 41 13 34C23 40 31 38 37 32C37 18 50 5 64 3C70 -5 84 -11 96 -9C104 -17 117 -17 121 -12C115 -6 113 0 117 4C131 2 145 10 151 22C161 20 171 24 177 30C169 32 165 36 165 42C173 50 173 63 167 74C165 66 161 62 155 60L151 74C147 64 141 58 133 56L127 68L119 56C113 62 109 68 109 74C105 64 99 58 91 56L85 64L79 54C71 56 63 58 57 62L51 72C47 76 43 80 38 84Z",
+             lines: "M60 19Q74 13 84 22M100 0Q111 8 108 22M132 15Q143 24 140 36M30 52Q40 50 46 44M155 60Q160 50 158 42" },
+    bob: { label: "Каре", back: "M40 70C36 100 38 128 44 142H156C162 128 164 100 160 70C156 34 130 14 100 14C70 14 44 34 40 70Z",
+           front: "M42 94C38 46 66 14 100 14C134 14 162 46 158 94C154 72 144 58 128 52C112 60 86 60 70 54C58 60 46 74 42 94Z",
+           lines: "M70 54Q82 34 104 22M128 52Q132 38 140 30M46 120V138M154 120V138" },
+    bun: { label: "Пучок", front: "M44 80C40 44 66 18 100 18C134 18 160 44 156 80C150 62 138 50 100 48C62 50 50 62 44 80Z",
+           extra: "M86 4a14 13 0 1 0 28 0a14 13 0 1 0 -28 0", lines: "M66 46Q78 28 100 22M134 46Q122 28 100 22M92 0Q100 8 108 0" },
+    long: { label: "Довга", back: "M40 72C34 110 28 142 36 178Q52 184 68 174L72 132H128L132 174Q148 184 164 178C172 142 166 110 160 72C156 30 132 10 100 10C68 10 44 30 40 72Z",
+            front: "M44 88C40 40 66 12 100 12C134 12 160 40 156 88C152 68 140 53 120 47Q106 45 100 55Q94 45 80 47C60 53 48 68 44 88Z",
+            lines: "M56 72Q62 52 80 47M144 72Q138 52 120 47M42 122Q38 142 44 164M158 122Q162 142 156 164" }
+  };
+
+  // ---------- капелюхи ----------
+  var HAT = {
+    none: { label: "Без капелюха", draw: "" },
+    fedora: { label: "Федора", draw: P("M18 48C36 32 164 32 182 48C164 62 36 62 18 48Z", "#2B2D33") +
+      P("M52 46C50 12 70 -10 100 -10S150 12 148 46C118 53 82 53 52 46Z", "#3A3D45") +
+      P("M52 32C82 39 118 39 148 32V44C118 51 82 51 52 44Z", "#E2BE6A", 3) + L("M84 -2Q100 10 116 -2", 3, "#1E2026") },
+    cap: { label: "Кашкет", draw: P("M34 60C32 18 64 -6 102 -6C140 -6 166 16 164 46L180 56C154 68 64 70 34 60Z", "#575153") +
+      L("M100 -4V62M66 4Q70 34 62 62M136 4Q134 34 140 60", 2.6, "#38333A") + P("M97 -8a5 5 0 1 0 10 0a5 5 0 1 0 -10 0", "#38333A", 2) },
+    beret: { label: "Берет", draw: P("M38 54C36 26 68 6 106 6C142 6 168 22 166 42C152 58 58 62 38 54Z", "#7A1F2B") +
+      L("M48 52Q100 44 160 44", 3, "#4E141D") + P("M100 2l4 -8 4 8z", "#4E141D", 2.4) }
+  };
+
+  // ---------- тло ----------
+  var BG = {
+    none: { label: "Без тла", draw: function () { return ""; } },
+    night: { label: "Ніч", draw: function () { var g = id("g"); return '<defs><radialGradient id="' + g + '" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#2A303C"/><stop offset="1" stop-color="#12151B"/></radialGradient></defs><rect x="0" y="-16" width="200" height="202" fill="url(#' + g + ')"/>'; } },
+    city: { label: "Місто", draw: function () {
+      return '<rect x="0" y="-16" width="200" height="202" fill="#121A2B"/><circle cx="160" cy="14" r="14" fill="#E9E1C8" opacity=".85"/>' +
+        '<path d="M0 110h22v-40h18v24h16v-52h22v38h14v-22h20v44h16v-30h20v18h18v-10h34V186H0z" fill="#0B101C"/>' +
+        '<g fill="#E2BE6A" opacity=".7"><rect x="64" y="58" width="4" height="5"/><rect x="28" y="84" width="4" height="5"/><rect x="146" y="92" width="4" height="5"/><rect x="176" y="104" width="4" height="5"/></g>';
+    } },
+    curtain: { label: "Завіса", draw: function () {
+      return '<rect x="0" y="-16" width="200" height="202" fill="#4A1018"/><g fill="#6E1A24"><path d="M0 -16h18c-6 70 6 140 0 202H0z"/><path d="M38 -16h20c-8 70 8 140 0 202H38z"/><path d="M80 -16h20c-8 70 8 140 0 202H80z"/><path d="M122 -16h20c-8 70 8 140 0 202h-20z"/><path d="M164 -16h20c-8 70 8 140 0 202h-20z"/></g><rect x="0" y="-16" width="200" height="12" fill="#C9A24E"/>';
+    } },
+    gold: { label: "Золото", draw: function () { var g = id("g"); return '<defs><radialGradient id="' + g + '" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#F3D58E"/><stop offset=".55" stop-color="#B8923F"/><stop offset="1" stop-color="#5E4718"/></radialGradient></defs><rect x="0" y="-16" width="200" height="202" fill="url(#' + g + ')"/>'; } },
+    teal: { label: "Смарагд", draw: function () { return '<rect x="0" y="-16" width="200" height="202" fill="#1F4A47"/>'; } }
+  };
+
+  var DEFAULT = { face: "angular", body: "broad", skin: "warm", eyes: "m", expr: "calm", hair: "crop", hairColor: "brown", hat: "none", outfit: "suit", bg: "night" };
+
+  function pick(map, key, def) { return Object.prototype.hasOwnProperty.call(map, key) ? key : def; }
+
+  function render(look) {
+    look = look || {};
+    var o = {};
+    o.face = pick(FACE, look.face, DEFAULT.face); o.body = pick(BODY, look.body, DEFAULT.body);
+    o.skin = pick(SKIN, look.skin, DEFAULT.skin); o.eyes = pick(EYES, look.eyes, DEFAULT.eyes);
+    o.expr = pick(EXPR, look.expr, DEFAULT.expr); o.hair = pick(HAIR, look.hair, DEFAULT.hair);
+    o.hairColor = pick(HAIR_COLOR, look.hairColor, DEFAULT.hairColor); o.hat = pick(HAT, look.hat, DEFAULT.hat);
+    o.outfit = pick(OUTFIT, look.outfit, DEFAULT.outfit); o.bg = pick(BG, look.bg, DEFAULT.bg);
+    var sk = SKIN[o.skin].c, hc = HAIR_COLOR[o.hairColor].c, h = HAIR[o.hair], b = BODY[o.body], fit = OUTFIT[o.outfit];
+    var headD = FACE[o.face].d, hatOn = o.hat !== "none";
+
+    var ear = function (s) {
+      var x = function (v) { return s === 1 ? v : 200 - v; };
+      return P("M" + x(50) + " 86C" + x(38) + " 78 " + x(29) + " 90 " + x(35) + " 104C" + x(38) + " 114 " + x(45) + " 120 " + x(53) + " 116", sk[0]) +
+        L("M" + x(46) + " 92C" + x(39) + " 93 " + x(38) + " 103 " + x(43) + " 108", 2.4, sk[1]);
+    };
+    var hc1 = id("h"), hc2 = id("c");
+    var head = ear(1) + ear(-1) + P(headD, sk[0]) +
+      '<clipPath id="' + hc2 + '"><path d="' + headD + '"/></clipPath>' +
+      '<g clip-path="url(#' + hc2 + ')">' + F("M148 40C160 80 156 122 118 152H200V40Z", sk[1], 0.55) + "</g>";   // тінь праворуч
+    var neck = P(b.neck, sk[0]) + F("M" + (b.nl) + " 128L100 147L" + (b.nr) + " 128V140L100 155L" + (b.nl) + " 140Z", sk[1], 0.8);
+    var body = P(b.d, fit.coat) + fit.draw(b, sk);
+    var face = EXPR[o.expr].draw(o.eyes === "f").split("SKIN").join(sk[0]).split("SHADE").join(sk[1]);
+    var front = "";
+    if (h.front) front = P(h.front, hc[0]) + (h.extra ? P(h.extra, hc[0]) : "") + L(h.lines, 2.4, INK);
+    if (front && hatOn) front = '<g clip-path="url(#' + hc1 + ')">' + front + "</g>";   // під капелюхом лишаються бічні пасма
+    return '<svg viewBox="0 -16 200 202" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><clipPath id="' + hc1 + '"><rect x="0" y="48" width="200" height="140"/></clipPath></defs>' +
+      BG[o.bg].draw() + (h.back ? P(h.back, hc[0]) : "") + body + neck + head + face + front + HAT[o.hat].draw + "</svg>";
+  }
+
+  function list(map) { return Object.keys(map).map(function (k) { return { key: k, label: map[k].label }; }); }
+  var CATALOG = {
+    face: { label: "Обличчя", items: list(FACE) }, body: { label: "Тіло", items: list(BODY) },
+    skin: { label: "Шкіра", items: list(SKIN), colors: Object.keys(SKIN).map(function (k) { return SKIN[k].c[0]; }) },
+    eyes: { label: "Очі", items: list(EYES) }, hair: { label: "Зачіска", items: list(HAIR) },
+    hairColor: { label: "Колір волосся", items: list(HAIR_COLOR), colors: Object.keys(HAIR_COLOR).map(function (k) { return HAIR_COLOR[k].c[0]; }) },
+    hat: { label: "Капелюх", items: list(HAT) }, outfit: { label: "Одяг", items: list(OUTFIT) }, bg: { label: "Тло", items: list(BG) },
+    expr: { label: "Вираз", items: list(EXPR) }
+  };
+
+  root.TTChar = { render: render, CATALOG: CATALOG, DEFAULT: DEFAULT };
+})(typeof window !== "undefined" ? window : this);
+/*TTCHAR-END*/
 </script>
 
 <script>
@@ -845,7 +1059,8 @@ body.onb-on { overflow: hidden; }
     function deep(v) { return Array.isArray(v) ? v.map(deep) : N(v); }
     function S(v, max) { return typeof v === "string" ? v.slice(0, max) : ""; }
     var o = {};
-    ["u", "x", "g", "w", "a", "s", "e", "m", "wb", "dn", "kl", "cs", "ht"].forEach(function (k) { if (d[k] !== undefined) o[k] = N(d[k]); });
+    if (typeof d.l3 === "string" && /^[0-9a-z]{1,16}$/.test(d.l3)) o.l3 = d.l3;   // персонаж v3: рядок номерів із каталогу
+    ["u", "x", "g", "w", "a", "s", "e", "m", "wb", "dn", "kl", "cs", "ht", "o3"].forEach(function (k) { if (d[k] !== undefined) o[k] = N(d[k]); });
     ["p", "i", "lk", "sp"].forEach(function (k) { if (Array.isArray(d[k])) o[k] = d[k].map(N); });
     if (Array.isArray(d.t)) o.t = d.t.map(N); else if (typeof d.t === "string") o.t = d.t;   // профіль: жетони; стіл: адреса
     if (typeof d.t2 === "string") o.t2 = d.t2;
@@ -1171,6 +1386,8 @@ body.onb-on { overflow: hidden; }
           kl: 58, cs: 3, ht: 0, bio: "Лікую всіх, крім тих, хто голосує проти мене" };
     if (DEMO_TAB === "spy") D.go = "spy";
     if (DEMO_TAB === "nogame" || !demoTable) delete D.gm;
+    D.l3 = { face: "angular", body: "broad", skin: "warm", eyes: "m", expr: "sly", hair: "crop", hairColor: "brown", hat: "fedora", outfit: "burgundy", bg: "city" };
+    D.o3 = 0b100010001;   // у прикладі відкриті федора, бордовий костюм і місто
     if (DEMO_TAB === "newbie") D = { u: 1, b: "", n: "Новенький", x: 0, g: 0, w: 0, a: 0, s: 0, f: 0, e: 0, r: "none", p: [], t: [], m: 100, i: [0, 0, 0, 0], kl: 0, cs: 0, ht: 0 };
   }
 
@@ -1194,12 +1411,29 @@ body.onb-on { overflow: hidden; }
   var WITEMS = WR.items.map(function (w, i) { return { i: i, key: w[0], slot: w[1], name: w[2], how: w[3], value: w[4], hint: w[5], game: w[6], ach: w[7] }; });
   var W_BY_KEY = {}; WITEMS.forEach(function (w) { W_BY_KEY[w.key] = w; });
   var SLOT_KEYS = WR.slots.map(function (s) { return s[0]; });
+  // Персонаж v3 (стиль емодзі, модуль TTChar вище). Порядок полів і платні частини — з ядра Time Town (R.look3).
+  var HAS3 = typeof TTChar !== "undefined";
+  var L3R = R.look3 || { fields: [], items: [] };
+  var L3ITEMS = L3R.items.map(function (w, i) { return { i: i, field: w[0], value: w[1], how: w[2], n: w[3], hint: w[4], game: w[5], key: w[6], name: w[7] }; });
+  var L3_ORDER = ["face", "body", "skin", "eyes", "hair", "hat", "outfit", "bg", "expr"];
+  var L3_COLOR = { skin: "skin", hair: "hairColor" };   // де кольори обирають кружечками
+  // Образ із бота (рядок номерів) або об'єкт → лише значення з каталогу; усе інше стає стандартним. Сирий текст у малюнок не йде.
+  function l3look(v) {
+    var o = {};
+    if (typeof v === "string") L3R.fields.forEach(function (f, i) { var val = f[1][parseInt(v.charAt(i), 36)]; if (val) o[f[0]] = val; });
+    else if (v && typeof v === "object") L3R.fields.forEach(function (f) { if (f[1].indexOf(v[f[0]]) >= 0) o[f[0]] = v[f[0]]; });
+    return Object.assign({}, TTChar.DEFAULT, o);
+  }
+  function char3(look) { return TTChar.render(look).replace("<svg ", '<svg preserveAspectRatio="xMidYMid slice" '); }
+  function l3Item(field, value) { for (var i = 0; i < L3ITEMS.length; i++) if (L3ITEMS[i].field === field && L3ITEMS[i].value === value) return L3ITEMS[i]; return null; }
+  function l3Open(it) { return !it || !!(((D && D.o3) || 0) >> it.i & 1); }
+  function l3Same(a, b) { return L3R.fields.every(function (f) { return a[f[0]] === b[f[0]]; }); }
   var ROLE_KEYS = Object.keys(R.roles);
 
   // ---------- профіль гравця: один на всі ігри Time Town ----------
   // Дані приходять з посилання (?p= / startapp) або з бота (/api/profile), коли вікно відкрили як стіл.
-  var own = false, L = levelOf(0), current = FRAMES[0], SP = null, fromSpy = false, hasLook = false, LOOK = {}, PHOTO = "", WAPI = [], earnedCount = 0;
-  var state = { tab: "profile", open: "", gtab: "dossier", filter: "all", pick: "none", scope: "a", slot: "hat", wpick: "", wsub: "look", showChar: false, bioDraft: null };
+  var own = false, L = levelOf(0), current = FRAMES[0], SP = null, fromSpy = false, hasLook = false, LOOK = {}, LOOK3 = null, PHOTO = "", WAPI = [], earnedCount = 0;
+  var state = { tab: "profile", open: "", gtab: "dossier", filter: "all", pick: "none", scope: "a", slot: "hat", wpick: "", wsub: "look", showChar: false, bioDraft: null, l3: null, l3cat: "face" };
   function earned(a) { return D ? (D.e >> a.i) & 1 : 0; }
   function spyEarned(a) { return SP ? (SP.e >> a.i) & 1 : 0; }
   function frameOwned(f) { return f.ach ? !!(ACH_BY_KEY[f.ach] && earned(ACH_BY_KEY[f.ach])) : L.level >= f.level; }
@@ -1215,7 +1449,8 @@ body.onb-on { overflow: hidden; }
     fromSpy = D.go === "spy";   // вікно відкрили з бота Шпигуна
     SP = D.sp ? { x: D.sp[0], games: D.sp[1], wins: D.sp[2], spy_games: D.sp[3], spy_wins: D.sp[4],
                   guessed: D.sp[5], hunted: D.sp[6], e: D.sp[7] } : null;
-    hasLook = !!(D.lk && D.lk.length) || demo;
+    hasLook = !!(D.lk && D.lk.length) || !!D.l3 || demo;
+    LOOK3 = HAS3 ? l3look(D.l3) : null;
     // Річ сама знає свій слот, тож порядок у посиланні не важливий (старі й нові версії бота сумісні)
     SLOT_KEYS.forEach(function (slot, n) { LOOK[slot] = WR["default"][n]; });
     (D.lk || []).forEach(function (code) { var it = WITEMS[code]; if (it && LOOK.hasOwnProperty(it.slot)) LOOK[it.slot] = it.key; });
@@ -1240,6 +1475,10 @@ body.onb-on { overflow: hidden; }
   function charCard(look, w, frame) {
     var f = frame || current;
     return '<div class="char" style="width:' + w + 'px;height:' + Math.round(w * 1.2) + 'px;background:' + f.color + ';' + (f.outline ? "box-shadow:0 0 0 3px " + f.outline + ";" : "") + '">' + charSVG(look) + '</div>';
+  }
+  function charCard3(look, w, frame) {
+    var f = frame || current;
+    return '<div class="char c3" style="width:' + w + 'px;height:' + Math.round(w * 1.2) + 'px;background:' + f.color + ';' + (f.outline ? "box-shadow:0 0 0 3px " + f.outline + ";" : "") + '">' + char3(look) + '</div>';
   }
   function avatar(f, size, font) {
     var pad = Math.max(3, Math.round(size / 24));
@@ -1324,10 +1563,11 @@ body.onb-on { overflow: hidden; }
     var looks = [["fedora", "suit", "acc_none", "body_m"], ["hat_none", "trench", "shades", "body_f"], ["fedora", "trench", "acc_none", "body_m"], ["hat_none", "burgundy", "rose", "body_f"],
                  ["fedora", "burgundy", "acc_none", "body_m"], ["hat_none", "suit", "acc_none", "body_f"], ["fedora", "suit", "shades", "body_m"], ["hat_none", "trench", "acc_none", "body_m"]];
     var h = '<div class="tp"><div class="tp-tbl"></div><div class="tp-ring"><svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="21" class="ring-bg"/><path d="M25 4a21 21 0 1 1 -19.7 13.8" class="ring-arc"/></svg><b>0:42</b></div>';
+    var looks3 = ["0000010111", "1132150001", "2010321201", "0121240021", "1001100111", "2233430301", "0020021211", "1110500051"];
     looks.forEach(function (l, i) {
       var a = Math.PI * 2 * i / looks.length - Math.PI / 2, look = Object.assign({}, LOOK, { hat: l[0], outfit: l[1], acc: l[2], bg: "bg_night", body: l[3] });
       Object.keys(look).forEach(function (k) { if (!W_BY_KEY[look[k]]) look[k] = LOOK[k]; });
-      h += '<span class="tp-seat' + (i === 4 ? " me" : i === 2 ? " dead" : "") + '" style="left:' + (50 + Math.cos(a) * 39).toFixed(1) + '%;top:' + (50 + Math.sin(a) * 33).toFixed(1) + '%">' + charSVG(look, "42 30 116 132") + (i === 2 ? "<i>✕</i>" : "") + '</span>';
+      h += '<span class="tp-seat' + (i === 4 ? " me" : i === 2 ? " dead" : "") + '" style="left:' + (50 + Math.cos(a) * 39).toFixed(1) + '%;top:' + (50 + Math.sin(a) * 33).toFixed(1) + '%">' + (HAS3 ? char3(i === 4 && LOOK3 ? LOOK3 : l3look(looks3[i])) : charSVG(look, "42 30 116 132")) + (i === 2 ? "<i>✕</i>" : "") + '</span>';
     });
     return h + '</div>';
   }
@@ -1517,7 +1757,7 @@ body.onb-on { overflow: hidden; }
       var me = S.seats.filter(function (x) { return x.me; })[0];
       if (seen || reduced || !me) return;
       enter = '<div class="t2-enter" aria-hidden="true"><span class="dr"></span><span class="dr r"></span>' +
-        '<span class="en-card"><span class="face">' + face({ look: me.look, name: me.name, alive: true }) + '</span><b>' + escT(me.name) + '</b><small>Сідаєш за стіл…</small></span></div>';
+        '<span class="en-card"><span class="face">' + face({ look: me.look, look3: me.look3, name: me.name, alive: true }) + '</span><b>' + escT(me.name) + '</b><small>Сідаєш за стіл…</small></span></div>';
       sitId = me.id;
       clearTimeout(enterTimer);
       enterTimer = setTimeout(function () { enter = null; drawOver(); }, 1300);
@@ -1626,6 +1866,7 @@ body.onb-on { overflow: hidden; }
       });
     }
     function face(st) {
+      if (st.look3 && HAS3) return char3(l3look(st.look3)) + (st.alive ? "" : '<span class="x">✕</span>');
       if (st.look && typeof charSVG === "function") {
         var look = {}; LOOK_SLOTS.forEach(function (k, i) { look[k] = st.look[i]; });
         return charSVG(look, "42 30 116 132") + (st.alive ? "" : '<span class="x">✕</span>');
@@ -1679,7 +1920,7 @@ body.onb-on { overflow: hidden; }
       el.tSky.classList.toggle("night", night);
       el.tSky.classList.toggle("eve", lobby || fin);   // набір і кінець гри — вечір, як поза грою
       var meSeat = S.seats.filter(function (x) { return x.me; })[0] || {};
-      var fem = !!(meSeat.look && meSeat.look[4] === "body_f");
+      var fem = meSeat.look3 && HAS3 ? l3look(meSeat.look3).eyes === "f" : !!(meSeat.look && meSeat.look[4] === "body_f");
       var A = S.act, targets = targetsNow();
       drawHead(fin);
       if (lobby) drawLobby();
@@ -1761,15 +2002,15 @@ body.onb-on { overflow: hidden; }
       var now = Date.now(), n = S.seats.length, max = +S.max || n, min = +S.min || 0;
       lobbyGone = lobbyGone.filter(function (g) { return now - g.t < 600; });
       var cells = S.seats.map(function (st) {
-        return '<div class="t2-seat' + (st.me ? " me" : "") + (st.look ? " has-look" : "") + '" data-seat="' + st.id + '"' + (st.frame ? ' style="--fr:' + escT(st.frame) + '"' : "") + '>' +
+        return '<div class="t2-seat' + (st.me ? " me" : "") + (st.look || st.look3 ? " has-look" : "") + '" data-seat="' + st.id + '"' + (st.frame ? ' style="--fr:' + escT(st.frame) + '"' : "") + '>' +
           (st.me ? '<span class="tag">ти</span>' : "") +
-          '<span class="face">' + face({ look: st.look, name: st.name, alive: true }) + '</span>' +
+          '<span class="face">' + face({ look: st.look, look3: st.look3, name: st.name, alive: true }) + '</span>' +
           '<span class="num">' + st.n + '</span>' + (st.id === S.host ? '<span class="crown" aria-hidden="true">👑</span>' : "") +
           '<span class="nm">' + escT(st.name) + '</span>' + (st.id === S.host ? '<span class="rl host">засновник</span>' : "") + '</div>';
       });
       if (!reduced) lobbyGone.forEach(function (g) {   // хто вийшов — тане на своєму місці
         cells.splice(Math.min(g.ix, cells.length), 0, '<div class="t2-seat out" aria-hidden="true" style="animation-delay:-' + (now - g.t) + 'ms">' +
-          '<span class="face">' + face({ look: g.st.look, name: g.st.name, alive: true }) + '</span><span class="nm">' + escT(g.st.name) + '</span></div>');
+          '<span class="face">' + face({ look: g.st.look, look3: g.st.look3, name: g.st.name, alive: true }) + '</span><span class="nm">' + escT(g.st.name) + '</span></div>');
       });
       var shown = Math.min(max, Math.max(8, Math.ceil((n + 1) / 4) * 4));   // порожні місця — до найближчого повного ряду, а не всі двадцять
       for (var i = cells.length; i < shown; i++) cells.push('<div class="t2-seat empty" aria-hidden="true"><span class="face">＋</span><span class="nm">вільно</span></div>');
@@ -1807,7 +2048,7 @@ body.onb-on { overflow: hidden; }
       S.seats.forEach(function (st) {
         var can = targets.indexOf(st.id) >= 0;
         var cls = "t2-seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (st.won ? " won" : "") +
-          (st.talk ? " talk" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "") + (st.look ? " has-look" : "");
+          (st.talk ? " talk" : "") + (pick === st.id ? " pick" : "") + (can ? " can" : "") + (st.look || st.look3 ? " has-look" : "");
         var sub = (!st.alive || fin) && st.role ? '<span class="rl">' + escT(st.role) + '</span>' :
           st.known ? '<span class="rl kn" title="Результат твоєї перевірки">🔍 ' + escT(st.known) + '</span>' :
           st.ally ? '<span class="rl al">свій</span>' : st.id === S.host ? '<span class="rl host">засновник</span>' : "";
@@ -2082,7 +2323,7 @@ body.onb-on { overflow: hidden; }
     var heroPic = hasLook
       ? '<button class="flip' + (state.showChar ? " flipped" : "") + '" id="flip" aria-label="' + (state.showChar ? "Показати аватарку" : "Показати персонажа") + '">' +
           '<span class="flip-in"><span class="flip-face front">' + avatar(current, 132, 46) + '</span>' +
-          '<span class="flip-face back">' + charCard(LOOK, 150) + '</span></span></button>'
+          '<span class="flip-face back">' + (LOOK3 ? charCard3(LOOK3, 150) : charCard(LOOK, 150)) + '</span></span></button>'
       : avatar(current, 112, 40);
     h += '<div class="hero-card"><div class="hero"><div class="' + (hasLook ? "char-wrap" : "ava-wrap") + '">' + heroPic + '<div class="lvl-badge">Рівень ' + L.level + '</div></div>' +
       (hasLook ? '<div class="flip-hint">' + (state.showChar ? "Торкнись, щоб побачити аватарку" : "Торкнись, щоб побачити персонажа") + '</div>' : "") +
@@ -2104,8 +2345,8 @@ body.onb-on { overflow: hidden; }
         '<button class="wcell" data-scroll="achSec"><b>🏅 ' + gotAll + '</b><span>' + plural(gotAll, "досягнення", "досягнення", "досягнень") + '</span></button></div>';
     }
     // На ПК меню збоку дрібне — тож у лівій колонці є ще й великий перехід у гардероб з мініатюрою персонажа.
-    if (wide && own && navOn) h += '<button class="golink" data-nav="wardrobe"><span class="pic" aria-hidden="true">' + (hasLook ? charSVG(LOOK, "42 30 116 132") : "👔") + '</span>' +
-      '<span class="tx"><b>Гардероб</b><small>' + (hasLook ? "Змінити образ і рамку" : "Рамки й рівні") + '</small></span>' + ICON_DOWN + '</button>';
+    if (wide && own && navOn) h += '<button class="golink" data-nav="wardrobe"><span class="pic" aria-hidden="true">' + (hasLook ? (LOOK3 ? char3(LOOK3) : charSVG(LOOK, "42 30 116 132")) : "👔") + '</span>' +
+      '<span class="tx"><b>Гардероб</b><small>' + (hasLook ? "Змінити персонажа й рамку" : "Рамки й рівні") + '</small></span>' + ICON_DOWN + '</button>';
     if (meLeft) h += meCard();
     if (wide) h += '</div><div class="pw-r">';
     h += '<div class="section"><div class="label big">Ігри</div><div class="games">' +
@@ -2259,13 +2500,13 @@ body.onb-on { overflow: hidden; }
   // ---------- гардероб: образ, рамки, рівні ----------
   function wardrobeTab() {
     var subs = [];
-    if (hasLook) subs.push(["look", "Образ"]);
+    if (hasLook) subs.push(["look", HAS3 ? "Персонаж" : "Образ"]);
     subs.push(["frames", "Рамки"], ["levels", "Рівні"]);
     if (!subs.some(function (s) { return s[0] === state.wsub; })) state.wsub = subs[0][0];
     var h = topBar("Гардероб", D.m !== undefined ? '<span class="top-m">' + num(D.m) + ' 💵</span>' : "");
     h += demoNote("Це приклад гардероба: тут нічого не зберігається.");
     h += '<div class="subnav">' + segTabs(subs, state.wsub, "wsub") + '</div>';
-    return h + (state.wsub === "look" ? lookView() : state.wsub === "frames" ? framesView() : levelsView());
+    return h + (state.wsub === "look" ? (HAS3 ? look3View() : lookView()) : state.wsub === "frames" ? framesView() : levelsView());
   }
   function framesView() {
     var pick = FRAMES.filter(function (f) { return f.key === state.pick; })[0] || current;
@@ -2285,6 +2526,62 @@ body.onb-on { overflow: hidden; }
     var bottom = '<div class="bottom"><button class="btn primary" id="apply"' + (canFrame && ok && pick.key !== current.key ? "" : " disabled") + ' style="width:100%;min-height:50px">' + esc(label) + '</button>' +
       (D.b ? "" : '<div class="note" style="text-align:center">У прикладі рамка не зберігається.</div>') + '</div>';
     return wide ? '<div class="duo"><div class="duo-l">' + hero + bottom + '</div><div class="duo-r">' + list + '</div></div>' : hero + list + bottom;
+  }
+  // Редактор персонажа v3: прев'ю, категорії, мініатюри з назвами, кружечки кольорів. Чернетка (state.l3) живе лише у вікні,
+  // доки гравець не натисне «Зберегти»; чи справді частина куплена — перевіряє бот.
+  function l3Tag(field, value, draft) {
+    var it = l3Item(field, value);
+    if (draft[field] === value && l3Open(it)) return ["Обрано", "var(--gold)"];
+    if (!it) return [L3ITEMS.some(function (x) { return x.field === field; }) ? "Безкоштовно" : "", "var(--muted)"];
+    if (l3Open(it)) return ["Є", "var(--soft)"];
+    if (it.how === "price") return [num(it.n) + " 💵", "var(--gold2)"];
+    if (it.how === "level") return ["🔒 Рівень " + it.n, "var(--muted)"];
+    return ["🔒 " + (it.game === "spy" ? "Шпигун" : "Мафія"), "var(--muted)"];
+  }
+  function look3View() {
+    var wide = isWide(), draft = state.l3 || LOOK3, cat = L3_ORDER.indexOf(state.l3cat) >= 0 ? state.l3cat : L3_ORDER[0];
+    var canEdit = own && (demo || (!fromSpy && D.b));
+    function label(field, value) { var it = TTChar.CATALOG[field].items.filter(function (x) { return x.key === value; })[0]; return it ? it.label : ""; }
+    function colors(field) {
+      var c = TTChar.CATALOG[field];
+      return '<div class="sws" role="group" aria-label="' + esc(c.label) + '">' + c.items.map(function (it, i) {
+        return '<button class="csw' + (draft[field] === it.key ? " on" : "") + '" data-l3f="' + field + '" data-l3v="' + esc(it.key) + '" style="background:' + c.colors[i] + '" title="' + esc(it.label) + '" aria-label="' + esc(it.label) + '" aria-pressed="' + (draft[field] === it.key) + '"></button>';
+      }).join("") + '<span class="cap">' + esc(label(field, draft[field])) + '</span></div>';
+    }
+    function grid(field) {
+      return '<div class="grid3 wgrid l3g">' + TTChar.CATALOG[field].items.map(function (it) {
+        var look = Object.assign({}, draft); look[field] = it.key;
+        var tag = l3Tag(field, it.key, draft), open = l3Open(l3Item(field, it.key));
+        return '<button class="witem' + (draft[field] === it.key ? " sel" : "") + (open ? "" : " locked") + '" data-l3f="' + field + '" data-l3v="' + esc(it.key) + '" aria-pressed="' + (draft[field] === it.key) + '">' +
+          '<div class="thumb c3">' + char3(look) + '</div><div class="n">' + esc(it.label) + '</div><div class="t" style="color:' + tag[1] + '">' + esc(tag[0]) + '</div></button>';
+      }).join("") + '</div>';
+    }
+    function section(field) { return (L3_COLOR[field] ? colors(L3_COLOR[field]) : "") + (field === "skin" ? "" : grid(field)); }
+    // що в чернетці ще закрите: спершу з відкритої категорії
+    var locked = ["hat", "outfit", "bg"].map(function (f) { return l3Item(f, draft[f]); }).filter(function (it) { return it && !l3Open(it); });
+    locked.sort(function (a, b) { return (b.field === cat) - (a.field === cat); });
+    var changed = !l3Same(draft, LOOK3), lk = locked[0], btn, ok = false, action = "", cap;
+    if (lk && lk.how === "price") {
+      var enough = D.m === undefined || D.m >= lk.n;
+      btn = enough ? "Купити «" + lk.name + "» за " + num(lk.n) + " 💵" : "На «" + lk.name + "» не вистачає 💵 (" + num(lk.n) + ")";
+      ok = enough; action = "buy"; cap = "«" + lk.name + "» коштує " + num(lk.n) + " 💵";
+    } else if (lk) { btn = "Закрито: " + lk.hint; cap = "«" + lk.name + "» відкриває " + lk.hint; }
+    else if (changed) { btn = "Зберегти"; ok = true; action = "save"; cap = "Є незбережені зміни"; }
+    else { btn = "Образ збережено"; cap = "Один на всі ігри Time Town"; }
+    if (!canEdit) { ok = false; if (own && fromSpy) btn = "Зберегти можна у вікні бота Mafia Time"; }
+    var hero = '<div class="hero plain">' + charCard3(draft, wide ? (window.innerWidth >= 1500 ? 280 : 236) : 150) +
+      '<h1>' + (own ? "Твій персонаж" : "Персонаж") + '</h1><div class="cap">' + esc(cap) + '</div></div>';
+    var note = '<div class="note">Обличчя, тіло, шкіра, очі, зачіска й вираз — безкоштовні. Капелюхи, одяг і тло купуються за спільні 💵 або відкриваються рівнем і досягненнями з Мафії та Шпигуна.</div>';
+    var h;
+    // На ПК усі розділи видно одразу (як і було в гардеробі), на телефоні — по одному, за чіпами.
+    // На ПК розділи стоять поруч (сіткою колонок), щоб короткі розділи на 2–3 варіанти не лишали порожнечі праворуч.
+    if (wide) h = '<div class="l3cols">' + L3_ORDER.map(function (f) { return '<div class="section"><div class="label">' + esc(TTChar.CATALOG[f].label) + '</div>' + section(f) + '</div>'; }).join("") + '</div>' + note;
+    else h = '<div class="chips slots" role="tablist">' + L3_ORDER.map(function (f) {
+        return '<button class="chip' + (cat === f ? " on" : "") + '" role="tab" aria-selected="' + (cat === f) + '" data-l3cat="' + f + '">' + esc(TTChar.CATALOG[f].label) + '</button>';
+      }).join("") + '</div><div class="section" style="padding-top:14px">' + section(cat) + note + '</div>';
+    var bottom = !own ? "" : '<div class="bottom"><button class="btn primary" id="l3apply" data-action="' + action + '" data-key="' + (lk ? esc(lk.key) : "") + '"' + (ok ? "" : " disabled") + ' style="width:100%;min-height:50px">' + esc(btn) + '</button>' +
+      (changed ? '<button class="l3-reset" id="l3reset">Скинути зміни</button>' : "") + '</div>';
+    return wide ? '<div class="duo"><div class="duo-l">' + hero + bottom + '</div><div class="duo-r">' + h + '</div></div>' : hero + h + bottom;
   }
   function lookView() {
     var slot = state.slot, wide = isWide();
@@ -2431,6 +2728,8 @@ body.onb-on { overflow: hidden; }
     appBody.innerHTML = !D ? loadingView() : state.tab === "wardrobe" ? wardrobeTab() : state.tab === "stash" ? stashTab() : profileView();
     drawTop();
     stickFit();
+    var chipOn = appBody.querySelector(".chips.slots .chip.on");   // обрана категорія лишається на виду в смужці чіпів
+    if (chipOn) chipOn.parentElement.scrollLeft = chipOn.offsetLeft - chipOn.parentElement.offsetLeft - (chipOn.parentElement.clientWidth - chipOn.offsetWidth) / 2;
   }
   app.addEventListener("click", function (ev) {
     var el = ev.target.closest("button");
@@ -2472,6 +2771,37 @@ body.onb-on { overflow: hidden; }
       if (!WAPI.length) return;
       wBusy = true;
       botCall("/api/me", body).then(meDone);
+      return;
+    }
+    if (el.dataset.l3cat) { state.l3cat = el.dataset.l3cat; haptic(); return render(); }
+    if (el.dataset.l3f && LOOK3) {   // приміряти: значення береться лише з каталогу
+      var d3 = {}; d3[el.dataset.l3f] = el.dataset.l3v;
+      state.l3 = l3look(Object.assign({}, state.l3 || LOOK3, d3));
+      if (L3_ORDER.indexOf(el.dataset.l3f) >= 0) state.l3cat = el.dataset.l3f;
+      haptic(); return render();
+    }
+    if (el.id === "l3reset") { state.l3 = null; haptic(); return render(); }
+    if (el.id === "l3apply" && LOOK3 && !wBusy) {
+      var act3 = el.dataset.action, draft3 = state.l3 || LOOK3, it3 = L3ITEMS.filter(function (x) { return x.key === el.dataset.key; })[0];
+      function l3Done(res) {
+        wBusy = false;
+        if (!res) { render(); return showToast("Немає зв’язку з ботом"); }
+        if (res.l3) { D.l3 = res.l3; LOOK3 = l3look(res.l3); }
+        if (res.o3 !== undefined) D.o3 = res.o3;
+        if (res.m !== undefined) D.m = res.m;
+        if (res.ok) {
+          if (act3 === "save") state.l3 = null;
+          try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred("success"); } catch (e) {}
+        }
+        render(); showToast(res.text || (res.ok ? "Готово" : "Не вийшло"));
+      }
+      if (demo) {   // без бота: показуємо лише, як це виглядатиме
+        if (act3 === "buy" && it3) return l3Done({ ok: true, o3: (D.o3 || 0) | (1 << it3.i), m: (D.m || 0) - it3.n, text: "Демо: куплено лише на цьому екрані" });
+        return l3Done({ ok: true, l3: draft3, text: "Демо: збережено лише на цьому екрані" });
+      }
+      if (!WAPI.length) return showToast("Немає зв’язку з ботом. Відкрий профіль кнопкою в особистих з ботом.");
+      wBusy = true; el.disabled = true;
+      botCall("/api/look3", act3 === "buy" ? { action: "buy", key: el.dataset.key } : { action: "save", look: draft3 }).then(l3Done);
       return;
     }
     if (el.dataset.slot) { state.slot = el.dataset.slot; state.wpick = ""; haptic(); return render(); }
