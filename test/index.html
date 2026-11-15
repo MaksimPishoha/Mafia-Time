@@ -287,15 +287,21 @@ body.night .ring-arc.low, .ring.red .ring-arc { stroke: var(--red); }
 .t2-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
 .t2-alive { flex: none; display: flex; flex-direction: column; align-items: center; font-weight: 800; font-size: 18px; line-height: 1.1; color: var(--gold2); padding: 5px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
 .t2-alive span { font-size: 9.5px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
-.t2-seats { flex: none; max-height: 42vh; overflow-y: auto; padding: 12px 10px 6px; }
-.t2-grid { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 10px 6px; }
-.t2-seat { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 7px 4px 5px; border-radius: 14px; background: var(--card); border: 1px solid var(--line2); color: var(--text); font: inherit; cursor: default; min-width: 0; transition: transform .15s, border-color .2s, box-shadow .2s, opacity .3s; }
-.t2-seat .face { width: 100%; max-width: 54px; aspect-ratio: 116 / 132; border-radius: 14px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; background: #232833; box-shadow: 0 0 0 2px var(--fr, transparent); }
+/* Розмір картки (--cw, --ch, --fw…) і кількість колонок рахує fitSeats(): картки якомога більші, але влазять без прокрутки */
+.t2-seats { flex: none; max-height: var(--seats-max, 45vh); overflow-y: auto; padding: 12px 10px 6px; scrollbar-width: none; }
+.t2-seats::-webkit-scrollbar { display: none; }
+.t2-grid, .lb-grid { display: grid; grid-template-columns: repeat(var(--cols, 4), var(--cw, minmax(0, 1fr))); grid-auto-rows: var(--ch, auto); gap: var(--gy, 10px) var(--gx, 6px); justify-content: center; }
+.t2-grid { align-content: center; min-height: 100%; }
+.t2-seat { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--pt, 7px) 4px 5px; border-radius: 14px; background: var(--card); border: 1px solid var(--line2); color: var(--text); font: inherit; cursor: default; min-width: 0; transition: transform .15s, border-color .2s, box-shadow .2s, opacity .3s; }
+.t2-seat .face { width: var(--fw, 54px); max-width: 100%; flex: none; aspect-ratio: 116 / 132; border-radius: clamp(12px, calc(var(--fw, 54px) * .16), 24px); overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; background: #232833; box-shadow: 0 0 0 2px var(--fr, transparent); }
 .t2-seat .face svg { width: 100%; height: 100%; display: block; }
-.t2-seat .ini { font-weight: 800; font-size: 18px; color: var(--soft); }
-.t2-seat .x { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--red); font-size: 26px; font-weight: 800; }
-.t2-seat .nm { font-size: 11.5px; font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.t2-seat .rl { font-size: 10px; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: -2px; }
+.t2-seat .ini { font-weight: 800; font-size: calc(var(--fw, 54px) * .34); color: var(--soft); }
+.t2-seat .x { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--red); font-size: calc(var(--fw, 54px) * .48); font-weight: 800; }
+.t2-seat .nm { font-size: var(--fs, 11.5px); font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.t2-seat .rl { font-size: var(--rfs, 10px); color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: -2px; }
+/* обличчя в ряду на одній висоті; ім'я (і рядок під ним) — посередині місця, що лишилось */
+.t2-seat .nm { margin-top: auto; }
+.t2-seat .nm:last-child, .t2-seat .rl { margin-bottom: auto; }
 .t2-seat .rl.kn { color: var(--night); }
 .t2-seat .rl.al { color: #E08F7A; font-weight: 700; }
 .t2-seat .rl.host { color: var(--gold); }
@@ -418,14 +424,14 @@ body.night .t2-seat.me { border-color: rgba(151,174,230,.6); background: linear-
 body.night .f-msg { background: #141B2E; }
 /* широкий екран (браузер, Discord): гравці зліва, стрічка справа */
 @media (min-width: 900px) {
-  .t2 { display: grid; grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "head head" "seats feed" "bar feed"; }
+  .t2 { display: grid; width: 100%; overflow: hidden; grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "head head" "seats feed" "bar feed"; }
   .t2-head { grid-area: head; }
   .t2-headin { padding: 16px 24px; }
-  .t2-seats { grid-area: seats; max-height: none; padding: 24px; }
-  .t2-feedwrap { grid-area: feed; border-top: 0; border-left: 1px solid var(--line2); min-height: 0; }
-  .t2-bar { grid-area: bar; }
-  .t2-seat .face { max-width: 104px; }
-  .t2-seat .nm { font-size: 13px; }
+  .t2-seats { grid-area: seats; max-height: none; min-width: 0; padding: 24px; }
+  .t2-feedwrap { grid-area: feed; border-top: 0; border-left: 1px solid var(--line2); min-height: 0; min-width: 0; overflow: hidden; }
+  /* нижня панель — під гравцями, рівною колонкою посередині: підказка й кнопки поруч, а не по різних краях екрана */
+  .t2-bar { grid-area: bar; min-width: 0; align-items: center; padding: 12px 24px 14px; }
+  .t2-bar > * { width: 100%; max-width: 720px; }
 }
 @media (prefers-reduced-motion: reduce) { .t2-seat.can, .t2-splash, .t2-splash .orb, .t2-splash .sp-sky, .t2-modal { animation: none; } .ring-arc { transition: none; } }
 /* ---------- кімната очікування (набір), вхід за стіл, кнопка «на весь екран» ---------- */
@@ -442,7 +448,7 @@ body.t2-on .toast, body.t2-on #wtoast { top: calc(70px + var(--tg-safe-area-inse
 .t2-lobby[hidden] { display: none; }
 .lb-need { text-align: center; font-size: 13.5px; color: var(--soft); }
 .lb-need b { color: var(--gold2); }
-.lb-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 6px; padding-top: 8px; }
+.lb-grid { padding-top: 8px; flex: none; }
 .t2-seat.empty { background: transparent; border: 1.5px dashed var(--line); }
 .t2-seat.empty .face { background: transparent; box-shadow: none; color: var(--muted); font-size: 20px; opacity: .6; }
 .t2-seat.empty .nm { color: var(--muted); font-weight: 500; opacity: .7; }
@@ -471,7 +477,7 @@ body.t2-on .toast, body.t2-on #wtoast { top: calc(70px + var(--tg-safe-area-inse
 .en-card small { font-size: 13px; color: var(--muted); }
 @media (min-width: 900px) {
   .t2-lobby { grid-column: 1 / -1; grid-row: 2 / 4; padding: 24px; }
-  .lb-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); width: 100%; max-width: 980px; margin: 0 auto; }
+  .lb-grid { margin-top: auto; }
   .lb-hint { width: 100%; max-width: 560px; margin-left: auto; margin-right: auto; }
 }
 @media (prefers-reduced-motion: reduce) { .t2-seat.in, .t2-seat.out, .t2-enter .dr, .en-card { animation: none; } .t2-enter { display: none; } }
@@ -656,6 +662,43 @@ body.onb-on { overflow: hidden; }
 @keyframes onbFade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes onbIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .onb, .onb-body { animation: none; } .onb-prog i, .sw, .sw::after { transition: none; } }
+/* ---------- широкий екран (ПК, Telegram Desktop на весь екран): меню збоку, сторінки у дві колонки ---------- */
+@media (min-width: 900px) {
+  body.has-nav, body.has-nav.nav-compact { --nav-h: 0px; --nav-w: 84px; padding-left: var(--nav-w); }
+  .nav { top: 0; right: auto; width: var(--nav-w); height: auto; flex-direction: column; justify-content: flex-start; gap: 4px; border-top: 0; border-right: 1px solid var(--line2);
+    padding: calc(14px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) 0 14px; }
+  .nav-b { flex: none; width: 100%; max-width: none; height: 66px; }
+  .nav-b.on::before { top: 50%; left: 0; width: 3px; height: 30px; margin: -15px 0 0; }
+  body.nav-compact .nav-t { display: inline; }
+  body.has-nav .toast, body.has-nav #wtoast { left: calc(50% + var(--nav-w) / 2); }
+  #app.wrap { max-width: 1160px; }
+  #app .top { padding-left: 24px; padding-right: 24px; }
+  #app .demo { max-width: 520px; margin-left: auto; margin-right: auto; }
+  .subnav { max-width: 520px; margin: 0 auto; }
+  .only-col { max-width: 760px; margin: 0 auto; }
+  /* профіль: герой і гаманець ліворуч, ігри й досягнення праворуч */
+  .pw { display: grid; grid-template-columns: minmax(320px, 400px) minmax(0, 1fr); gap: 0 16px; align-items: start; padding: 18px 16px 0; }
+  .pw-l { border: 1px solid var(--line2); border-radius: 20px; overflow: hidden; padding-bottom: 16px; background: #0B0E15; }
+  .pw-r > .section:first-child { padding-top: 0; }
+  /* гардероб: персонаж і кнопка ліворуч, речі праворуч */
+  .duo { display: grid; grid-template-columns: clamp(280px, 32%, 380px) minmax(0, 1fr); gap: 0 16px; align-items: start; padding: 18px 16px 0; }
+  .duo-l .hero { border: 1px solid var(--line2); border-radius: 20px; padding-top: 28px; padding-bottom: 24px; }
+  .duo-l .bottom { position: static; background: none; border-top: 0; padding: 14px 0 0; }
+  .duo-r .chips.slots { flex-wrap: wrap; overflow: visible; margin-top: 0; }
+  .duo-r .section { padding-top: 12px; }
+  .duo-r > .section:first-child { padding-top: 0; }
+  .duo-r .grid3 { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .duo-r .witem .thumb { width: 88px; height: 105px; }
+  .duo-r .witem .n, .duo-r .frame-btn .n { font-size: 12.5px; }
+  .duo-r .witem .t, .duo-r .frame-btn .t { font-size: 11px; }
+  /* склад: баланс і підтримка ліворуч, предмети праворуч у два стовпчики */
+  .duo.stash .duo-l, .duo.stash .duo-r { padding: 0; }
+  .duo.stash .duo-r .label { margin-top: 4px !important; }
+  .duo.stash .sitems { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+}
+@media (min-width: 900px) and (min-height: 760px) {
+  .pw-l, .duo-l { position: sticky; top: calc(14px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)); }
+}
 </style>
 </head>
 <body>
@@ -1525,7 +1568,66 @@ body.onb-on { overflow: hidden; }
         sitId = 0;
       }
       drawOver();
+      fitSeats();
       tick();
+    }
+    // Картки гравців: перебираємо кількість колонок і беремо ту, з якою картка найбільша й усі влазять без прокрутки.
+    // Висота картки залежить від ширини: обличчя (116:132), ім'я, рядок ролі й відступи — ті самі числа йдуть у CSS-змінні.
+    function seatSize(w) {
+      var pad = Math.max(4, Math.min(14, w * .06)), fw = w - 2 * pad;
+      var fs = Math.max(11.5, Math.min(16, w * .085)), rfs = Math.max(10, Math.min(12.5, w * .07));
+      var pt = Math.max(7, pad);
+      return { fw: fw, fs: fs, rfs: rfs, pt: pt, h: Math.ceil(fw * 132 / 116 + (fs + rfs) * 1.3 + pt + 11) };
+    }
+    function fitGrid(box, n, W, H, wide) {
+      var gx = wide ? 14 : 6, gy = wide ? 16 : 10, maxW = wide ? 260 : 104, minW = wide ? 64 : 52;
+      var list = [], top = 0, near = wide ? .94 : .78;   // на телефоні охочіше беремо менше рядів: більше місця стрічці
+      for (var c = 1; c <= n; c++) {
+        var rows = Math.ceil(n / c), w = Math.min(maxW, Math.floor((W - gx * (c - 1)) / c));
+        if (w < 40) break;
+        var lim = (H - gy * (rows - 1)) / rows;
+        if (seatSize(w).h > lim) {   // не влазить у висоту — зменшуємо картку
+          var lo = 0, hi = w;
+          while (hi - lo > 1) { var mid = (lo + hi) / 2; if (seatSize(mid).h <= lim) lo = mid; else hi = mid; }
+          w = Math.floor(lo);
+        }
+        list.push({ c: c, w: w, rows: rows, hole: c * rows - n });
+        top = Math.max(top, w);
+      }
+      // серед близьких за розміром — де менше рядів і повніший останній ряд
+      var best = list.filter(function (x) { return x.w >= top * near; })
+        .sort(function (a, b) { return a.rows - b.rows || a.hole - b.hole || b.w - a.w; })[0];
+      if (!best || best.w < minW) {   // гравців забагато для цього екрана: зручний розмір і прокрутка всередині блоку
+        var cc = Math.max(1, Math.min(n, Math.floor((W + gx) / ((wide ? 96 : 62) + gx))));
+        best = { c: cc, w: Math.min(maxW, Math.floor((W - gx * (cc - 1)) / cc)) };
+      }
+      var z = seatSize(best.w), st = box.style;
+      st.setProperty("--cols", best.c); st.setProperty("--cw", best.w + "px"); st.setProperty("--ch", z.h + "px");
+      st.setProperty("--fw", Math.floor(z.fw) + "px"); st.setProperty("--fs", z.fs.toFixed(1) + "px"); st.setProperty("--rfs", z.rfs.toFixed(1) + "px");
+      st.setProperty("--pt", z.pt.toFixed(1) + "px"); st.setProperty("--gx", gx + "px"); st.setProperty("--gy", gy + "px");
+    }
+    function padOf(node) { var cs = getComputedStyle(node); return { x: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight), y: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) }; }
+    function fitSeats() {
+      if (!active || !S || !S.seats || el.t2.hidden) return;
+      var wide = window.innerWidth >= 900, box, pd;
+      if (S.stage === "lobby") {   // кімната очікування: сітці — усе місце, що лишилось від підказок
+        box = el.tLobby;
+        var grid = box.querySelector(".lb-grid");
+        if (!grid || !box.clientHeight) return;
+        pd = padOf(box);
+        var rest = 0, kids = box.children;
+        for (var i = 0; i < kids.length; i++) if (kids[i] !== grid) rest += kids[i].offsetHeight;
+        fitGrid(box, grid.children.length, box.clientWidth - pd.x, box.clientHeight - pd.y - rest - 14 * (kids.length - 1) - 10, wide);
+        return;
+      }
+      box = el.tSeats;
+      if (!box.clientWidth) return;
+      pd = padOf(box);
+      if (wide) { box.style.removeProperty("--seats-max"); fitGrid(box, S.seats.length, box.clientWidth - pd.x, box.clientHeight - pd.y, true); return; }
+      if (document.body.classList.contains("kb")) return;   // відкрита клавіатура: картки не перебудовуємо
+      var maxH = Math.floor(el.t2.clientHeight * .45);      // на телефоні гравцям — не більше 45% висоти, решта стрічці
+      box.style.setProperty("--seats-max", maxH + "px");
+      fitGrid(box, S.seats.length, box.clientWidth - pd.x, maxH - pd.y, false);
     }
     function plural(n, one, few, many) { var a = n % 10, b = n % 100; return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many; }
     // Кімната очікування: хто вже в наборі, порожні місця пунктиром, підказка. Чату й ходів тут немає.
@@ -1573,10 +1675,9 @@ body.onb-on { overflow: hidden; }
         '<div class="t2-alive" title="Живих гравців">' + S.alive + '<span>живих</span></div>' + fsBtn());
     }
     function drawSeats(targets, fin) {
-      var n = S.seats.length, cols = n <= 4 ? Math.max(n, 3) : n <= 8 ? 4 : 5;
       var tally = {};
       if (S.votes) Object.keys(S.votes).forEach(function (k) { var t = S.votes[k]; if (t) tally[t] = (tally[t] || 0) + 1; });
-      var h = '<div class="t2-grid" style="--cols:' + cols + '">';
+      var h = '<div class="t2-grid">';
       S.seats.forEach(function (st) {
         var can = targets.indexOf(st.id) >= 0;
         var cls = "t2-seat" + (st.alive ? "" : " dead") + (st.me ? " me" : "") + (st.ally ? " ally" : "") + (st.won ? " won" : "") +
@@ -1808,6 +1909,12 @@ body.onb-on { overflow: hidden; }
     fsSetup();
     setInterval(tick, 1000);
     window.addEventListener("resize", function () { draw(); });
+    // Розмір вікна міняється й без resize (повний екран Telegram, панель стола стала вищою) — картки перераховуємо окремо.
+    try { if (tgw && tgw.onEvent) tgw.onEvent("viewportChanged", fitSeats); } catch (e) {}
+    if (window.ResizeObserver) {
+      var fitWait = 0, ro = new ResizeObserver(function () { cancelAnimationFrame(fitWait); fitWait = requestAnimationFrame(fitSeats); });
+      ro.observe(el.t2); ro.observe(el.tSeats); ro.observe(document.getElementById("tBar"));
+    }
     // Перегляд без бота (?t=demo у локальному файлі): стіл із вигаданими гравцями, щоб перевірити вигляд.
     if (window.__tableDemo && apis[0] === "demo") { window.__tableDemo(take, draw, function (p) { panel = p; draw(); }); return ctl; }
     startPoll();
@@ -1842,6 +1949,8 @@ body.onb-on { overflow: hidden; }
     var tokens = (D.t || []).map(function (i) { var a = ACH[i]; return a ? '<div class="token' + (a.rare ? " rare" : "") + '" title="' + esc(a.name) + '">' + a.emoji + '</div>' : ""; }).join("");
     var h = topBar(own ? "Мій профіль" : "Профіль гравця");
     h += demoNote("Демо: так виглядатиме вікно. Справжні дані прийдуть з кнопки в боті.");
+    var wide = isWide();
+    if (wide) h += '<div class="pw"><div class="pw-l">';
     // Спершу аватарка в рамці; торкнешся — картка перевертається й показує персонажа
     var heroPic = hasLook
       ? '<button class="flip' + (state.showChar ? " flipped" : "") + '" id="flip" aria-label="' + (state.showChar ? "Показати аватарку" : "Показати персонажа") + '">' +
@@ -1867,11 +1976,13 @@ body.onb-on { overflow: hidden; }
         '<button class="wcell" data-nav="stash"><span>Предмети</span><b>🎒 ' + itemsN + '</b></button>' +
         '<button class="wcell" data-scroll="achSec"><span>Досягнення</span><b>🏅 ' + gotAll + '</b></button></div>';
     }
+    if (wide) h += '</div><div class="pw-r">';
     h += '<div class="section"><div class="label" style="margin-top:0">Ігри Time Town</div>' +
       (fromSpy ? spyCard() + mafiaCard() : mafiaCard() + spyCard()) + '</div>';
     h += achSection(all, gotAll);
     h += meCard();
     if (!own) h += '<div class="lock-note">' + ICON_LOCK + '<div>Склад і баланс видно лише власнику профілю.</div></div>';
+    if (wide) h += '</div></div>';
     return h;
   }
 
@@ -2024,14 +2135,15 @@ body.onb-on { overflow: hidden; }
     var h = topBar("Гардероб", D.m !== undefined ? '<span class="top-m">' + num(D.m) + ' 💵</span>' : "");
     h += demoNote("Демо: так виглядатиме гардероб.");
     h += '<div class="subnav">' + segTabs(subs, state.wsub, "wsub") + '</div>';
-    return h + (state.wsub === "look" ? lookView() : state.wsub === "frames" ? framesView() : levelsView());
+    return h + (state.wsub === "look" ? lookView() : state.wsub === "frames" ? framesView() : '<div class="only-col">' + levelsView() + '</div>');
   }
   function framesView() {
     var pick = FRAMES.filter(function (f) { return f.key === state.pick; })[0] || current;
     var canFrame = own && !fromSpy;
-    var h = '<div class="hero plain">' + avatar(pick, 124, 44) +
-      '<h1 style="font-size:20px;margin-top:10px">' + esc(pick.name) + '</h1><div class="sub" style="color:var(--muted);font-size:12px">' + esc(frameHow(pick)) + '</div></div>' +
-      '<div class="section"><div class="grid3">' + FRAMES.map(function (f) {
+    var wide = isWide();
+    var hero = '<div class="hero plain">' + avatar(pick, wide ? 168 : 124, wide ? 60 : 44) +
+      '<h1 style="font-size:20px;margin-top:10px">' + esc(pick.name) + '</h1><div class="sub" style="color:var(--muted);font-size:12px">' + esc(frameHow(pick)) + '</div></div>';
+    var list = '<div class="section"><div class="grid3">' + FRAMES.map(function (f) {
         var ok = frameOwned(f);
         var tag = f.key === current.key ? "Обрана" : (ok ? "Є" : (f.ach ? "Досягнення" : "Рівень " + f.level));
         return '<button class="frame-btn' + (f.key === pick.key ? " sel" : "") + (ok ? "" : " locked") + '" data-pick="' + f.key + '" aria-pressed="' + (f.key === pick.key) + '">' +
@@ -2040,9 +2152,9 @@ body.onb-on { overflow: hidden; }
     var ok = frameOwned(pick);
     var label = pick.key === current.key ? "Уже обрано" : (ok ? "Встановити рамку" : "Ще не відкрито: " + frameHow(pick));
     if (!canFrame && own && fromSpy) label = "Змінити рамку: бот Mafia Time → /profile";
-    h += '<div class="bottom"><button class="btn primary" id="apply"' + (canFrame && ok && pick.key !== current.key ? "" : " disabled") + ' style="width:100%;min-height:50px;font-size:15px">' + esc(label) + '</button>' +
+    var bottom = '<div class="bottom"><button class="btn primary" id="apply"' + (canFrame && ok && pick.key !== current.key ? "" : " disabled") + ' style="width:100%;min-height:50px;font-size:15px">' + esc(label) + '</button>' +
       (D.b ? "" : '<div class="note" style="text-align:center">У демо рамка не зберігається.</div>') + '</div>';
-    return h;
+    return wide ? '<div class="duo"><div class="duo-l">' + hero + bottom + '</div><div class="duo-r">' + list + '</div></div>' : hero + list + bottom;
   }
   function lookView() {
     var slot = state.slot;
@@ -2052,9 +2164,10 @@ body.onb-on { overflow: hidden; }
     if (!pick) return '<div class="section"><div class="note">Тут поки порожньо.</div></div>';
     var preview = Object.assign({}, LOOK); preview[pick.slot] = pick.key;
     var canEdit = own && !fromSpy && D.b;
-    var h = '<div class="hero plain" style="padding-top:16px">' + charCard(preview, 180) +
+    var wide = isWide();
+    var hero = '<div class="hero plain" style="padding-top:16px">' + charCard(preview, wide ? 250 : 180) +
       '<h1 style="font-size:20px">' + esc(pick.name) + '</h1><div class="sub">' + esc(wTag(pick, true)) + '</div></div>';
-    h += '<div class="chips slots" role="tablist">' + WR.slots.map(function (s) {
+    var h = '<div class="chips slots" role="tablist">' + WR.slots.map(function (s) {
       return '<button class="chip' + (slot === s[0] ? " on" : "") + '" role="tab" aria-selected="' + (slot === s[0]) + '" data-slot="' + esc(s[0]) + '">' + esc(s[1]) + '</button>';
     }).join("") + '</div>';
     h += '<div class="section" style="padding-top:4px"><div class="grid3">' + items.map(function (w) {
@@ -2072,9 +2185,9 @@ body.onb-on { overflow: hidden; }
       label = enough ? "Купити за " + num(pick.value) + " 💵" : "Не вистачає 💵 (" + num(pick.value) + ")"; ok = enough; action = "buy";
     } else label = "Закрито: " + pick.hint;
     if (!canEdit) { ok = false; if (!demo && own && fromSpy) label = "Змінити образ: бот Mafia Time → /wardrobe"; }
-    h += '<div class="bottom"><button class="btn primary" id="wapply" data-action="' + action + '" data-key="' + esc(pick.key) + '"' + (ok ? "" : " disabled") + ' style="width:100%;min-height:50px;font-size:15px">' + esc(label) + '</button>' +
+    var bottom = '<div class="bottom"><button class="btn primary" id="wapply" data-action="' + action + '" data-key="' + esc(pick.key) + '"' + (ok ? "" : " disabled") + ' style="width:100%;min-height:50px;font-size:15px">' + esc(label) + '</button>' +
       (canEdit && ok ? '<div class="note" style="text-align:center">' + (WAPI.length ? "Зміниться одразу тут." : "Бот підтвердить і поверне тебе в гардероб.") + '</div>' : "") + '</div>';
-    return h;
+    return wide ? '<div class="duo"><div class="duo-l">' + hero + bottom + '</div><div class="duo-r">' + h + '</div></div>' : hero + h + bottom;
   }
   function wTag(w, long) {
     if (LOOK[w.slot] === w.key) return w.slot === "body" ? "Обрано" : "Вдягнено";
@@ -2116,17 +2229,18 @@ body.onb-on { overflow: hidden; }
   function stashTab() {
     var h = topBar("Склад") + demoNote("Демо: так виглядатиме склад.");
     if (D.m === undefined) return h + '<div class="lock-note" style="margin-top:16px">' + ICON_LOCK + '<div>Баланс і предмети видно, коли відкриваєш вікно з особистих з ботом: /profile.</div></div>';
-    h += '<div class="section"><div class="card balance"><div><div class="label" style="margin:0 0 4px">Баланс Time Town</div>' +
-      '<b>' + num(D.m) + ' 💵</b></div><div class="sub">Спільний для Мафії й Шпигуна: заробляєш в одній грі — витрачаєш в іншій.</div></div>' +
-      '<div class="label" style="margin-top:18px">Предмети</div><div class="sitems">' +
+    var bal = '<div class="card balance"><div><div class="label" style="margin:0 0 4px">Баланс Time Town</div>' +
+      '<b>' + num(D.m) + ' 💵</b></div><div class="sub">Спільний для Мафії й Шпигуна: заробляєш в одній грі — витрачаєш в іншій.</div></div>';
+    var items = '<div class="label" style="margin-top:18px">Предмети</div><div class="sitems">' +
       R.items.map(function (it, i) { var c = (D.i || [])[i] || 0; return '<div class="sitem' + (c ? "" : " empty") + '"><span class="e" aria-hidden="true">' + it[1] + '</span><div class="t"><div class="n">' + esc(it[2]) + '</div>' + (it[3] ? '<div class="d">' + esc(it[3]) + '</div>' : "") + '</div><b>×' + num(c) + '</b></div>'; }).join("") +
-      '</div><div class="note">🛒 Купити предмети: <b>/shop</b> у бота Мафії. Узяти їх на гру чи відкласти: <b>/inventory</b>. Склад бачиш лише ти.</div>' +
-      '<div class="label" style="margin-top:18px">Підтримка</div><div class="card support">' +
+      '</div><div class="note">🛒 Купити предмети: <b>/shop</b> у бота Мафії. Узяти їх на гру чи відкласти: <b>/inventory</b>. Склад бачиш лише ти.</div>';
+    var sup = '<div class="label" style="margin-top:18px">Підтримка</div><div class="card support">' +
       '<div class="sub">' + (D.dn ? "💎 Дякуємо, ти — Меценат Time Town! Значок видно у твоєму профілі." : "Time Town росте завдяки гравцям. Підтримай місто зірками Telegram — і отримай значок «Меценат» у профілі.") + '</div>' +
       (own && !fromSpy && D.b ? '<button class="btn primary" data-donate="1" style="margin-top:12px;width:100%;min-height:48px">💎 Підтримати Time Town</button>' :
         '<div class="note">' + (fromSpy ? "Підтримати можна в боті Мафії: /donate." : "У демо кнопка підтримки не працює.") + '</div>') +
-      '</div><button class="btn" id="howBtn" style="margin-top:14px;width:100%">❔ Як це працює?</button></div>';
-    return h;
+      '</div><button class="btn" id="howBtn" style="margin-top:14px;width:100%">❔ Як це працює?</button>';
+    if (isWide()) return h + '<div class="duo stash"><div class="duo-l">' + bal + sup + '</div><div class="duo-r">' + items + '</div></div>';
+    return h + '<div class="section">' + bal + items + sup + '</div>';
   }
 
   // ---------- зміни прямо у вікні (через адресу бота, якщо вона є) ----------
@@ -2156,6 +2270,14 @@ body.onb-on { overflow: hidden; }
   }
 
   // ---------- малювання й події ----------
+  // Широкий екран (від 900 px): сторінки складаються у дві колонки. На телефоні розмітка та сама, що й була.
+  function isWide() { return window.innerWidth >= 900; }
+  var wasWide = isWide();
+  window.addEventListener("resize", function () {
+    if (isWide() === wasWide) return;
+    wasWide = isWide();
+    if (state.tab !== "game") render();
+  });
   function render() {
     if (state.tab === "game") return;
     if (!D) { app.innerHTML = loadingView(); return; }
