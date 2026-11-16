@@ -296,7 +296,48 @@ body.night .amph .board::before { background: repeating-linear-gradient(90deg, r
 /* ---------- живий стіл (v2): шапка з кільцем, гравці, стрічка подій і чату, панель дій ---------- */
 body.t2-on { overscroll-behavior: none; }
 .t2 { display: flex; flex-direction: column; height: calc(100vh - var(--nav-h, 0px)); height: calc(100dvh - var(--nav-h, 0px)); }
+/* На iPhone 100dvh у Telegram буває вищим за видиму частину вікна — тоді нижній ряд кнопок ховався під меню.
+   Точну висоту дає сам Telegram (оновлює її на viewportChanged); беремо меншу з двох. */
+@supports (height: min(1px, 2px)) { .t2 { height: calc(min(var(--tg-viewport-stable-height, 100dvh), 100dvh) - var(--nav-h, 0px)); } }
 .t2[hidden] { display: none; }
+/* нотатка про гравця (бачиш лише ти) і картка «твоя роль» */
+.t2-seat { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.t2-seat .nt { position: absolute; right: 3px; top: 22px; min-width: 20px; height: 20px; padding: 0 3px; border-radius: 10px; background: rgba(15,18,32,.88); border: 1px solid var(--line); font-size: 11px; line-height: 1; display: flex; align-items: center; justify-content: center; gap: 1px; z-index: 1; }
+.t2-mcard.nt-card { background: linear-gradient(#1E2336, #171B2B); border-color: var(--line); gap: 10px; padding-bottom: 16px; max-height: 100%; overflow-y: auto; }
+.t2-mcard.nt-card .k { color: var(--night); }
+.t2-mcard.nt-card .q b { color: var(--gold2); }
+.nt-marks { display: flex; gap: 8px; width: 100%; }
+.nt-b { flex: 1; min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 4px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.nt-b.on, .nt-r.on { border-color: var(--gold); background: var(--goldbg); color: var(--gold2); }
+.nt-h { align-self: flex-start; font-size: 13px; color: var(--muted); font-weight: 600; }
+.nt-roles { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; max-height: 176px; overflow-y: auto; }
+.nt-r { min-height: 32px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--soft); font: inherit; font-size: 12.5px; cursor: pointer; }
+.nt-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
+.nt-foot .btn { flex: none; min-width: 120px; }
+.t2-modal.rc { flex-direction: column; gap: 16px; z-index: 56; }
+.rc-card { flex: none; width: min(270px, 76vw); height: min(378px, 58vh); padding: 0; border: 0; background: none; color: var(--text); font: inherit; perspective: 1000px; cursor: pointer; }
+.rc-in { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; }
+.rc-card.open .rc-in { transform: rotateY(180deg); animation: rcflip .7s cubic-bezier(.4, 0, .2, 1) both; }
+@keyframes rcflip { from { transform: rotateY(0deg); } }
+.rc-back, .rc-front { position: absolute; inset: 0; border-radius: 20px; border: 2px solid var(--gold); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 18px 16px; text-align: center; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.rc-back { background: repeating-linear-gradient(45deg, #1B2036 0 10px, #171B2B 10px 20px); box-shadow: inset 0 0 0 7px var(--bg), inset 0 0 0 8px rgba(226,190,106,.4); }
+.rc-back i { font-style: normal; font-size: 54px; line-height: 1.1; }
+.rc-back b { font-family: var(--serif); font-size: 22px; }
+.rc-back small { font-size: 14px; color: var(--gold2); font-weight: 600; }
+.rc-back small.s2 { font-size: 12px; color: var(--muted); font-weight: 400; }
+.rc-front { transform: rotateY(180deg); background: linear-gradient(#262B40, #171B2B); justify-content: flex-start; overflow-y: auto; }
+.rc-front i { font-style: normal; font-size: 58px; line-height: 1.15; margin-top: 6px; }
+.rc-front .k { font-size: 12.5px; color: var(--muted); }
+.rc-front b { font-family: var(--serif); font-size: 24px; line-height: 1.2; color: var(--gold2); }
+.rc-front .d { font-size: 13.5px; line-height: 1.45; color: var(--soft); }
+.rc-front .m { display: flex; flex-direction: column; gap: 3px; width: 100%; margin-top: 4px; padding: 9px 10px; border-radius: 12px; background: rgba(143,178,245,.1); font-size: 13px; color: var(--soft); }
+.rc-front .m .mh { font-size: 11.5px; color: var(--night); font-weight: 600; }
+.rc-front .m b { font-family: inherit; font-size: inherit; color: var(--text); }
+.rc-ok { flex: none; width: min(270px, 76vw); }
+.rc-card.still .rc-in { animation: none; transform: none; }
+.rc-card.still.open .rc-back { display: none; }
+.rc-card.still .rc-front { transform: none; }
+@media (prefers-reduced-motion: reduce) { .rc-card .rc-in { animation: none; transform: none; } .rc-card.open .rc-back { display: none; } .rc-card .rc-front { transform: none; } }
 .t2-head { position: relative; overflow: hidden; flex: none; }
 .t2-headin { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; min-height: var(--hd-h); padding: 6px 14px; }
 .ring { position: relative; flex: none; display: inline-flex; }
@@ -360,6 +401,23 @@ body.night .ring-arc.low, .ring.red .ring-arc { stroke: var(--red); }
 .t2-voice:empty { display: none; }
 .t2-voice { position: relative; z-index: 1; padding: 0 14px 10px; }
 .t2-bar .vc-row { margin: 0; }
+/* ---------- голос у столі (LiveKit): вхід, вмикач мікрофона, хто говорить ---------- */
+.rv { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.rv .btn { flex: none; min-height: 40px; padding: 0 16px; font-size: 14px; background: rgba(23,27,43,.86); }
+.rv .btn.primary { background: var(--gold); }
+.rv .btn.rv-big { flex: 1; min-height: 48px; font-size: 16px; }
+.rv-note { flex: 1; min-width: 0; font-size: 12.5px; color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 3px rgba(11,14,26,.95); }
+.rv-mic { flex: none; min-height: 40px; padding: 0 16px 0 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(23,27,43,.86); color: var(--soft); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.rv-mic.on { background: var(--lamp); border-color: var(--lamp); color: var(--ink); box-shadow: 0 0 16px rgba(245,166,91,.45); }
+.rv-mic:disabled { opacity: .6; cursor: default; }
+.rv-x { flex: none; min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: rgba(23,27,43,.72); color: var(--muted); font-size: 13px; cursor: pointer; }
+.rv-mic:active, .rv-x:active { transform: scale(.96); }
+/* хто говорить: зелене кільце (золото зайняте рамками гравців) */
+.t2-seat.rtalk .face { box-shadow: 0 0 0 3px var(--green), 0 0 18px rgba(127,201,160,.55); animation: rvtalk 1.1s ease-in-out infinite; }
+.t2-seat.rtalk { border-color: var(--green); }
+@keyframes rvtalk { 50% { box-shadow: 0 0 0 5px rgba(127,201,160,.4), 0 0 26px rgba(127,201,160,.7); } }
+@media (min-width: 900px) { .t2-voice { padding: 0 24px 14px; } .rv { max-width: 560px; } }
+@media (prefers-reduced-motion: reduce) { .t2-seat.rtalk .face { animation: none; } }
 @keyframes t2pulse { 50% { box-shadow: 0 0 0 3px rgba(226,190,106,.28); } }
 .t2-feedwrap { flex: 1; min-height: 130px; display: flex; flex-direction: column; border-top: 1px solid var(--line2); }
 .t2-feed-h { display: flex; justify-content: space-between; padding: 10px 16px 2px; font-size: 13px; color: var(--muted); font-weight: 600; }
@@ -581,7 +639,7 @@ body.has-nav .bottom { padding-bottom: 14px; }
 .hd-sky::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,18,32,.8) 0%, rgba(15,18,32,.4) 34%, rgba(15,18,32,0) 62%); }
 body.night .hd-sky::after { background: linear-gradient(90deg, rgba(9,12,24,.8) 0%, rgba(9,12,24,.4) 34%, rgba(9,12,24,0) 62%); }
 .hd-sky .moon, .hd-sky .sun { top: 12px; }
-.t2-sky .moon, .t2-sky .sun { right: 33%; top: 6px; }
+.t2-sky .moon, .t2-sky .sun { right: var(--moon, 33%); top: 6px; }
 /* місто на заставках «Ніч N» / «День N» */
 .sp-city { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; pointer-events: none; animation: t2rise 1.1s cubic-bezier(.2,.8,.2,1); }
 .sp-city .city { height: 100%; }
@@ -684,6 +742,13 @@ code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-siz
 .sitem > b { flex: none; font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 600; color: var(--gold); }
 .sitem.empty .e, .sitem.empty .n { opacity: .55; }
 .sitem.empty > b { color: var(--muted); }
+.sbuy { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 10px; }
+.sbuy .btn { flex: none; min-height: 40px; padding: 0 16px; font-size: 14px; }
+.suse { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0; border: 0; background: none; color: var(--soft); font: inherit; font-size: 13px; cursor: pointer; }
+.suse .sw { transform: scale(.82); transform-origin: right center; }
+.sexrow { display: flex; align-items: center; gap: 8px; padding: 0 16px; margin-top: 14px; }
+.sexrow .cap { margin-right: 4px; }
+.duo-r > .sexrow { padding: 0; margin: 0 0 14px; }
 /* знайомство для новачка: кілька коротких екранів поверх вікна */
 .onb { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(8, 10, 14, .93);
   padding: calc(16px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom)); animation: onbFade .25s ease; }
@@ -796,7 +861,7 @@ body.onb-on { overflow: hidden; }
 
 <!-- Правила гри для вікна. Генеруються з mafia_time/progress.py командою: python webapp/build.py -->
 <script id="rules" type="application/json">
-/*RULES*/{"levelStep": 250, "xp": {"play": 20, "win": 30, "survive": 10, "feat": 5, "featCap": 25}, "ranks": [[1, "Новачок"], [5, "Мешканець"], [10, "Детектив"], [20, "Інспектор"], [30, "Хрещений батько"], [50, "Легенда міста"]], "levelRewards": [[5, 100], [10, 150], [15, 200], [20, 300], [30, 500], [50, 1000]], "achievements": [["first_game", "🎲", "Перша ніч", "Зіграй першу гру", 1, 50, 0, 0], ["games_50", "🗓", "Завсідник", "Зіграй 50 ігор", 50, 150, 0, 0], ["wins_10", "🏅", "Смак перемоги", "Виграй 10 ігор", 10, 100, 0, 0], ["wins_100", "🎯", "Сотня", "Виграй 100 ігор", 100, 300, 1, 0], ["streak_5", "🔥", "На хвилі", "Виграй 5 ігор поспіль", 5, 150, 0, 0], ["nights_10", "🌙", "Нічний вовк", "Доживи до 10-го дня в одній грі", 1, 100, 0, 0], ["civ_wins", "👨🏼", "Голос народу", "Виграй 10 разів Мирним жителем", 10, 100, 0, 0], ["found_50", "🕵🏼", "Гроза мафії", "Знайди 50 мафіозі перевірками", 50, 300, 1, 0], ["saved_25", "💉", "Ангел-охоронець", "Врятуй 25 гравців Лікарем", 25, 200, 0, 0], ["don_20", "🤵🏻", "Хрещений батько", "Виграй 20 разів Доном", 20, 300, 1, 0], ["charmed_10", "💃🏼", "Серцеїдка", "Відволічи 10 гравців Коханкою", 10, 100, 0, 0], ["maniac_5", "🔪", "Тінь міста", "Виграй 5 разів Маньяком", 5, 200, 0, 0], ["suicide", "🤦🏼‍♂️", "Мрія збулася", "Добийся страти Самогубцем", 1, 100, 0, 0], ["kamikaze", "💣", "Не сам", "Забери когось із собою Камікадзе", 1, 100, 0, 1], ["lucky", "🤞", "Народжений у сорочці", "Переживи замах Щасливчиком", 1, 100, 0, 1]], "frames": [["none", "Без рамки", "#2A2F3A", 0, "", ""], ["steel", "Сталь", "#9AA0AA", 5, "", ""], ["gold", "Золота зірка", "#E2BE6A", 10, "", ""], ["police", "Поліцейська", "#5B8DEF", 0, "found_50", ""], ["blood", "Кривава ніч", "#C0453A", 0, "don_20", ""], ["angel", "Ангельська", "#EDEAE0", 0, "saved_25", ""], ["double", "Подвійна", "#E2BE6A", 20, "", "#C0453A"], ["hundred", "Сотня", "#7FC9A0", 0, "wins_100", ""], ["legend", "Легенда міста", "#F3D58E", 50, "", "#E2BE6A"]], "roles": {"civilian": ["👨🏼", "Мирний житель"], "don": ["🤵🏻", "Дон"], "mafia": ["🤵🏼", "Мафія"], "commissioner": ["🕵🏼", "Комісар Каттані"], "sergeant": ["👮🏻‍♂️", "Сержант"], "doctor": ["👨🏼‍⚕️", "Лікар"], "maniac": ["🔪", "Маньяк"], "lover": ["💃🏼", "Коханка"], "lawyer": ["👨🏼‍💼", "Адвокат"], "suicide": ["🤦🏼‍♂️", "Самогубець"], "bomj": ["🧙🏼‍♂️", "Бомж"], "lucky": ["🤞", "Щасливчик"], "kamikaze": ["💣", "Камікадзе"]}, "items": [["docs", "📂", "Документи", "Для мафії: Комісар перевірить тебе — побачить «Мирний житель». Згорає, коли спрацює."], ["shields", "🛡", "Захист", "Бронежилет: рятує від нічного вбивства (мафія, маньяк, постріл Комісара). Згорає, коли спрацює."], ["ap", "🔫", "Бронебійний патрон", "Твій нічний постріл пробиває 🛡 захист жертви (але не Лікаря). Згорає, лише коли пробив."], ["tap", "🎧", "Прослуховування", "Для Комісара: бачиш справжню роль навіть крізь 📂 документи чи Адвоката. Згорає, лише коли викрив."]], "spy": {"xp": {"play": 20, "win": 30, "guess": 15, "hunt": 5}, "achievements": [["first", "🎲", "Перша місія", "Зіграй першу гру в Шпигуна", 1, 50, 0, "games"], ["games_50", "🗓", "Постійний агент", "Зіграй 50 ігор у Шпигуна", 50, 150, 0, "games"], ["wins_10", "🏅", "Без провалів", "Виграй 10 ігор у Шпигуна", 10, 100, 0, "wins"], ["spy_10", "🕵️", "Під прикриттям", "Зіграй 10 ігор шпигуном", 10, 100, 0, "spy_games"], ["spy_wins_10", "🕶", "Невловимий", "Виграй 10 разів шпигуном", 10, 200, 1, "spy_wins"], ["guess", "🔓", "Зламав шифр", "Вгадай слово, будучи шпигуном", 1, 100, 0, "guessed"], ["guess_10", "🧠", "Дешифрувальник", "Вгадай слово шпигуном 10 разів", 10, 300, 1, "guessed"], ["hunt", "🎯", "Мисливець", "Проголосуй проти шпигуна, коли його викрили", 1, 50, 0, "hunted"], ["hunt_25", "🦅", "Пильне око", "Вистеж шпигуна 25 разів", 25, 200, 1, "hunted"]]}, "wardrobe": {"slots": [["body", "Персонаж"], ["hat", "Капелюх"], ["outfit", "Одяг"], ["acc", "Аксесуар"], ["bg", "Тло"]], "items": [["hat_none", "hat", "Без капелюха", "free", 0, "доступна", "", ""], ["fedora", "hat", "Федора", "free", 0, "доступна", "", ""], ["cap", "hat", "Кашкет", "price", 150, "купити за 150 💵", "", ""], ["beret", "hat", "Берет", "ach", 0, "досягнення «Невловимий» (🕵️ Шпигун)", "spy", "spy_wins_10"], ["tophat", "hat", "Циліндр", "level", 20, "рівень 20", "", ""], ["crown", "hat", "Корона", "level", 50, "рівень 50", "", ""], ["trench", "outfit", "Плащ детектива", "free", 0, "доступна", "", ""], ["suit", "outfit", "Чорний костюм", "free", 0, "доступна", "", ""], ["burgundy", "outfit", "Бордовий костюм", "price", 250, "купити за 250 💵", "", ""], ["white", "outfit", "Білий костюм", "level", 15, "рівень 15", "", ""], ["police", "outfit", "Форма комісара", "ach", 0, "досягнення «Гроза мафії» (🎭 Мафія)", "mafia", "found_50"], ["medic", "outfit", "Халат лікаря", "ach", 0, "досягнення «Ангел-охоронець» (🎭 Мафія)", "mafia", "saved_25"], ["acc_none", "acc", "Без аксесуара", "free", 0, "доступна", "", ""], ["shades", "acc", "Темні окуляри", "free", 0, "доступна", "", ""], ["monocle", "acc", "Монокль", "price", 200, "купити за 200 💵", "", ""], ["bowtie", "acc", "Метелик", "level", 10, "рівень 10", "", ""], ["rose", "acc", "Троянда в петлиці", "ach", 0, "досягнення «Серцеїдка» (🎭 Мафія)", "mafia", "charmed_10"], ["mask", "acc", "Маска", "ach", 0, "досягнення «Дешифрувальник» (🕵️ Шпигун)", "spy", "guess_10"], ["bg_night", "bg", "Ніч", "free", 0, "доступна", "", ""], ["bg_city", "bg", "Місто вночі", "level", 5, "рівень 5", "", ""], ["bg_rain", "bg", "Дощ", "price", 150, "купити за 150 💵", "", ""], ["bg_curtain", "bg", "Червона завіса", "price", 400, "купити за 400 💵", "", ""], ["bg_gold", "bg", "Золото", "level", 30, "рівень 30", "", ""], ["body_m", "body", "Чоловічий", "free", 0, "доступна", "", ""], ["body_f", "body", "Жіночий", "free", 0, "доступна", "", ""]], "default": ["body_m", "fedora", "trench", "acc_none", "bg_night"]}, "look3": {"fields": [["face", ["angular", "round", "long"]], ["body", ["broad", "slim", "soft"]], ["skin", ["light", "warm", "tan", "deep"]], ["eyes", ["m", "f"]], ["expr", ["calm", "smile", "laugh", "angry", "sly"]], ["hair", ["bald", "crop", "messy", "bob", "bun", "long"]], ["hairColor", ["brown", "black", "blond", "red", "grey"]], ["hat", ["none", "fedora", "cap", "beret"]], ["outfit", ["suit", "trench", "burgundy", "sweater", "police", "dress"]], ["bg", ["none", "night", "city", "curtain", "gold", "teal"]]], "items": [["hat", "fedora", "price", 100, "купити за 100 💵", "", "hat3_fedora", "Федора"], ["hat", "cap", "price", 150, "купити за 150 💵", "", "hat3_cap", "Кашкет"], ["hat", "beret", "ach", 0, "досягнення «Невловимий» (🕵️ Шпигун)", "spy", "hat3_beret", "Берет"], ["outfit", "trench", "price", 150, "купити за 150 💵", "", "outfit3_trench", "Тренч"], ["outfit", "burgundy", "price", 250, "купити за 250 💵", "", "outfit3_burgundy", "Бордовий костюм"], ["outfit", "sweater", "price", 200, "купити за 200 💵", "", "outfit3_sweater", "Светр"], ["outfit", "police", "ach", 0, "досягнення «Гроза мафії» (🎭 Мафія)", "mafia", "outfit3_police", "Форма комісара"], ["outfit", "dress", "price", 300, "купити за 300 💵", "", "outfit3_dress", "Сукня"], ["bg", "city", "level", 5, "рівень 5", "", "bg3_city", "Місто"], ["bg", "curtain", "price", 400, "купити за 400 💵", "", "bg3_curtain", "Завіса"], ["bg", "gold", "level", 30, "рівень 30", "", "bg3_gold", "Золото"], ["bg", "teal", "price", 150, "купити за 150 💵", "", "bg3_teal", "Смарагд"]]}}/*END*/
+/*RULES*/{"levelStep": 250, "xp": {"play": 20, "win": 30, "survive": 10, "feat": 5, "featCap": 25}, "ranks": [[1, "Новачок"], [5, "Мешканець"], [10, "Детектив"], [20, "Інспектор"], [30, "Хрещений батько"], [50, "Легенда міста"]], "levelRewards": [[5, 100], [10, 150], [15, 200], [20, 300], [30, 500], [50, 1000]], "achievements": [["first_game", "🎲", "Перша ніч", "Зіграй першу гру", 1, 50, 0, 0], ["games_50", "🗓", "Завсідник", "Зіграй 50 ігор", 50, 150, 0, 0], ["wins_10", "🏅", "Смак перемоги", "Виграй 10 ігор", 10, 100, 0, 0], ["wins_100", "🎯", "Сотня", "Виграй 100 ігор", 100, 300, 1, 0], ["streak_5", "🔥", "На хвилі", "Виграй 5 ігор поспіль", 5, 150, 0, 0], ["nights_10", "🌙", "Нічний вовк", "Доживи до 10-го дня в одній грі", 1, 100, 0, 0], ["civ_wins", "👨🏼", "Голос народу", "Виграй 10 разів Мирним жителем", 10, 100, 0, 0], ["found_50", "🕵🏼", "Гроза мафії", "Знайди 50 мафіозі перевірками", 50, 300, 1, 0], ["saved_25", "💉", "Ангел-охоронець", "Врятуй 25 гравців Лікарем", 25, 200, 0, 0], ["don_20", "🤵🏻", "Хрещений батько", "Виграй 20 разів Доном", 20, 300, 1, 0], ["charmed_10", "💃🏼", "Серцеїдка", "Відволічи 10 гравців Коханкою", 10, 100, 0, 0], ["maniac_5", "🔪", "Тінь міста", "Виграй 5 разів Маньяком", 5, 200, 0, 0], ["suicide", "🤦🏼‍♂️", "Мрія збулася", "Добийся страти Самогубцем", 1, 100, 0, 0], ["kamikaze", "💣", "Не сам", "Забери когось із собою Камікадзе", 1, 100, 0, 1], ["lucky", "🤞", "Народжений у сорочці", "Переживи замах Щасливчиком", 1, 100, 0, 1]], "frames": [["none", "Без рамки", "#2A2F3A", 0, "", ""], ["steel", "Сталь", "#9AA0AA", 5, "", ""], ["gold", "Золота зірка", "#E2BE6A", 10, "", ""], ["police", "Поліцейська", "#5B8DEF", 0, "found_50", ""], ["blood", "Кривава ніч", "#C0453A", 0, "don_20", ""], ["angel", "Ангельська", "#EDEAE0", 0, "saved_25", ""], ["double", "Подвійна", "#E2BE6A", 20, "", "#C0453A"], ["hundred", "Сотня", "#7FC9A0", 0, "wins_100", ""], ["legend", "Легенда міста", "#F3D58E", 50, "", "#E2BE6A"]], "roles": {"civilian": ["👨🏼", "Мирний житель"], "don": ["🤵🏻", "Дон"], "mafia": ["🤵🏼", "Мафія"], "commissioner": ["🕵🏼", "Комісар Каттані"], "sergeant": ["👮🏻‍♂️", "Сержант"], "doctor": ["👨🏼‍⚕️", "Лікар"], "maniac": ["🔪", "Маньяк"], "lover": ["💃🏼", "Коханка"], "lawyer": ["👨🏼‍💼", "Адвокат"], "suicide": ["🤦🏼‍♂️", "Самогубець"], "bomj": ["🧙🏼‍♂️", "Бомж"], "lucky": ["🤞", "Щасливчик"], "kamikaze": ["💣", "Камікадзе"]}, "items": [["docs", "📂", "Документи", "Для мафії: Комісар перевірить тебе — побачить «Мирний житель». Згорає, коли спрацює.", 90], ["shields", "🛡", "Захист", "Бронежилет: рятує від нічного вбивства (мафія, маньяк, постріл Комісара). Згорає, коли спрацює.", 110], ["ap", "🔫", "Бронебійний патрон", "Твій нічний постріл пробиває 🛡 захист жертви (але не Лікаря). Згорає, лише коли пробив.", 110], ["tap", "🎧", "Прослуховування", "Для Комісара: бачиш справжню роль навіть крізь 📂 документи чи Адвоката. Згорає, лише коли викрив.", 90]], "spy": {"xp": {"play": 20, "win": 30, "guess": 15, "hunt": 5}, "achievements": [["first", "🎲", "Перша місія", "Зіграй першу гру в Шпигуна", 1, 50, 0, "games"], ["games_50", "🗓", "Постійний агент", "Зіграй 50 ігор у Шпигуна", 50, 150, 0, "games"], ["wins_10", "🏅", "Без провалів", "Виграй 10 ігор у Шпигуна", 10, 100, 0, "wins"], ["spy_10", "🕵️", "Під прикриттям", "Зіграй 10 ігор шпигуном", 10, 100, 0, "spy_games"], ["spy_wins_10", "🕶", "Невловимий", "Виграй 10 разів шпигуном", 10, 200, 1, "spy_wins"], ["guess", "🔓", "Зламав шифр", "Вгадай слово, будучи шпигуном", 1, 100, 0, "guessed"], ["guess_10", "🧠", "Дешифрувальник", "Вгадай слово шпигуном 10 разів", 10, 300, 1, "guessed"], ["hunt", "🎯", "Мисливець", "Проголосуй проти шпигуна, коли його викрили", 1, 50, 0, "hunted"], ["hunt_25", "🦅", "Пильне око", "Вистеж шпигуна 25 разів", 25, 200, 1, "hunted"]]}, "wardrobe": {"slots": [["body", "Персонаж"], ["hat", "Капелюх"], ["outfit", "Одяг"], ["acc", "Аксесуар"], ["bg", "Тло"]], "items": [["hat_none", "hat", "Без капелюха", "free", 0, "доступна", "", ""], ["fedora", "hat", "Федора", "free", 0, "доступна", "", ""], ["cap", "hat", "Кашкет", "price", 150, "купити за 150 💵", "", ""], ["beret", "hat", "Берет", "ach", 0, "досягнення «Невловимий» (🕵️ Шпигун)", "spy", "spy_wins_10"], ["tophat", "hat", "Циліндр", "level", 20, "рівень 20", "", ""], ["crown", "hat", "Корона", "level", 50, "рівень 50", "", ""], ["trench", "outfit", "Плащ детектива", "free", 0, "доступна", "", ""], ["suit", "outfit", "Чорний костюм", "free", 0, "доступна", "", ""], ["burgundy", "outfit", "Бордовий костюм", "price", 250, "купити за 250 💵", "", ""], ["white", "outfit", "Білий костюм", "level", 15, "рівень 15", "", ""], ["police", "outfit", "Форма комісара", "ach", 0, "досягнення «Гроза мафії» (🎭 Мафія)", "mafia", "found_50"], ["medic", "outfit", "Халат лікаря", "ach", 0, "досягнення «Ангел-охоронець» (🎭 Мафія)", "mafia", "saved_25"], ["acc_none", "acc", "Без аксесуара", "free", 0, "доступна", "", ""], ["shades", "acc", "Темні окуляри", "free", 0, "доступна", "", ""], ["monocle", "acc", "Монокль", "price", 200, "купити за 200 💵", "", ""], ["bowtie", "acc", "Метелик", "level", 10, "рівень 10", "", ""], ["rose", "acc", "Троянда в петлиці", "ach", 0, "досягнення «Серцеїдка» (🎭 Мафія)", "mafia", "charmed_10"], ["mask", "acc", "Маска", "ach", 0, "досягнення «Дешифрувальник» (🕵️ Шпигун)", "spy", "guess_10"], ["bg_night", "bg", "Ніч", "free", 0, "доступна", "", ""], ["bg_city", "bg", "Місто вночі", "level", 5, "рівень 5", "", ""], ["bg_rain", "bg", "Дощ", "price", 150, "купити за 150 💵", "", ""], ["bg_curtain", "bg", "Червона завіса", "price", 400, "купити за 400 💵", "", ""], ["bg_gold", "bg", "Золото", "level", 30, "рівень 30", "", ""], ["body_m", "body", "Чоловічий", "free", 0, "доступна", "", ""], ["body_f", "body", "Жіночий", "free", 0, "доступна", "", ""]], "default": ["body_m", "fedora", "trench", "acc_none", "bg_night"]}, "look3": {"fields": [["face", ["angular", "round", "long"]], ["body", ["broad", "slim", "soft"]], ["skin", ["light", "warm", "tan", "deep"]], ["eyes", ["m", "f"]], ["expr", ["calm", "smile", "laugh", "angry", "sly"]], ["hair", ["bald", "crop", "messy", "bob", "bun", "long"]], ["hairColor", ["brown", "black", "blond", "red", "grey"]], ["hat", ["none", "fedora", "cap", "beret"]], ["outfit", ["suit", "trench", "burgundy", "sweater", "police", "dress"]], ["bg", ["none", "night", "city", "curtain", "gold", "teal"]], ["sex", ["m", "f"]]], "items": [["hat", "fedora", "price", 100, "купити за 100 💵", "", "hat3_fedora", "Федора"], ["hat", "cap", "price", 150, "купити за 150 💵", "", "hat3_cap", "Кашкет"], ["hat", "beret", "ach", 0, "досягнення «Невловимий» (🕵️ Шпигун)", "spy", "hat3_beret", "Берет"], ["outfit", "trench", "price", 150, "купити за 150 💵", "", "outfit3_trench", "Тренч"], ["outfit", "burgundy", "price", 250, "купити за 250 💵", "", "outfit3_burgundy", "Бордовий костюм"], ["outfit", "sweater", "price", 200, "купити за 200 💵", "", "outfit3_sweater", "Светр"], ["outfit", "police", "ach", 0, "досягнення «Гроза мафії» (🎭 Мафія)", "mafia", "outfit3_police", "Форма комісара"], ["outfit", "dress", "price", 300, "купити за 300 💵", "", "outfit3_dress", "Сукня"], ["bg", "city", "level", 5, "рівень 5", "", "bg3_city", "Місто"], ["bg", "curtain", "price", 400, "купити за 400 💵", "", "bg3_curtain", "Завіса"], ["bg", "gold", "level", 30, "рівень 30", "", "bg3_gold", "Золото"], ["bg", "teal", "price", 150, "купити за 150 💵", "", "bg3_teal", "Смарагд"]]}}/*END*/
 </script>
 
 <script>
@@ -1061,7 +1126,7 @@ body.onb-on { overflow: hidden; }
     var o = {};
     if (typeof d.l3 === "string" && /^[0-9a-z]{1,16}$/.test(d.l3)) o.l3 = d.l3;   // персонаж v3: рядок номерів із каталогу
     ["u", "x", "g", "w", "a", "s", "e", "m", "wb", "dn", "kl", "cs", "ht", "o3"].forEach(function (k) { if (d[k] !== undefined) o[k] = N(d[k]); });
-    ["p", "i", "lk", "sp"].forEach(function (k) { if (Array.isArray(d[k])) o[k] = d[k].map(N); });
+    ["p", "i", "iu", "lk", "sp"].forEach(function (k) { if (Array.isArray(d[k])) o[k] = d[k].map(N); });
     if (Array.isArray(d.t)) o.t = d.t.map(N); else if (typeof d.t === "string") o.t = d.t;   // профіль: жетони; стіл: адреса
     if (typeof d.t2 === "string") o.t2 = d.t2;
     if (Array.isArray(d.f) && d.f.length === 2) o.f = [S(d.f[0], 30), N(d.f[1])]; else o.f = 0;
@@ -1384,6 +1449,7 @@ body.onb-on { overflow: hidden; }
                 c: [150, 55, 91, 40, 41, 11, 24, 45, [48, 22, 17, 15, 5, 13, 2, 4, 1, 9, 4, 7]], cn: "Mafia Time" },
           sp: [1460, 34, 19, 7, 4, 3, 9, 0b10101011], dn: 1,
           kl: 58, cs: 3, ht: 0, bio: "Лікую всіх, крім тих, хто голосує проти мене" };
+    D.iu = [1, 1, 0, 1];   // які предмети береш у гру (у прикладі патрон відкладено)
     if (DEMO_TAB === "spy") D.go = "spy";
     if (DEMO_TAB === "nogame" || !demoTable) delete D.gm;
     D.l3 = { face: "angular", body: "broad", skin: "warm", eyes: "m", expr: "sly", hair: "crop", hairColor: "brown", hat: "fedora", outfit: "burgundy", bg: "city" };
@@ -1422,8 +1488,11 @@ body.onb-on { overflow: hidden; }
     var o = {};
     if (typeof v === "string") L3R.fields.forEach(function (f, i) { var val = f[1][parseInt(v.charAt(i), 36)]; if (val) o[f[0]] = val; });
     else if (v && typeof v === "object") L3R.fields.forEach(function (f) { if (f[1].indexOf(v[f[0]]) >= 0) o[f[0]] = v[f[0]]; });
-    return Object.assign({}, TTChar.DEFAULT, o);
+    o = Object.assign({}, TTChar.DEFAULT, o);
+    if (o.sex !== "m" && o.sex !== "f") o.sex = o.eyes === "f" ? "f" : "m";   // образ, збережений до появи статі: як раніше, за очима
+    return o;
   }
+  var HAS_SEX = L3R.fields.some(function (f) { return f[0] === "sex"; });
   function char3(look) { return TTChar.render(look).replace("<svg ", '<svg preserveAspectRatio="xMidYMid slice" '); }
   function l3Item(field, value) { for (var i = 0; i < L3ITEMS.length; i++) if (L3ITEMS[i].field === field && L3ITEMS[i].value === value) return L3ITEMS[i]; return null; }
   function l3Open(it) { return !it || !!(((D && D.o3) || 0) >> it.i & 1); }
@@ -1495,6 +1564,7 @@ body.onb-on { overflow: hidden; }
   // Шапка вкладки — смуга міста з вежею-годинником. Небо живе з грою: уночі партії темне з вогниками, вдень тепле, поза грою — вечір.
   function skyMode() { return gameInfo.on && !gameInfo.lobby ? (gameInfo.night ? "night" : "day") : "eve"; }
   var MOON = { game: "40%", profile: "30%", wardrobe: "20%", stash: "10%" };   // місяць пливе небом від вкладки до вкладки
+  var MOON_TABLE = "33%";   // у шапці стола місяць трохи правіше: ліворуч від лічильника живих
   function townHead(title, right, tab) {
     var m = skyMode();
     return '<header class="th"><div class="sky hd-sky' + (m === "day" ? "" : " " + m) + '" style="--moon:' + MOON[tab || "game"] + '" aria-hidden="true">' + SKY_IN + citySVG() + '</div>' +
@@ -1528,15 +1598,32 @@ body.onb-on { overflow: hidden; }
     document.body.classList.toggle("nav-compact", state.tab === "game" && gameInfo.on && !gameInfo.lobby);   // у наборі меню повне: можна зазирнути в гардероб
   }
   function paneIn(el) { el.classList.remove("pane-in"); void el.offsetWidth; el.classList.add("pane-in"); }
+  var REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // У «Гри» своя шапка (стіл або «Зараз не граєш»), у решти вкладок — спільна. Щоб місяць не стрибав між ними,
+  // нова шапка починає з місця попередньої вкладки й наступним кроком пливе на своє — тим самим transition.
+  function gameSkies(from) {   // усі шапки «Гри»: поставити місяць (from — звідки пливти; без нього — на своє місце)
+    var list = gameEl.querySelectorAll(".hd-sky");
+    for (var i = 0; i < list.length; i++) list[i].style.setProperty("--moon", from || (list[i].id === "tSky" ? MOON_TABLE : MOON.game));
+  }
   function setTab(tab, first) {
     if (!navOn && tab !== "game") tab = "profile";
     if (tab === "game" && !gameCtl && !navOn) tab = "profile";
-    var changed = first || state.tab !== tab;
+    var changed = first || state.tab !== tab, prev = state.tab;
     state.tab = tab;
     var isGame = tab === "game";
+    var glide = !first && !REDUCED && prev !== tab && (prev === "game" || isGame);
+    // шапка, на яку переходимо, ще схована: стає на місце попередньої вкладки без руху
+    var tsky = document.getElementById("tSky");
+    if (glide && !isGame) appSky.style.setProperty("--moon", tsky && tsky.offsetParent !== null ? MOON_TABLE : MOON.game);
+    if (glide && isGame) gameSkies(MOON[prev] || MOON.profile);
     gameEl.hidden = !isGame; app.hidden = isGame;
+    if (glide && !isGame) void appSky.offsetWidth;                          // звідси render() нижче поведе місяць на місце вкладки
     if (gameCtl) gameCtl.setActive(isGame);
     else if (isGame) gameEl.innerHTML = noGame();
+    if (isGame) {
+      if (glide) { gameSkies(MOON[prev] || MOON.profile); void gameEl.offsetWidth; }   // шапку могли щойно намалювати наново
+      gameSkies();                                                                      // а тепер місяць пливе на місце «Гри»
+    }
     if (!isGame) {
       render();
       if (changed) window.scrollTo(0, 0);
@@ -1626,6 +1713,11 @@ body.onb-on { overflow: hidden; }
     // кімната очікування: кого бачили минулого разу, хто щойно зайшов і хто вийшов (його картка ще тане)
     var lobbyPrev = null, lobbyNew = [], lobbyGone = [], lobbyTimer = null;
     var enter = null, enterKey = null, enterTimer = null, sitId = 0;   // анімація першого входу за стіл
+    var roleCard = null, roleKey = null;                                // картка «твоя роль»: раз на гру, відкривається лише дотиком
+    // Нотатки про гравців — лише для себе: живуть у пам'яті цього пристрою (за позначкою гри), боту не надсилаються.
+    var notes = {}, notesGid = null, noteFor = 0, holdTimer = null, holdFired = false, holdAt = null;
+    var NOTE_KEY = "tt_table_notes", NOTE_KEEP = 5;
+    var NOTE_MARK = { g: ["🟢", "Вірю"], r: ["🔴", "Підозрюю"], q: ["❓", "Не знаю"] };
     var fsMode = "", fsOn = false;                                      // «на весь екран»: "tg" | "web" | немає
     var STAGE = { night: ["🌙", "Ніч"], morning: ["🌅", "Ранок"], discussion: ["☀️", "День"], vote: ["🗳", "Голосування"],
                   confirm: ["⚖️", "Фінальне рішення"], kamikaze: ["💥", "Хід Камікадзе"], finished: ["🏁", "Кінець гри"] };
@@ -1649,10 +1741,10 @@ body.onb-on { overflow: hidden; }
     // ---- каркас: блоки створюються один раз ----
     root.innerHTML =
       '<div class="t2" id="t2" hidden>' +
-        '<header class="t2-head"><div class="sky t2-sky hd-sky eve" id="tSky" aria-hidden="true">' + SKY_IN + citySVG() + '</div>' +
+        '<header class="t2-head"><div class="sky t2-sky hd-sky eve" id="tSky" style="--moon:' + MOON_TABLE + '" aria-hidden="true">' + SKY_IN + citySVG() + '</div>' +
           '<div class="t2-headin" id="tHead"></div>' +
-          // Місце під власний голос стола (LiveKit): сюди пізніше вставлять вмикач мікрофона й стан з'єднання.
-          // Зараз порожнє й не займає місця; хто може говорити, вирішує бот (seat.mic), вікно лише показує.
+          // Власний голос стола (LiveKit): кнопка входу, вмикач мікрофона, стан з'єднання — малює drawVoice().
+          // Порожнє місця не займає. seat.mic / seat.talk — це голосова гра Telegram, окрема річ.
           '<div class="t2-voice" id="tVoice"></div></header>' +
         '<section class="t2-lobby" id="tLobby" aria-label="Кімната очікування" hidden></section>' +
         '<section class="t2-seats" id="tSeats" aria-label="Гравці"></section>' +
@@ -1679,16 +1771,22 @@ body.onb-on { overflow: hidden; }
     async function call(path, extra) {
       var body = Object.assign(dk ? { dk: dk } : { init: init }, extra || {});
       // Пробуємо адресу, що працювала востаннє; не відповідає — наступну (запасну).
+      // Хід і повідомлення (once) після обриву за часом на запасну адресу не йдуть: запит міг дійти до бота,
+      // і вдруге він дав би подвійну дію. Запасна — лише коли з'єднання взагалі не встановилось.
+      var once = path === "/api/act" || path === "/api/chat";
       var r = null, lastErr = null;
-      for (var k = 0; k < apis.length && !r; k++) {
-        var ix = (apiIx + k) % apis.length;
+      async function attempt(ix) {
+        var ctl = window.AbortController ? new AbortController() : null, late = false;
+        var timer = ctl && setTimeout(function () { late = true; ctl.abort(); }, 7000);
         try {
-          var ctl = window.AbortController ? new AbortController() : null;
-          var timer = ctl && setTimeout(function () { ctl.abort(); }, 7000);
           r = await fetch(apis[ix].replace(/\/$/, "") + path, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined });
-          clearTimeout(timer);
           apiIx = ix; api = apis[ix];
-        } catch (e) { lastErr = e; }
+        } catch (e) { lastErr = e; if (late) lastErr = Object.assign(new Error("бот відповідає повільно"), { slow: true }); }
+        clearTimeout(timer);
+      }
+      for (var k = 0; k < apis.length && !r; k++) {
+        await attempt((apiIx + k) % apis.length);
+        if (!r && once && lastErr && lastErr.slow) break;
       }
       if (!r) throw lastErr || new Error("мережа");
       var j = await r.json().catch(function () { return { error: "Немає зв'язку з ботом" }; });
@@ -1700,6 +1798,7 @@ body.onb-on { overflow: hidden; }
     function take(j) {
       var prevStage = lastStage;
       S = j; lastFetch = Date.now();
+      rtcWatch();
       if (!S || !S.seats) return;
       // хто щойно вибув — коротка анімація на його картці (уночі — постріл, удень — страта)
       var aliveNow = {};
@@ -1748,7 +1847,7 @@ body.onb-on { overflow: hidden; }
     }
     // Перший вхід за стіл у цій грі — коротка анімація. Чи вже показували, пам'ятаємо за позначкою гри.
     function enterCheck() {
-      var key = String(S.gid || (S.chat || "") + "|" + new Date().toISOString().slice(0, 10));
+      var key = gameMark();
       if (key === enterKey) return;
       enterKey = key;
       var seen = false;
@@ -1761,6 +1860,93 @@ body.onb-on { overflow: hidden; }
       sitId = me.id;
       clearTimeout(enterTimer);
       enterTimer = setTimeout(function () { enter = null; drawOver(); }, 1300);
+    }
+    function gameMark() { return String(S.gid || (S.chat || "") + "|" + new Date().toISOString().slice(0, 10)); }
+    // Картка ролі: на старті партії або коли вперше за цю гру відкрив стіл. Роль — лише зі свого стану (S.role).
+    // Позначку «вже бачив» ставимо, коли гравець картку відкрив або закрив, — доти вона чекає на нього.
+    function roleCheck() {
+      if (!S.role || !S.role.alive || S.stage === "lobby" || S.stage === "finished") { roleCard = null; return; }
+      var key = gameMark();
+      if (key === roleKey) return;
+      roleKey = key;
+      var seen = false;
+      if (apis[0] === "demo") seen = !/[?&]card=/.test(location.search);
+      else try { seen = localStorage.getItem("tt_table_role") === key; } catch (e) {}
+      roleCard = seen ? null : { open: apis[0] === "demo" && /[?&]card=open/.test(location.search) };
+    }
+    function roleSeen() { if (apis[0] !== "demo") try { localStorage.setItem("tt_table_role", roleKey); } catch (e) {} }
+    function roleCardHtml() {
+      var r = S.role, open = roleCard.open, em = String(r.emoji || "🎭"), nm = String(r.title || "");
+      if (nm.indexOf(em) === 0) nm = nm.slice(em.length).trim();   // назва з бота вже з емодзі — другого не додаємо
+      var front = "";
+      if (open) {   // лице картки з'являється у сторінці лише після дотику
+        var mates = (r.mates || []).map(function (m) { return '<span>' + escT(m.title) + ': <b>' + escT(m.name) + '</b></span>'; }).join("");
+        front = '<span class="rc-front"><i aria-hidden="true">' + escT(em) + '</i><span class="k">Твоя роль</span><b>' + escT(nm) + '</b>' +
+          (r.desc ? '<span class="d">' + escT(r.desc) + '</span>' : "") +
+          (mates ? '<span class="m"><span class="mh">🤝 Ви знаєте одне одного</span>' + mates + '</span>' : "") + '</span>';
+      }
+      return '<div class="t2-modal rc" role="dialog" aria-label="Твоя роль">' +
+        '<button class="rc-card' + (open ? " open" : "") + (reduced ? " still" : "") + '" id="rcCard" aria-label="' + (open ? "Твоя роль: " + escT(nm) + ". Натисни, щоб закрити" : "Натисни, щоб відкрити свою роль") + '">' +
+        '<span class="rc-in"><span class="rc-back"><i aria-hidden="true">🎭</i><b>Твоя роль</b><small>Натисни, щоб відкрити</small><small class="s2">Глянь так, щоб ніхто не підгледів</small></span>' + front + '</span></button>' +
+        (open ? '<button class="btn primary rc-ok" id="rcOk">Зрозуміло</button>' : '<button class="linkbtn" id="rcOk">Гляну потім у вкладці «Роль»</button>') + '</div>';
+    }
+    // ---- нотатки про гравців ----
+    function notesClean(raw) {
+      var out = {};
+      if (raw && typeof raw === "object") Object.keys(raw).forEach(function (id) {
+        var v = raw[id], o = {};
+        if (!/^-?\d{1,20}$/.test(id) || !v || typeof v !== "object") return;
+        if (NOTE_MARK.hasOwnProperty(v.m)) o.m = v.m;
+        if (typeof v.r === "string" && R.roles.hasOwnProperty(v.r)) o.r = v.r;
+        if (o.m || o.r) out[id] = o;
+      });
+      return out;
+    }
+    function notesRead() { var all = JSON.parse(localStorage.getItem(NOTE_KEY) || "{}"); return all && typeof all === "object" && !Array.isArray(all) ? all : {}; }
+    function notesLoad() {
+      var gid = String(S.gid || "");
+      if (gid === notesGid) return;
+      notesGid = gid; notes = {}; noteFor = 0;   // нова партія — чисті нотатки
+      if (!gid) return;
+      try { var all = notesRead(); if (all[gid]) notes = notesClean(all[gid].n); } catch (e) {}
+    }
+    function notesSave() {   // сховище недоступне (буває в Telegram) — нотатки просто живуть до закриття вікна
+      if (!notesGid) return;
+      try {
+        var all = notesRead();
+        if (Object.keys(notes).length) all[notesGid] = { t: Date.now(), n: notes }; else delete all[notesGid];
+        Object.keys(all).sort(function (a, b) { return ((all[b] || {}).t || 0) - ((all[a] || {}).t || 0); }).slice(NOTE_KEEP).forEach(function (k) { delete all[k]; });
+        localStorage.setItem(NOTE_KEY, JSON.stringify(all));
+      } catch (e) {}
+    }
+    function noteBadge(id) {
+      var nt = notes[id];
+      if (!nt) return "";
+      var role = nt.r && R.roles[nt.r];
+      return '<span class="nt" title="Твоя нотатка: ' + (nt.m ? NOTE_MARK[nt.m][1].toLowerCase() : "") + (role ? (nt.m ? ", " : "") + "каже, що " + escT(role[1]) : "") + '">' + (nt.m ? NOTE_MARK[nt.m][0] : "") + (role ? escT(role[0]) : "") + '</span>';
+    }
+    function noteOpen(id) {
+      var st = S && S.seats && seatById(id);
+      if (!st || st.me || S.stage === "lobby" || S.stage === "finished") return;
+      noteFor = id; buzz("event"); drawOver();
+    }
+    function noteSet(kind, val) {
+      var nt = Object.assign({}, notes[noteFor]);
+      if (kind === "clear") nt = {};
+      else if (nt[kind] === val) delete nt[kind]; else nt[kind] = val;   // повторний дотик знімає позначку
+      if (nt.m || nt.r) notes[noteFor] = nt; else delete notes[noteFor];
+      notes = notesClean(notes);
+      notesSave(); draw();
+    }
+    function noteHtml() {
+      var st = seatById(noteFor), nt = notes[noteFor] || {};
+      return '<div class="t2-modal" id="ntModal" role="dialog" aria-label="Нотатка про гравця"><div class="t2-mcard nt-card">' +
+        '<div class="k">📝 Нотатка для себе</div><div class="q">№' + st.n + ' <b>' + escT(st.name) + '</b></div>' +
+        '<div class="nt-marks">' + Object.keys(NOTE_MARK).map(function (k) { return '<button class="nt-b' + (nt.m === k ? " on" : "") + '" data-ntm="' + k + '" aria-pressed="' + (nt.m === k) + '">' + "<span>" + NOTE_MARK[k][0] + "</span>" + NOTE_MARK[k][1] + '</button>'; }).join("") + '</div>' +
+        '<div class="nt-h">Каже, що…</div>' +
+        '<div class="nt-roles">' + ROLE_KEYS.map(function (k) { return '<button class="nt-r' + (nt.r === k ? " on" : "") + '" data-ntr="' + escT(k) + '" aria-pressed="' + (nt.r === k) + '">' + escT(R.roles[k][0] + " " + R.roles[k][1]) + '</button>'; }).join("") + '</div>' +
+        '<div class="t2-sub2">Нотатки бачиш лише ти: вони лишаються на цьому пристрої й на гру не впливають.</div>' +
+        '<div class="nt-foot"><button class="linkbtn" id="ntClear"' + (nt.m || nt.r ? "" : " hidden") + '>Зняти позначку</button><span></span><button class="btn primary" id="ntClose">Готово</button></div></div></div>';
     }
     // Кнопка «на весь екран»: у Telegram 8.0+ — його повний екран, у звичайному браузері — браузерний. Інакше кнопки немає.
     function fsSetup() {
@@ -1822,26 +2008,37 @@ body.onb-on { overflow: hidden; }
       finally { inFlight = false; }
       draw();
     }
+    // Бот не встиг відповісти за 7 с: хід чи повідомлення, найпевніше, дійшли. Не лякаємо «немає зв'язку», а питаємо стан.
+    var SLOW = "Бот відповідає повільно, перевіряю…";
     async function act(extra) {
       busy = true;
+      var slow = false;
       try {
         var j = await call("/api/act", extra);
         var err = j.error;
         take(j);
         if (err) toast(err); else { toast("✓ Готово"); pick = null; }
-      } catch (e) { toast("Немає зв'язку з ботом"); }
-      busy = false; draw();
+      } catch (e) { slow = !!(e && e.slow); toast(slow ? SLOW : "Немає зв'язку з ботом"); }
+      busy = false;
+      if (slow) return refresh();
+      draw();
     }
     async function sendChat() {
       var text = el.tMsg.value.trim();
       if (!text || sending) return;
       sending = true;
+      var slow = false, before = lastN(S && S.chatLog);
       try {
         var j = await call("/api/chat", { text: text });
         var err = j.error;
         if (j.seats) take(j);
         if (err) toast(err); else { el.tMsg.value = ""; firstFeed = true; }
-      } catch (e) { toast("Немає зв'язку з ботом"); }
+      } catch (e) { slow = !!(e && e.slow); toast(slow ? SLOW : "Немає зв'язку з ботом"); }
+      if (slow) {   // якщо повідомлення вже на столі — поле чистимо, щоб його не надіслали вдруге
+        await refresh();
+        var flat = text.replace(/\s+/g, " "), me = (S && S.seats || []).filter(function (x) { return x.me; })[0];
+        if (me && (S.chatLog || []).some(function (m) { return m.n > before && m.id === me.id && m.t === flat; }) && el.tMsg.value.trim() === text) { el.tMsg.value = ""; firstFeed = true; }
+      }
       sending = false; draw();
     }
     function seatById(id) { return (S.seats || []).filter(function (x) { return x.id === id; })[0]; }
@@ -1912,6 +2109,8 @@ body.onb-on { overflow: hidden; }
       el.t2.hidden = false;
       var night = S.stage === "night", fin = S.stage === "finished", lobby = S.stage === "lobby";
       if (!fin) enterCheck();
+      roleCheck();
+      notesLoad();
       el.t2.classList.toggle("lobby", lobby);   // набір: замість гравців, стрічки й нижньої панелі — кімната очікування
       el.tLobby.hidden = !lobby;
       document.body.classList.toggle("night", night);
@@ -1920,9 +2119,10 @@ body.onb-on { overflow: hidden; }
       el.tSky.classList.toggle("night", night);
       el.tSky.classList.toggle("eve", lobby || fin);   // набір і кінець гри — вечір, як поза грою
       var meSeat = S.seats.filter(function (x) { return x.me; })[0] || {};
-      var fem = meSeat.look3 && HAS3 ? l3look(meSeat.look3).eyes === "f" : !!(meSeat.look && meSeat.look[4] === "body_f");
+      var fem = meSeat.look3 && HAS3 ? l3look(meSeat.look3).sex === "f" : !!(meSeat.look && meSeat.look[4] === "body_f");
       var A = S.act, targets = targetsNow();
       drawHead(fin);
+      drawVoice();
       if (lobby) drawLobby();
       else {
         drawSeats(targets, fin);
@@ -1934,6 +2134,7 @@ body.onb-on { overflow: hidden; }
         if (mine) mine.classList.add("in", "sit");
         sitId = 0;
       }
+      rtcMark();
       drawOver();
       fitSeats();
       tick();
@@ -1993,6 +2194,9 @@ body.onb-on { overflow: hidden; }
       if (wide) { box.style.removeProperty("--seats-max"); fitGrid(box, S.seats.length, box.clientWidth - pd.x, box.clientHeight - pd.y, true); return; }
       if (document.body.classList.contains("kb")) return;   // відкрита клавіатура: картки не перебудовуємо
       var maxH = Math.floor(el.t2.clientHeight * .45);      // на телефоні гравцям — не більше 45% висоти, решта стрічці
+      // низький екран (або Telegram показує не все вікно): картки поступаються, щоб стрічка (щонайменше 130) і нижня панель влізли
+      var room = el.t2.clientHeight - el.tSky.parentElement.offsetHeight - document.getElementById("tBar").offsetHeight - 131;
+      maxH = Math.max(120, Math.min(maxH, room));
       box.style.setProperty("--seats-max", maxH + "px");
       fitGrid(box, S.seats.length, box.clientWidth - pd.x, maxH - pd.y, false);
     }
@@ -2059,7 +2263,7 @@ body.onb-on { overflow: hidden; }
           '<span class="num">' + st.n + '</span>' + (st.id === S.host ? '<span class="crown" aria-hidden="true">👑</span>' : "") +
           (st.mic === undefined || !st.alive ? "" : '<span class="mic' + (st.mic ? " on" : "") + '" title="' + (st.mic ? "Може говорити" : "Мікрофон вимкнено") + '">' + (st.mic ? MIC_ON : MIC_OFF) + '</span>') +
           (st.talk ? '<span class="say" aria-hidden="true"><i></i><i></i><i></i></span>' : "") +
-          (tally[st.id] ? '<span class="votes">' + tally[st.id] + '</span>' : "") +
+          (tally[st.id] ? '<span class="votes">' + tally[st.id] + '</span>' : "") + noteBadge(st.id) +
           '<span class="nm">' + escT(st.name) + '</span>' + sub + '</button>';
       });
       put("tSeats", h + '</div>');
@@ -2154,12 +2358,12 @@ body.onb-on { overflow: hidden; }
     }
     function rolePanel(fem) {
       if (!S.role) return hint("Ти спостерігаєш за грою.");
-      var h = '<div class="t2-role"><div><div class="k">Твоя роль</div><div class="v">' + (peek ? escT(S.role.emoji + " " + S.role.title) : "• • • • • •") +
+      var h = '<div class="t2-role"><div><div class="k">Твоя роль</div><div class="v">' + (peek ? escT(S.role.title) : "• • • • • •") +
         (S.role.alive ? "" : fem ? " · вибула" : " · вибув") + '</div></div>' +
         '<button class="peek" id="peek" aria-label="Утримуй, щоб побачити свою роль">' + (peek ? "👁 Видно" : "Утримуй, щоб глянути") + '</button></div>';
       var known = S.seats.filter(function (x) { return x.known; });
       if (known.length) h += '<div class="t2-known">' + known.map(function (x) { return '<span>№' + x.n + ' ' + escT(x.name) + ': <b>' + escT(x.known) + '</b></span>'; }).join("") + '</div>';
-      return h + '<div class="t2-sub2">Роль і перевірки бачиш лише ти. Кнопки в боті теж працюють.</div>';
+      return h + '<div class="t2-sub2">Роль і перевірки бачиш лише ти. Кнопки в боті теж працюють.<br>📝 Торкнись гравця (у свій хід — утримуй), щоб лишити собі нотатку про нього.</div>';
     }
     function finPanel(fem) {
       return '<div class="t2-fin"><div class="result">' + escT(S.result || "Гру завершено") + '</div>' +
@@ -2170,6 +2374,8 @@ body.onb-on { overflow: hidden; }
     function drawOver() {
       if (!S || !S.seats) return put("tOver", "");
       if (enter) return put("tOver", enter);
+      if (roleCard && S.role && S.role.alive) return put("tOver", roleCardHtml());
+      if (noteFor && seatById(noteFor) && S.stage !== "finished") return put("tOver", noteHtml());
       if (splash && !reduced) {
         var sp = splash;
         return put("tOver", '<button class="t2-splash' + (sp.night ? " night" : "") + (sp.small ? " small" : "") + '" id="splash" aria-label="Закрити заставку">' +
@@ -2195,6 +2401,287 @@ body.onb-on { overflow: hidden; }
       }
       put("tOver", "");
     }
+    // ---- голос у столі (LiveKit) ----
+    // Гравець сам тисне «Увійти в голос»: лише тоді вантажимо бібліотеку, беремо в бота пропуск (/api/voice)
+    // і просимо мікрофон. Кого пускати, вирішує бот. У Discord цього немає — там рідний голосовий канал.
+    var RTC_LIB = "https://cdn.jsdelivr.net/npm/livekit-client@2.24.1/dist/livekit-client.umd.js";   // версію не міняти без нового підпису нижче
+    var RTC_SRI = "sha384-GpoGEkJlx2sLomFuCCD/fOOaQojhrcwfW03ncXAYsWGWrC3G72awbt2c21WDrOvH";
+    var rtcDemo = apis[0] === "demo";
+    // state: off — не в голосі; joining — заходимо; on — у кімнаті; lost — сам відновити не зміг; moved — голос забрало інше вікно
+    var V = { state: "off", mic: false, noMic: false, room: null, mt: null, gid: "", gen: 0, tries: 0, note: "", busy: false, fixing: false,
+              sound: true, n: 0, speakers: {}, wake: null, box: null, lib: null, bc: null, demoTimer: null, demoSet: false,
+              win: Math.random().toString(36).slice(2) };
+    function rtcCan() { return !dk && !!(S && S.seats && S.rtc && S.stage !== "finished"); }
+    function rtcLib() {
+      if (window.LivekitClient) return Promise.resolve(window.LivekitClient);
+      if (!V.lib) V.lib = new Promise(function (ok, fail) {
+        var sc = document.createElement("script");
+        sc.src = RTC_LIB; sc.integrity = RTC_SRI; sc.crossOrigin = "anonymous";
+        sc.onload = function () { if (window.LivekitClient) ok(window.LivekitClient); else { V.lib = null; fail(new Error("lib")); } };
+        sc.onerror = function () { V.lib = null; sc.remove(); fail(new Error("lib")); };
+        document.head.appendChild(sc);
+      });
+      return V.lib;
+    }
+    function rtcSay(text) { var e = new Error(text); e.say = text; return e; }
+    // «Не гасити екран», поки ти в голосі. Система сама знімає це, коли вікно згорнуте, — після повернення беремо знову.
+    async function rtcWake(on) {
+      try {
+        if (!on) { var old = V.wake; V.wake = null; if (old) await old.release(); return; }
+        if (V.wake || document.hidden || !navigator.wakeLock) return;
+        var lock = await navigator.wakeLock.request("screen");
+        if (V.state !== "on") { lock.release(); return; }
+        V.wake = lock;
+        lock.addEventListener("release", function () { if (V.wake === lock) V.wake = null; });
+      } catch (e) {}
+    }
+    // Одне вікно: те, що заходить у голос, каже про це іншим вікнам на цьому пристрої — вони голос відпускають.
+    // (З іншого пристрою те саме зробить сервер: другий вхід того ж гравця від'єднує перший.)
+    function rtcClaim() {
+      try { if (V.bc) V.bc.postMessage({ take: V.win }); } catch (e) {}
+      try { localStorage.setItem("tt_voice_win", V.win + "|" + Date.now()); } catch (e) {}
+    }
+    function rtcTaken(win) {
+      if (!win || win === V.win || V.state === "off" || V.state === "moved") return;
+      rtcDrop("moved"); toast("🎧 Голос перейшов в інше вікно");
+    }
+    try {
+      if (window.BroadcastChannel) { V.bc = new BroadcastChannel("tt_voice"); V.bc.onmessage = function (ev) { rtcTaken(ev.data && ev.data.take); }; }
+    } catch (e) {}
+    window.addEventListener("storage", function (ev) { if (ev.key === "tt_voice_win" && ev.newValue) rtcTaken(ev.newValue.split("|")[0]); });
+    function rtcBox() {
+      if (!V.box) { V.box = document.createElement("div"); V.box.hidden = true; document.body.appendChild(V.box); }
+      return V.box;
+    }
+    function rtcClose(room) {
+      try { var q = room && room.disconnect(); if (q && q.catch) q.catch(function () {}); } catch (e) {}
+    }
+    // Вийти з кімнати й прибрати все за собою; next — у якому стані лишитись.
+    function rtcDrop(next) {
+      V.gen++;
+      var room = V.room; V.room = null; V.mt = null;
+      rtcClose(room);
+      if (V.box) V.box.innerHTML = "";
+      clearInterval(V.demoTimer);
+      V.state = next || "off"; V.mic = false; V.noMic = false; V.busy = false; V.fixing = false; V.note = ""; V.speakers = {}; V.n = 0; V.sound = true;
+      rtcWake(false);
+      rtcMark(); drawVoice();
+    }
+    function rtcCount() { var room = V.room; V.n = room && room.remoteParticipants ? room.remoteParticipants.size + 1 : 0; drawVoice(); }
+    async function rtcConnect(my) {
+      var LK;
+      try { LK = await rtcLib(); } catch (e) { throw rtcSay("Не вдалося завантажити голос — перевір інтернет і спробуй ще раз"); }
+      var j = await call("/api/voice");
+      if (my !== V.gen) return false;
+      if (!j || !j.token || !j.url) throw rtcSay((j && j.error) || "Бот не дав пропуск у голос");
+      var room = new LK.Room({ adaptiveStream: false, dynacast: false, audioCaptureDefaults: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      var E = LK.RoomEvent, joined = false;
+      function mine() { return V.room === room; }
+      room.on(E.TrackSubscribed, function (track) { if (mine() && track.kind === "audio") rtcBox().appendChild(track.attach()); });
+      room.on(E.TrackUnsubscribed, function (track) { try { track.detach().forEach(function (a) { a.remove(); }); } catch (e) {} });
+      room.on(E.ActiveSpeakersChanged, function (list) {   // sub у пропуску — id гравця, він же id місця за столом
+        if (!mine()) return;
+        var m = {}; (list || []).forEach(function (who) { m[who.identity] = true; });
+        V.speakers = m; rtcMark();
+      });
+      room.on(E.ParticipantConnected, function () { if (mine()) rtcCount(); });
+      room.on(E.ParticipantDisconnected, function () { if (mine()) rtcCount(); });
+      room.on(E.AudioPlaybackStatusChanged, function () { if (mine()) { V.sound = !!room.canPlaybackAudio; drawVoice(); } });
+      room.on(E.Reconnecting, function () { if (mine()) { V.note = "Відновлюю зв’язок…"; drawVoice(); } });
+      room.on(E.Reconnected, function () { if (mine()) { V.note = ""; drawVoice(); } });
+      room.on(E.Disconnected, function (reason) {
+        if (!mine() || !joined) return;
+        if (LK.DisconnectReason && reason === LK.DisconnectReason.DUPLICATE_IDENTITY) { rtcDrop("moved"); toast("🎧 Голос перейшов в інше вікно"); return; }
+        V.room = null; V.mt = null; V.speakers = {}; rtcMark();
+        if (!document.hidden) rtcRecover(false);   // згорнуте вікно відновимо, коли гравець повернеться
+      });
+      V.room = room;
+      try { await room.connect(j.url, j.token); }
+      catch (e) { if (mine()) V.room = null; rtcClose(room); throw e; }
+      if (my !== V.gen || !mine()) { rtcClose(room); return false; }
+      joined = true;
+      V.sound = !!room.canPlaybackAudio;
+      rtcCount();
+      return true;
+    }
+    function rtcMicTrack(room) {
+      try {
+        var pub = room.localParticipant.getTrackPublication(window.LivekitClient.Track.Source.Microphone);
+        return pub && pub.track ? pub.track.mediaStreamTrack : null;
+      } catch (e) { return null; }
+    }
+    // Увімкнути чи вимкнути мікрофон у кімнаті. Перше ввімкнення питає дозвіл у Telegram.
+    async function rtcMic(on) {
+      var room = V.room;
+      if (!room) return false;
+      try {
+        await room.localParticipant.setMicrophoneEnabled(on);
+        if (on) {
+          V.noMic = false;
+          var mt = rtcMicTrack(room);
+          if (mt && mt !== V.mt) {   // система забрала мікрофон — помітимо й спробуємо взяти знову
+            V.mt = mt;
+            mt.addEventListener("ended", function () { setTimeout(function () { if (V.mt === mt && !document.hidden) rtcCheck(false); }, 1500); });
+          }
+        }
+        return true;
+      } catch (e) { if (on) V.noMic = true; return false; }
+    }
+    async function rtcJoin() {
+      if (V.state === "joining" || !rtcCan()) return;
+      rtcDrop("joining");
+      var my = V.gen;
+      V.gid = S.gid || ""; V.tries = 0;
+      rtcClaim();
+      if (rtcDemo) return rtcDemoJoin(my);
+      try {
+        if (!(await rtcConnect(my))) return;
+        await rtcMic(true);                      // дозвіл беремо одразу, але починаємо мовчки: говорити — вмикачем
+        if (my !== V.gen) return;
+        if (!V.noMic) await rtcMic(false);
+        if (my !== V.gen) return;
+        V.state = "on"; V.mic = false;
+        rtcWake(true);
+        toast(V.noMic ? "Мікрофон не дали — поки що лише слухаєш" : "🎧 Ти в голосі. Натисни 🎙, щоб говорити");
+      } catch (e) {
+        if (my !== V.gen) return;
+        rtcDrop("off");
+        toast((e && e.say) || "Не вдалося увійти в голос. Спробуй ще раз");
+      }
+      drawVoice();
+    }
+    async function rtcToggle() {
+      if (V.state !== "on" || V.busy || V.fixing) return;
+      var want = !V.mic, my = V.gen;
+      if (rtcDemo) { V.mic = want; buzz("event"); return drawVoice(); }
+      V.busy = true; drawVoice();
+      var ok = await rtcMic(want);
+      if (my !== V.gen) return;
+      V.busy = false;
+      if (ok) { V.mic = want; buzz("event"); }
+      else toast(want ? "Немає доступу до мікрофона. Дозволь його Telegram у налаштуваннях і натисни ще раз" : "Не вдалося вимкнути мікрофон");
+      drawVoice();
+    }
+    function rtcSound() {
+      var room = V.room;
+      if (!room) return;
+      try { room.startAudio().then(function () { V.sound = !!room.canPlaybackAudio; drawVoice(); }, function () {}); } catch (e) {}
+    }
+    // "" — усе гаразд; "room" — кімната відпала; "mic" — мікрофон забрала система (strict: і «призупинений» теж)
+    function rtcHealth(strict) {
+      var room = V.room;
+      if (!room || room.state === "disconnected") return "room";
+      if (V.noMic) return "";
+      var mt = rtcMicTrack(room);
+      return !mt || mt.readyState === "ended" || (strict && V.mic && mt.muted) ? "mic" : "";
+    }
+    function rtcCheck(strict) {
+      if (rtcDemo || V.state !== "on" || V.fixing || V.busy) return;
+      if (rtcHealth(strict)) rtcRecover(strict);
+    }
+    // Автовідновлення: до трьох спроб перепідключитись і знову взяти мікрофон; не вийшло — велика кнопка.
+    async function rtcRecover(strict) {
+      if (V.fixing || V.state !== "on") return;
+      V.fixing = true;
+      var my = V.gen, want = V.mic;
+      while (V.tries < 3 && rtcHealth(strict)) {
+        V.tries++; V.note = "Відновлюю голос…"; drawVoice();
+        try {
+          if (rtcHealth(false) === "room") {
+            var old = V.room; V.room = null; V.mt = null; rtcClose(old);
+            if (V.box) V.box.innerHTML = "";
+            if (!(await rtcConnect(my))) return;
+          } else {
+            var lp = V.room.localParticipant, pub = lp.getTrackPublication(window.LivekitClient.Track.Source.Microphone);
+            if (pub && pub.track) await lp.unpublishTrack(pub.track, true);
+          }
+          if (my !== V.gen) return;
+          await rtcMic(true);
+          if (my !== V.gen) return;
+          if (!want && !V.noMic) await rtcMic(false);
+        } catch (e) {}
+        if (my !== V.gen) return;
+        strict = false;
+        if (rtcHealth(false)) await new Promise(function (r) { setTimeout(r, rtcHealth(false) === "room" ? 3200 : 800 * V.tries); });   // новий пропуск бот дає не частіше ніж раз на 3 с
+        if (my !== V.gen) return;
+      }
+      V.fixing = false; V.note = "";
+      if (rtcHealth(false)) { rtcDrop("lost"); toast("Голос перервався. Натисни «Увімкнути мікрофон»"); return; }
+      V.tries = 0; V.mic = want && !V.noMic;
+      rtcWake(true);
+      drawVoice();
+    }
+    // Гравець повернувся у вікно: будимо звук, екран і перевіряємо мікрофон (iOS може забрати його у фоні).
+    function rtcBack() {
+      if (document.hidden || V.state !== "on" || rtcDemo) return;
+      V.tries = 0;
+      rtcWake(true);
+      rtcSound();
+      setTimeout(function () { if (!document.hidden) rtcCheck(true); }, 600);
+    }
+    setInterval(function () { if (!document.hidden) rtcCheck(false); }, 5000);
+    // Новий стан від бота: партія скінчилась — виходимо з голосу; почалась нова — переходимо в її кімнату.
+    function rtcWatch() {
+      if (rtcDemo && S && S.rtcDemo && !V.demoSet) {   // перегляд без бота: одразу показати потрібний стан (&rtc=on|lost|moved)
+        V.demoSet = true;
+        if (S.rtcDemo === "on") { V.state = "on"; V.mic = true; rtcDemoTalk(); }
+        else if (S.rtcDemo === "lost" || S.rtcDemo === "moved") V.state = S.rtcDemo;
+      }
+      if (V.state === "off" || !S) return;
+      if (S.none || (S.seats && !S.rtc)) {
+        var was = V.state;
+        rtcDrop("off");
+        if (was === "on" || was === "joining") toast("Партія скінчилась — голос вимкнено");
+        return;
+      }
+      if (S.seats && S.gid && V.gid && S.gid !== V.gid && V.state === "on") rtcJoin();
+    }
+    // Кільце на картці того, хто говорить. Класи ставимо прямо на картки: стіл через це не перемальовується.
+    function rtcMark() {
+      [el.tSeats, el.tLobby].forEach(function (box) {
+        var list = box.querySelectorAll("[data-seat]");
+        for (var i = 0; i < list.length; i++) list[i].classList.toggle("rtalk", !!V.speakers[list[i].dataset.seat]);
+      });
+    }
+    function drawVoice() {
+      if (V.state === "off" && !rtcCan()) return put("tVoice", "");
+      var h;
+      if (V.state === "joining") h = '<span class="rv-note">🎧 Заходжу в голос…</span>';
+      else if (V.state === "lost") h = '<button class="btn primary rv-big" id="rvFix">🎙 Увімкнути мікрофон</button>';
+      else if (V.state === "moved") h = '<span class="rv-note">🎧 Голос перейшов в інше вікно</span><button class="btn" id="rvBack">Повернути сюди</button>';
+      else if (V.state === "on") {
+        h = '<button class="rv-mic' + (V.mic ? " on" : "") + '" id="rvMic" aria-pressed="' + V.mic + '"' + (V.busy || V.fixing ? " disabled" : "") + '>' +
+          (V.noMic ? "🎙 Дозволити мікрофон" : V.mic ? "🎙 Говориш" : "🔇 Мікрофон вимкнено") + '</button>' +
+          (V.sound ? "" : '<button class="btn primary" id="rvSound">🔊 Увімкнути звук</button>') +
+          '<span class="rv-note">' + (V.note ? escT(V.note) : V.n > 1 ? "У голосі " + V.n : V.n === 1 ? "Поки ти тут сам" : "") + '</span>' +
+          '<button class="rv-x" id="rvLeave" aria-label="Вийти з голосу">Вийти</button>';
+      } else h = '<button class="btn" id="rvJoin">🎧 Увійти в голос</button><span class="rv-note">Говори просто за столом</span>';
+      put("tVoice", '<div class="rv">' + h + '</div>');
+    }
+    // Перегляд без бота (&rtc=1): з'єднання немає, лише вигляд — вхід, вмикач і кільце мовця по черзі.
+    function rtcDemoTalk() {
+      var k = 0;
+      function step() {
+        var seats = (S && S.seats) || [], others = seats.filter(function (x) { return x.alive !== false && !x.me; }), m = {};
+        if (others.length) m[others[k % others.length].id] = true;
+        var me = seats.filter(function (x) { return x.me; })[0];
+        if (V.mic && me && k % 2 === 0) m[me.id] = true;
+        V.speakers = m; V.n = seats.filter(function (x) { return x.alive !== false; }).length; k++;
+        rtcMark(); drawVoice();
+      }
+      clearInterval(V.demoTimer);
+      V.demoTimer = setInterval(step, 1600);
+      step();
+    }
+    function rtcDemoJoin(my) {
+      setTimeout(function () {
+        if (my !== V.gen) return;
+        V.state = "on"; V.mic = false;
+        toast("🎧 Ти в голосі. Натисни 🎙, щоб говорити");
+        rtcDemoTalk();
+      }, 700);
+    }
+
     // Роль видно, лише поки тримаєш кнопку (щоб сусід не підгледів).
     function setPeek(v) { if (peek === v) return; peek = v; if (v) buzz("event"); draw(); }
     root.addEventListener("pointerdown", function (ev) { if (ev.target.closest("#peek")) { ev.preventDefault(); setPeek(true); } });
@@ -2208,8 +2695,36 @@ body.onb-on { overflow: hidden; }
     el.tMsg.addEventListener("focus", function () { clearTimeout(kbTimer); document.body.classList.add("kb"); });
     el.tMsg.addEventListener("blur", function () { clearTimeout(kbTimer); kbTimer = setTimeout(function () { document.body.classList.remove("kb"); }, 300); });
     document.getElementById("tSend").addEventListener("pointerdown", function (ev) { ev.preventDefault(); });   // «Надіслати» не забирає фокус у поля
+    // Нотатка — окремий жест: утримати картку гравця (або права кнопка миші). Звичайний дотик у свій хід обирає ціль, як і раніше.
+    function holdStop() { clearTimeout(holdTimer); holdTimer = null; }
+    root.addEventListener("pointerdown", function (ev) {
+      var b = ev.target.closest && ev.target.closest("#tSeats [data-seat]");
+      holdStop(); holdFired = false;
+      if (!b || (ev.button !== undefined && ev.button > 0)) return;
+      var id = +b.dataset.seat;
+      holdAt = [ev.clientX, ev.clientY];
+      holdTimer = setTimeout(function () { holdTimer = null; holdFired = true; noteOpen(id); setTimeout(function () { holdFired = false; }, 1200); }, 480);
+    });
+    root.addEventListener("pointermove", function (ev) { if (holdTimer && holdAt && Math.abs(ev.clientX - holdAt[0]) + Math.abs(ev.clientY - holdAt[1]) > 12) holdStop(); });
+    window.addEventListener("pointerup", holdStop);
+    window.addEventListener("pointercancel", holdStop);
+    root.addEventListener("contextmenu", function (ev) {
+      var b = ev.target.closest && ev.target.closest("#tSeats [data-seat]");
+      if (!b) return;
+      ev.preventDefault(); holdStop(); noteOpen(+b.dataset.seat);
+    });
     root.addEventListener("click", function (ev) {
+      if (S && noteFor && ev.target.id === "ntModal") { noteFor = 0; return drawOver(); }   // дотик повз картку нотатки — закрити
       var b = ev.target.closest("button"); if (!b || !S) return;
+      if (b.id === "rcCard" && roleCard) {
+        if (roleCard.open) roleCard = null; else { roleCard.open = true; buzz("turn"); }
+        roleSeen(); return drawOver();
+      }
+      if (b.id === "rcOk") { roleCard = null; roleSeen(); return drawOver(); }
+      if (b.dataset.ntm) return noteSet("m", b.dataset.ntm);
+      if (b.dataset.ntr) return noteSet("r", b.dataset.ntr);
+      if (b.id === "ntClear") return noteSet("clear");
+      if (b.id === "ntClose") { noteFor = 0; return drawOver(); }
       if (b.id === "netCheck") { var u = api.replace(/\/$/, "") + "/health"; try { tgw && tgw.openLink ? tgw.openLink(u) : window.open(u, "_blank"); } catch (e) { window.open(u, "_blank"); } return; }
       if (b.id === "vcGo") {
         var chatType = tgw && tgw.initDataUnsafe && tgw.initDataUnsafe.chat_type;
@@ -2222,6 +2737,10 @@ body.onb-on { overflow: hidden; }
         } catch (e) { toast("Відкрий групу й торкнись смужки голосового чату вгорі"); }
         return;
       }
+      if (b.id === "rvJoin" || b.id === "rvFix" || b.id === "rvBack") return rtcJoin();
+      if (b.id === "rvMic") return rtcToggle();
+      if (b.id === "rvLeave") { rtcDrop("off"); return toast("Ти більше не в голосі"); }
+      if (b.id === "rvSound") { rtcSound(); return; }
       if (b.id === "tFs") return fsToggle();
       if (b.id === "splash") { splash = null; clearTimeout(splashTimer); return drawOver(); }
       if (b.id === "hideConfirm") { confirmHidden = true; return drawOver(); }
@@ -2230,16 +2749,17 @@ body.onb-on { overflow: hidden; }
       if (b.id === "tSend") return;   // надсилає форма
       var A = S.act;
       if (b.dataset.confirm) { if (A && A.kind === "confirm") act({ kind: "confirm", yes: b.dataset.confirm === "1" }); return; }
-      if (!A) return;
       if (b.dataset.seat) {
         var id = +b.dataset.seat;
-        if (targetsNow().indexOf(id) >= 0) {
+        if (holdFired) { holdFired = false; return; }   // це кінець утримання: нотатку вже відкрито, хід не робимо
+        if (A && targetsNow().indexOf(id) >= 0) {
           pick = id; panel = A.kind === "night" ? "act" : "vote";
           try { tgw && tgw.HapticFeedback && tgw.HapticFeedback.selectionChanged(); } catch (e) {}
           draw();
-        }
+        } else noteOpen(id);   // гравця зараз обрати не можна — дотик відкриває нотатку
         return;
       }
+      if (!A) return;
       if (b.dataset.mode) { mode = b.dataset.mode; pick = null; return draw(); }
       if (b.id === "doAct" && pick) return act({ kind: "night", action: mode, target: pick });
       if (b.id === "doSkip") return act({ kind: "night", action: "skip", target: 0 });
@@ -2263,7 +2783,8 @@ body.onb-on { overflow: hidden; }
         if (my === pollGen) pollTimer = setTimeout(loop, pollDelay());
       })();
     }
-    document.addEventListener("visibilitychange", function () { if (!document.hidden) startPoll(); });
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) { startPoll(); rtcBack(); } });
+    try { if (tgw && tgw.onEvent) tgw.onEvent("activated", rtcBack); } catch (e) {}
     // Стіл — це вкладка «Гра»: коли гравець в іншій вкладці, опитування триває, але екран не малюється.
     function setActive(v) {
       active = v;
@@ -2571,12 +3092,15 @@ body.onb-on { overflow: hidden; }
     if (!canEdit) { ok = false; if (own && fromSpy) btn = "Зберегти можна у вікні бота Mafia Time"; }
     var hero = '<div class="hero plain">' + charCard3(draft, wide ? (window.innerWidth >= 1500 ? 280 : 236) : 150) +
       '<h1>' + (own ? "Твій персонаж" : "Персонаж") + '</h1><div class="cap">' + esc(cap) + '</div></div>';
-    var note = '<div class="note">Обличчя, тіло, шкіра, очі, зачіска й вираз — безкоштовні. Капелюхи, одяг і тло купуються за спільні 💵 або відкриваються рівнем і досягненнями з Мафії та Шпигуна.</div>';
+    var sexRow = !HAS_SEX ? "" : '<div class="sexrow" role="group" aria-label="Стать"><span class="cap">Стать</span>' + [["m", "👨 Чоловік"], ["f", "👩 Жінка"]].map(function (x) {
+      return '<button class="chip' + (draft.sex === x[0] ? " on" : "") + '" data-l3sex="' + x[0] + '" aria-pressed="' + (draft.sex === x[0]) + '">' + x[1] + '</button>';
+    }).join("") + '</div>';
+    var note = '<div class="note">Стать, обличчя, тіло, шкіра, очі, зачіска й вираз — безкоштовні. Капелюхи, одяг і тло купуються за спільні 💵 або відкриваються рівнем і досягненнями з Мафії та Шпигуна.</div>';
     var h;
     // На ПК усі розділи видно одразу (як і було в гардеробі), на телефоні — по одному, за чіпами.
     // На ПК розділи стоять поруч (сіткою колонок), щоб короткі розділи на 2–3 варіанти не лишали порожнечі праворуч.
-    if (wide) h = '<div class="l3cols">' + L3_ORDER.map(function (f) { return '<div class="section"><div class="label">' + esc(TTChar.CATALOG[f].label) + '</div>' + section(f) + '</div>'; }).join("") + '</div>' + note;
-    else h = '<div class="chips slots" role="tablist">' + L3_ORDER.map(function (f) {
+    if (wide) h = sexRow + '<div class="l3cols">' + L3_ORDER.map(function (f) { return '<div class="section"><div class="label">' + esc(TTChar.CATALOG[f].label) + '</div>' + section(f) + '</div>'; }).join("") + '</div>' + note;
+    else h = sexRow + '<div class="chips slots" role="tablist">' + L3_ORDER.map(function (f) {
         return '<button class="chip' + (cat === f ? " on" : "") + '" role="tab" aria-selected="' + (cat === f) + '" data-l3cat="' + f + '">' + esc(TTChar.CATALOG[f].label) + '</button>';
       }).join("") + '</div><div class="section" style="padding-top:14px">' + section(cat) + note + '</div>';
     var bottom = !own ? "" : '<div class="bottom"><button class="btn primary" id="l3apply" data-action="' + action + '" data-key="' + (lk ? esc(lk.key) : "") + '"' + (ok ? "" : " disabled") + ' style="width:100%;min-height:50px">' + esc(btn) + '</button>' +
@@ -2664,9 +3188,17 @@ body.onb-on { overflow: hidden; }
     if (D.m === undefined) return h + '<div class="lock-note" style="margin-top:16px">' + ICON_LOCK + '<div>Баланс і предмети видно, коли відкриваєш вікно з особистих з ботом: /profile.</div></div>';
     var bal = '<div class="card balance"><div class="cap">На рахунку</div>' +
       '<b>' + num(D.m) + ' 💵</b><div class="sub">Гроші спільні для Мафії й Шпигуна: заробляєш в одній грі — витрачаєш в іншій.</div></div>';
+    var canShop = own && !fromSpy && (demo || WAPI.length > 0);
     var items = '<div class="label big mt">Предмети</div><div class="sitems">' +
-      R.items.map(function (it, i) { var c = (D.i || [])[i] || 0; return '<div class="sitem' + (c ? "" : " empty") + '"><span class="e" aria-hidden="true">' + it[1] + '</span><div class="t"><div class="n">' + esc(it[2]) + '</div>' + (it[3] ? '<div class="d">' + esc(it[3]) + '</div>' : "") + '</div><b>×' + num(c) + '</b></div>'; }).join("") +
-      '</div><div class="note">Купити предмети: <b>/shop</b> у боті Мафії. Узяти їх на гру чи відкласти: <b>/inventory</b>. Склад бачиш лише ти.</div>';
+      R.items.map(function (it, i) {
+        var c = (D.i || [])[i] || 0, price = +it[4] || 0, on = !D.iu || D.iu[i] !== 0;
+        // купити й «брати в гру» — прямо тут, якщо вікно знає адресу бота; інакше — командами в боті, як раніше
+        var buy = !canShop || !price ? "" : '<div class="sbuy"><button class="btn" data-buy="' + esc(it[0]) + '" aria-label="Купити ' + esc(it[2]) + ' за ' + price + '">Купити · ' + num(price) + ' 💵</button>' +
+          '<button class="suse" data-use="' + esc(it[0]) + '" role="switch" aria-checked="' + on + '"><span>Брати в гру</span><span class="sw' + (on ? " on" : "") + '"></span></button></div>';
+        return '<div class="sitem' + (c ? "" : " empty") + '"><span class="e" aria-hidden="true">' + it[1] + '</span><div class="t"><div class="n">' + esc(it[2]) + '</div>' + (it[3] ? '<div class="d">' + esc(it[3]) + '</div>' : "") + buy + '</div><b>×' + num(c) + '</b></div>';
+      }).join("") +
+      '</div><div class="note">' + (canShop ? "Предмети спрацьовують самі й згорають, лише коли знадобились. Куплене чи перемкнене під час гри подіє з наступної. Склад бачиш лише ти." :
+        "Купити предмети: <b>/shop</b> у боті Мафії. Узяти їх на гру чи відкласти: <b>/inventory</b>. Склад бачиш лише ти.") + '</div>';
     var sup = '<div class="card support" style="margin-top:12px"><div class="label">Підтримка міста</div>' +
       '<div class="sub">' + (D.dn ? "💎 Дякуємо, ти — Меценат Time Town! Значок видно у твоєму профілі." : "Time Town росте завдяки гравцям. Підтримай місто зірками Telegram — і отримай значок «Меценат» у профілі.") + '</div>' +
       (own && !fromSpy && D.b ? '<button class="btn primary" data-donate="1" style="margin-top:12px;width:100%;min-height:48px">💎 Підтримати Time Town</button>' :
@@ -2687,13 +3219,17 @@ body.onb-on { overflow: hidden; }
   }
   async function botCall(path, body) {
     var payload = JSON.stringify(Object.assign({ init: (tg && tg.initData) || "" }, body));
-    for (var i = 0; i < WAPI.length; i++) {
+    // Покупка й «брати в гру» — лише на першу адресу: якщо відповідь загубилась, бот міг уже списати гроші,
+    // і повтор на запасній адресі купив би вдруге (а вмикач перемкнувся б назад).
+    var money = path === "/api/shop" || path === "/api/use";
+    for (var i = 0; i < (money ? Math.min(1, WAPI.length) : WAPI.length); i++) {
       try {
         var r = await fetch(WAPI[i].replace(/\/$/, "") + path, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: payload });
         if (r.status === 401) return { ok: false, text: "Відкрий профіль кнопкою з бота" };
         return await r.json();
       } catch (e) { /* пробуємо запасну адресу */ }
     }
+    if (money) return { ok: false, text: "Немає зв'язку з ботом. Перевір склад: покупка могла пройти." };
     return null;
   }
   function applyLook(lk) {
@@ -2773,7 +3309,42 @@ body.onb-on { overflow: hidden; }
       botCall("/api/me", body).then(meDone);
       return;
     }
+    if ((el.dataset.buy || el.dataset.use) && own && !wBusy) {   // склад: купити предмет або перемкнути «брати в гру»
+      var isBuy = !!el.dataset.buy, sKey = el.dataset.buy || el.dataset.use, sIx = -1;
+      R.items.forEach(function (it, i) { if (it[0] === sKey) sIx = i; });
+      if (sIx < 0) return;
+      function shopDone(res) {
+        wBusy = false;
+        if (!res) { render(); return showToast("Немає зв’язку з ботом"); }
+        if (res.m !== undefined) D.m = +res.m || 0;                                   // новий баланс одразу
+        if (Array.isArray(res.i)) D.i = res.i.map(function (v) { return +v || 0; });
+        if (Array.isArray(res.iu)) D.iu = res.iu.map(function (v) { return +v || 0; });
+        if (res.ok) { try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred("success"); } catch (e) {} }
+        render(); showToast(res.text || (res.ok ? "Готово" : "Не вийшло"));
+      }
+      if (demo) {   // без бота: показуємо лише, як це виглядатиме
+        var di = (D.i || [0, 0, 0, 0]).slice(), du = (D.iu || [1, 1, 1, 1]).slice(), dp = +R.items[sIx][4] || 0;
+        if (!isBuy) { du[sIx] = du[sIx] ? 0 : 1; return shopDone({ ok: true, m: D.m, i: di, iu: du, text: "Демо: перемкнуто лише на цьому екрані" }); }
+        if ((D.m || 0) < dp) return shopDone({ ok: false, m: D.m, i: di, iu: du, text: "Не вистачає грошей: " + R.items[sIx][2] + " коштує " + dp + " 💵" });
+        di[sIx] = (di[sIx] || 0) + 1;
+        return shopDone({ ok: true, m: D.m - dp, i: di, iu: du, text: "Демо: куплено лише на цьому екрані" });
+      }
+      if (!WAPI.length) return showToast("Немає зв’язку з ботом. Відкрий профіль кнопкою в особистих з ботом.");
+      wBusy = true; el.disabled = true;   // другий клік, поки бот відповідає, нічого не купить
+      botCall(isBuy ? "/api/shop" : "/api/use", { key: sKey }).then(shopDone);
+      return;
+    }
     if (el.dataset.l3cat) { state.l3cat = el.dataset.l3cat; haptic(); return render(); }
+    if (el.dataset.l3sex && LOOK3) {   // стать: міняє очі й типові зачіску та статуру; одяг, капелюх, тло й усе обране інше лишається
+      var cur3 = state.l3 || LOOK3, sx = el.dataset.l3sex === "f" ? "f" : "m";
+      if (cur3.sex !== sx) {
+        var nx = Object.assign({}, cur3, { sex: sx, eyes: sx });
+        var swap = sx === "f" ? { hair: ["crop", "long"], body: ["broad", "slim"] } : { hair: ["long", "crop"], body: ["slim", "broad"] };
+        Object.keys(swap).forEach(function (f) { if (nx[f] === swap[f][0]) nx[f] = swap[f][1]; });
+        state.l3 = l3look(nx);
+      }
+      haptic(); return render();
+    }
     if (el.dataset.l3f && LOOK3) {   // приміряти: значення береться лише з каталогу
       var d3 = {}; d3[el.dataset.l3f] = el.dataset.l3v;
       state.l3 = l3look(Object.assign({}, state.l3 || LOOK3, d3));
