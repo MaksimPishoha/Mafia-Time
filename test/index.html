@@ -1674,7 +1674,9 @@ body.onb-on { overflow: hidden; }
   // Профіль з бота: коли вікно відкрили кнопкою стола, даних у посиланні немає.
   var profAt = 0, profBusy = false, profErr = "", profRaw = "";
   async function loadProfile() {
-    if (!gameCtl || demo || DK || fromLink || profBusy || Date.now() - profAt < 60000) return;
+    // Свій профіль, відкритий з посилання в групі (там балансу й складу немає — їх бачать інші), довантажуємо в бота:
+    // він віддає дані лише за підписом Telegram і лише власнику. Чужий профіль з посилання — як є.
+    if (!gameCtl || demo || DK || (fromLink && !own) || profBusy || Date.now() - profAt < 60000) return;
     profBusy = true;
     try {
       var j = await gameCtl.call("/api/profile");
@@ -3185,7 +3187,9 @@ body.onb-on { overflow: hidden; }
   // ---------- склад: баланс, предмети, підтримка ----------
   function stashTab() {
     var h = topBar("Склад") + demoNote("Це приклад складу: справжні гроші й предмети покаже бот.");
-    if (D.m === undefined) return h + '<div class="lock-note" style="margin-top:16px">' + ICON_LOCK + '<div>Баланс і предмети видно, коли відкриваєш вікно з особистих з ботом: /profile.</div></div>';
+    if (D.m === undefined) return h + '<div class="lock-note" style="margin-top:16px">' + ICON_LOCK + '<div>' +
+      (own && gameCtl ? (profErr ? esc(profErr) : "Завантажую твій баланс і склад…") :
+        "Баланс і предмети видно лише власнику: відкрий свій профіль з бота (/profile).") + '</div></div>';
     var bal = '<div class="card balance"><div class="cap">На рахунку</div>' +
       '<b>' + num(D.m) + ' 💵</b><div class="sub">Гроші спільні для Мафії й Шпигуна: заробляєш в одній грі — витрачаєш в іншій.</div></div>';
     var canShop = own && !fromSpy && (demo || WAPI.length > 0);
