@@ -1216,6 +1216,22 @@ body.onb-on { overflow: hidden; }
 
   function pick(map, key, def) { return Object.prototype.hasOwnProperty.call(map, key) ? key : def; }
 
+  // жіночий силует: м'які дуги грудей з тінню під ними; поверх одягу (як складки тканини), у межах тіла
+  function bust(b) {
+    var y = b.ny - 6, c = id("b"), s = "", side;
+    for (side = -1; side <= 1; side += 2) {
+      var cx = 100 + side * 21, o = cx + side * 21, n = cx - side * 17;
+      // тінь під грудьми — серпик під нижньою дугою
+      s += F("M" + n + " " + (y + 21) + "Q" + cx + " " + (y + 38) + " " + (o - side * 2) + " " + (y + 17) + "Q" + cx + " " + (y + 45) + " " + n + " " + (y + 28) + "Z", "#000", 0.32);
+      // відблиск зверху
+      s += '<g opacity="0.2">' + F("M" + (cx - side * 12) + " " + (y + 14) + "Q" + cx + " " + (y + 4) + " " + (cx + side * 12) + " " + (y + 12) + "Q" + cx + " " + (y + 11) + " " + (cx - side * 12) + " " + (y + 14) + "Z", "#FFFFFF") + "</g>";
+      // контур: нижня дуга й бік
+      s += L("M" + n + " " + (y + 21) + "Q" + (cx - side * 1) + " " + (y + 38) + " " + (o - side * 2) + " " + (y + 17), 3.2) +
+        L("M" + (o - side * 2) + " " + (y + 17) + "Q" + (o + side * 1) + " " + (y + 9) + " " + (o - side * 4) + " " + (y + 3), 2.6);
+    }
+    return '<clipPath id="' + c + '"><path d="' + b.d + '"/></clipPath><g clip-path="url(#' + c + ')">' + s + "</g>";
+  }
+
   function render(look) {
     look = look || {};
     var o = {};
@@ -1238,7 +1254,8 @@ body.onb-on { overflow: hidden; }
       '<clipPath id="' + hc2 + '"><path d="' + headD + '"/></clipPath>' +
       '<g clip-path="url(#' + hc2 + ')">' + F("M148 40C160 80 156 122 118 152H200V40Z", sk[1], 0.55) + "</g>";   // тінь праворуч
     var neck = P(b.neck, sk[0]) + F("M" + (b.nl) + " 128L100 147L" + (b.nr) + " 128V140L100 155L" + (b.nl) + " 140Z", sk[1], 0.8);
-    var body = P(b.d, fit.coat) + fit.draw(b, sk);
+    var fem = look.sex === "f" || (look.sex !== "m" && o.eyes === "f");   // стать; старий образ без статі — за очима
+    var body = P(b.d, fit.coat) + fit.draw(b, sk) + (fem ? bust(b) : "");
     var bd = BEARD[o.beard];
     if (bd.under) head += '<g clip-path="url(#' + hc2 + ')">' + bd.under(hc) + "</g>" + (bd.edge ? L(headD) : "");   // борода — в межах обличчя, контур голови поверх
     var parts = EXPR[o.expr].draw(o.eyes === "f").split("SKIN").join(sk[0]).split("SHADE").join(sk[1]).split("LIP").join(LIP[o.skin]).split("MOUTH");
