@@ -2460,7 +2460,7 @@ body.onb-on { overflow: hidden; }
     }
     function drawSeats(targets, fin) {
       var tally = {};
-      if (S.votes) Object.keys(S.votes).forEach(function (k) { var t = S.votes[k]; if (t) tally[t] = (tally[t] || 0) + 1; });
+      if (S.votes) Object.keys(S.votes).forEach(function (k) { var t = S.votes[k]; if (t) tally[t] = (tally[t] || 0) + ((S.vw && S.vw[k]) || 1); });
       var h = '<div class="t2-grid">';
       S.seats.forEach(function (st) {
         var can = targets.indexOf(st.id) >= 0;
